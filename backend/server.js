@@ -8,11 +8,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+//root route
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
+
+// Load dog routes
 const dogRoutes = require("./routes/dogs");
-app.use("/api/dogs", dogRoutes);
+app.use("/api/dogs", dogRoutes); 
 
 
 
+//!
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

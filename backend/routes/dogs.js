@@ -2,9 +2,11 @@
 const express = require("express");
 const router = express.Router();
 
-// Example GET route
+// GET /api/dogs
 router.get("/", (req, res) => {
   res.json({ message: "🐶 Dogs endpoint reached!" });
 });
+
+
 
 module.exports = router;
