@@ -1,4 +1,8 @@
+// Purpose: User controller to handle user-related requests
+//It handles incoming HTTP requests and uses the model layer to fetch or manipulate data.
+
 const User = require("../models/userModel");
+
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
 
