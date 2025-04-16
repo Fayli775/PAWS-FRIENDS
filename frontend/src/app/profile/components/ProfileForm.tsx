@@ -1,27 +1,51 @@
 'use client'
-import React from 'react'
 
-import { Box, Button, TextField, Typography } from '@mui/material'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Snackbar,
+  Alert,
+} from '@mui/material'
 
 export default function ProfileForm() {
   const [formData, setFormData] = useState({
-    email: 'jenny@example.com',
-    nick_name: 'JennyZ',
-    passwd: '',
-    bio: '',
+    email: 'jenny@example.com',      // 只读
+    nick_name: 'JennyZ',             // 可编辑
+    passwd: '',                      // 新密码
+    bio: '',                         // 个人简介
+    logo: '',                        // 头像 base64
   })
 
+  const [openSnackbar, setOpenSnackbar] = useState(false)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
   }
 
   const handleSave = () => {
-    console.log('Saving profile:', formData)
+    console.log('✅ Saving user data:', formData)
+
+    // 模拟“发送到后端”
+    setTimeout(() => {
+      setOpenSnackbar(true)
+    }, 500)
   }
 
   const handleCancel = () => {
-    // 可重置为初始数据
+    setFormData({
+      email: 'jenny@example.com',
+      nick_name: 'JennyZ',
+      passwd: '',
+      bio: '',
+      logo: '',
+    })
   }
 
   return (
@@ -30,13 +54,12 @@ export default function ProfileForm() {
         Profile
       </Typography>
 
-      <TextField
-        label="Email"
-        name="email"
-        value={formData.email}
-        InputProps={{ readOnly: true }}
-        fullWidth
-      />
+      <Box>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Email
+        </Typography>
+        <Typography variant="body1">{formData.email}</Typography>
+      </Box>
       <TextField
         label="Nickname"
         name="nick_name"
@@ -72,6 +95,18 @@ export default function ProfileForm() {
         </Button>
         <Button onClick={handleCancel}>Cancel</Button>
       </Box>
+
+      {/* 成功提示（模拟） */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled">
+          Profile saved successfully (mock)
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
