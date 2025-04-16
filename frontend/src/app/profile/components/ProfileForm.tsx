@@ -12,27 +12,51 @@ import {
 
 export default function ProfileForm() {
   const [formData, setFormData] = useState({
-    email: 'jenny@example.com',      // 只读
-    nick_name: 'JennyZ',             // 可编辑
-    passwd: '',                      // 新密码
-    bio: '',                         // 个人简介
-    logo: '',                        // 头像 base64
+    email: 'jenny@example.com',
+    nick_name: '',
+    passwd: '',
+    bio: '',
+    logo: '',
+  })
+
+  const [errors, setErrors] = useState({
+    nick_name: '',
+    passwd: '',
+    bio: '',
   })
 
   const [openSnackbar, setOpenSnackbar] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    setErrors((prev) => ({ ...prev, [name]: '' })) // 清除当前字段错误提示
+  }
+
+  const validate = () => {
+    const newErrors: any = {}
+
+    if (!formData.nick_name.trim()) {
+      newErrors.nick_name = 'Nickname is required'
+    }
+
+    if (formData.passwd && formData.passwd.length < 6) {
+      newErrors.passwd = 'Password must be at least 6 characters'
+    }
+
+    if (formData.bio.length > 200) {
+      newErrors.bio = 'Bio cannot exceed 200 characters'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSave = () => {
+    if (!validate()) return
+
     console.log('✅ Saving user data:', formData)
 
-    // 模拟“发送到后端”
     setTimeout(() => {
       setOpenSnackbar(true)
     }, 500)
@@ -41,11 +65,12 @@ export default function ProfileForm() {
   const handleCancel = () => {
     setFormData({
       email: 'jenny@example.com',
-      nick_name: 'JennyZ',
+      nick_name: '',
       passwd: '',
       bio: '',
       logo: '',
     })
+    setErrors({ nick_name: '', passwd: '', bio: '' })
   }
 
   return (
@@ -54,17 +79,21 @@ export default function ProfileForm() {
         Profile
       </Typography>
 
+      {/* Email 显示 */}
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Email
+          Email
         </Typography>
         <Typography variant="body1">{formData.email}</Typography>
       </Box>
+
       <TextField
         label="Nickname"
         name="nick_name"
         value={formData.nick_name}
         onChange={handleChange}
+        error={!!errors.nick_name}
+        helperText={errors.nick_name}
         fullWidth
       />
       <TextField
@@ -73,6 +102,8 @@ export default function ProfileForm() {
         type="password"
         value={formData.passwd}
         onChange={handleChange}
+        error={!!errors.passwd}
+        helperText={errors.passwd}
         fullWidth
       />
       <TextField
@@ -82,6 +113,8 @@ export default function ProfileForm() {
         rows={3}
         value={formData.bio}
         onChange={handleChange}
+        error={!!errors.bio}
+        helperText={errors.bio}
         fullWidth
       />
 
@@ -96,7 +129,6 @@ export default function ProfileForm() {
         <Button onClick={handleCancel}>Cancel</Button>
       </Box>
 
-      {/* 成功提示（模拟） */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
