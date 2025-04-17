@@ -1,0 +1,52 @@
+openapi: 3.0.0
+info:
+  title: Paw's Friend API
+  version: 1.0.0
+paths:
+  /api/sitters:
+    get:
+      summary: Get a list of pet sitters
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: petType
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of pet sitters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PetSitter'
+components:
+  schemas:
+    PetSitter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        petTypes:
+          type: array
+          items:
+            type: string
+        rate:
+          type: number
+        imageUrl:
+          type: string 

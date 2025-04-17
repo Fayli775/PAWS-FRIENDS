@@ -28,3 +28,5 @@ async function initDB() {
 }
 
 initDB();
+//The script initDB.js automates the process of running the schema and seed files to initialize the database.
+// It reads the SQL files, splits them into individual statements, and executes each statement sequentially.
