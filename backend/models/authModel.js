@@ -1,15 +1,20 @@
 const db = require("../config/db.js");
 
-exports.findUserByUsername = async (username) => {
-  const [rows] = await db.query("SELECT * FROM user_info WHERE username = ?", [username]);
+exports.findUserByEmail = async (email) => {
+  const [rows] = await db.query("SELECT * FROM user_info WHERE email = ?", [
+    email,
+  ]);
   return rows[0];
 };
 
 exports.createUser = async (userData) => {
-  const { username, email, password, bio, region } = userData;
+  const { user_name, email, password, bio, region, avatar } = userData;
   const [result] = await db.query(
-    "INSERT INTO user_info (username, email, password, bio, region) VALUES (?, ?, ?, ?, ?)",
-    [username, email, password, bio, region]
+    "INSERT INTO user_info (user_name, email, password, bio, region, avatar) VALUES (?, ?, ?, ?, ?, ?)",
+    [user_name, email, password, bio, region, avatar]
   );
-  return result.insertId;
+  
+  return result.insertId; 
 };
+
+

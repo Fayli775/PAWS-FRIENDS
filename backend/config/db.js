@@ -8,4 +8,18 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
 });
 // The pool object is exported for use in other parts of the application.
+const testConnection = async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log("Database connected successfully!");
+    connection.release();  // 释放连接回池中
+  } catch (error) {
+    console.error("Database connection error:", error);
+  }
+};
+
+// 在应用启动时测试数据库连接
+testConnection();
+
+
 module.exports = pool;
