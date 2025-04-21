@@ -78,8 +78,7 @@ export default function Home() {
           alignItems: 'center', // Center horizontally
           justifyContent: 'center', // Center vertically
           py: 8, // Padding top and bottom
-          // Add a background image - replace with a real URL or local image
-          backgroundImage: 'url(https://source.unsplash.com/random/1600x900?pets)', // Random image from Unsplash
+          backgroundImage: 'url("/home_bg.png")', 
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
