@@ -70,6 +70,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearchResults }) => {
         backgroundImage: 'url("/home_bg.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        flexBasis: '890px'
       }}
     >
       <Container maxWidth="md" sx={{ backgroundColor: 'rgba(255, 249, 235, 0.85)', p: 4, borderRadius: 2, textAlign: 'center' }}>
