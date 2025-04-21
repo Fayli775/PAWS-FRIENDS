@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid'; // For layout
 import Header from '@/components/Header'; // Import the header
+import { useRouter } from 'next/navigation';
 
 // Placeholder for API call result
 interface PetSitter {
@@ -23,6 +24,7 @@ interface PetSitter {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [petType, setPetType] = useState('');
@@ -34,29 +36,14 @@ export default function Home() {
   const petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Any'];
 
   // Function to handle search
-  const handleSearch = async () => {
-    setLoading(true);
-    setSearchResults([]); // Clear previous results
-    const queryParams = new URLSearchParams();
-    if (keyword) queryParams.append('keyword', keyword);
-    if (location) queryParams.append('location', location);
-    if (petType && petType !== 'Any') queryParams.append('petType', petType);
-
-    try {
-        const response = await fetch(`/api/sitters?${queryParams.toString()}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data: PetSitter[] = await response.json();
-        setSearchResults(data);
-        console.log('Search Results:', data);
-    } catch (error) {
-        console.error("Failed to fetch sitters:", error);
-        // Handle error state in UI if needed
-    } finally {
-        setLoading(false);
-    }
-  };
+  const handleSearch = () => {
+    const query = new URLSearchParams()
+    if (keyword) query.append('keyword', keyword)
+    if (location) query.append('location', location)
+    if (petType && petType !== 'Any') query.append('petType', petType)
+  
+    router.push(`/search?${query.toString()}`)
+  }
 
   // Basic effect to test MSW on initial load (optional)
   useEffect(() => {
