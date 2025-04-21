@@ -1,62 +1,216 @@
-'use client';
-import React from 'react';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Header from '@/components/Header';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+"use client";
+import React, { useState } from "react";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import Header from "@/components/Header";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import AvatarUpload from "@/components/AvatarUpload";
+import LocationSelect from "@/components/LocationSelect";
+import Link from "next/link";
 
-// Simple registration form example
 export default function RegisterPage() {
-    return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
-            <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom align="center">
-                    Register
-                </Typography>
-                <Box component="form" noValidate sx={{ mt: 1 }}>
-                    {/* Add fields like First Name, Last Name if needed */}
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        autoComplete="email"
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="new-password"
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="confirmPassword"
-                        label="Confirm Password"
-                        type="password"
-                        id="confirmPassword"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Register
-                    </Button>
-                     {/* Add link to login page if needed */}
-                </Box>
-            </Container>
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [location, setLocation] = useState<string>("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [isEmailChecking, setIsEmailChecking] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isPasswordMatch, setIsPasswordMatch] = useState(false);
+  const [biography, setBiography] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // check if email is unique
+  const handleEmailChange = async (value: string) => {
+    setEmail(value);
+
+    if (!value.trim()) {
+      setIsEmailValid(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/check-email?email=${value}`);
+      if (!response.ok) {
+        throw new Error("Failed to check email");
+      }
+      const data = await response.json();
+      setIsEmailValid(data.isUnique);
+    } catch (error) {
+      console.error("Error checking email:", error);
+      setIsEmailValid(false); 
+    }
+  };
+
+  // check if password and confirm password are the same
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setIsPasswordMatch(value === confirmPassword);
+  };
+
+  const handleConfirmPasswordChange = (value: string) => {
+    setConfirmPassword(value);
+    setIsPasswordMatch(value === password);
+  };
+
+  // handle form submission
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // check if all fields are filled
+    if (!email.trim() || !username.trim() || !password.trim() || !confirmPassword.trim() || !location.trim()) {
+      alert("Registration failed. Please fill in all required fields.");
+      return;
+    }
+
+    // check if email is valid
+    if (!isEmailValid) {
+      alert("Registration failed. Email is already taken.");
+      return;
+    }
+
+    // check if password and confirm password are the same
+    if (!isPasswordMatch) {
+      alert("Registration failed. Passwords do not match.");
+      return;
+    }
+
+    const userData = {
+      email,
+      username,
+      password,
+      biography,
+      location,
+      avatar,
+    };
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to register user");
+      }
+
+      alert("Registration successfully! Redirecting to Log in page…");
+
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header />
+      <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Register
+        </Typography>
+        <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => handleEmailChange(e.target.value)}
+            error={!isEmailValid && email.trim() !== ""}
+            helperText={
+              !isEmailValid && email.trim() !== ""
+                ? "Email is already taken. Please choose another."
+                : ""
+            }
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
+            name="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => handlePasswordChange(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+            error={!isPasswordMatch && confirmPassword.trim() !== ""}
+            helperText={
+              !isPasswordMatch && confirmPassword.trim() !== ""
+                ? "Passwords do not match. Please try again."
+                : ""
+            }
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            name="Biography"
+            label="Biography"
+            type="text"
+            id="biography"
+            value={biography}
+            onChange={(e) => setBiography(e.target.value)}
+          />
+          <LocationSelect
+            value={location}
+            onChange={(e) => setLocation(e.target.value as string)}
+          />
+          <AvatarUpload avatar={avatar} setAvatar={setAvatar} />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }}
+          >
+            {isSubmitting ? "Registering..." : "Register"}
+          </Button>
+          <Typography variant="body2" align="center">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
+              Log In
+            </Link>
+          </Typography>
         </Box>
-    );
-} 
+      </Container>
+    </Box>
+  );
+}
