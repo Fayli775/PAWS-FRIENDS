@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import StoreProvider from "@/store/StoreProvider";
 import useMockServiceWorker from "@/mocks/useMockServiceWorker";
+import MockWrapper from "@/components/MockWrapper"; // ✅ 新增
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={inter.className}>
         <StoreProvider>
-          <ThemeRegistry>{children}</ThemeRegistry>
+          <ThemeRegistry><MockWrapper>{children}</MockWrapper></ThemeRegistry>
         </StoreProvider>
       </body>
     </html>
