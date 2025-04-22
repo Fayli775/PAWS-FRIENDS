@@ -26,7 +26,7 @@ const navItems = [
 
 export default function Header() {
   return (
-    <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: 'background.default' }}>
+    <AppBar position="static" color="transparent" elevation={0} sx={{  backgroundColor: '#fff8e9' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <PawIcon sx={{ mr: 1 }} />
