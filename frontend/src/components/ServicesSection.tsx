@@ -53,6 +53,7 @@ const ServiceCard = styled(Card)(({ theme }) => ({
   textAlign: 'center',
   padding: theme.spacing(3),
   transition: 'transform 0.2s ease-in-out',
+  backgroundColor: '#fffffa',
   '&:hover': {
     transform: 'translateY(-8px)',
     boxShadow: theme.shadows[4],
@@ -60,8 +61,6 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 }));
 
 const IconWrapper = styled(Box)(({ theme }) => ({
-  width: '80px',
-  height: '80px',
   marginBottom: theme.spacing(2),
   '& img': {
     width: '100%',
@@ -76,7 +75,7 @@ const ServicesSection: React.FC = () => {
       component="section"
       sx={{
         py: 8,
-        backgroundColor: 'background.default',
+        backgroundColor: '#fafafa',
       }}
     >
       <Container maxWidth="lg">
