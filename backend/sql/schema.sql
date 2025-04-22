@@ -2,7 +2,16 @@
 
 CREATE DATABASE IF NOT EXISTS pet_service_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pet_service_app;
+
+-- Drop tables in reverse order of dependency
+DROP TABLE IF EXISTS reviews; -- Depends on locations and user_info
+DROP TABLE IF EXISTS locations; -- Depends on user_info
+DROP TABLE IF EXISTS pet_info; -- Depends on user_info
+DROP TABLE IF EXISTS booking_status_log; -- Depends on booking (Implied, good practice)
+DROP TABLE IF EXISTS booking; -- Depends on user_info (Implied by owner_id, sitter_id)
+-- User table is last
 DROP TABLE IF EXISTS user_info;
+
 CREATE TABLE user_info (
   id BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'User ID, primary key',
   email VARCHAR(64) NOT NULL COMMENT 'User email, used for login',
@@ -46,7 +55,6 @@ CREATE TABLE IF NOT EXISTS booking_status_log (
 
 
 -- pet info
-DROP TABLE IF EXISTS pet_info;
 CREATE TABLE pet_info (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary key: pet ID',
     owner_id BIGINT NOT NULL COMMENT 'Foreign key: references user_info(id)',
@@ -67,6 +75,35 @@ CREATE TABLE pet_info (
     FOREIGN KEY (owner_id) REFERENCES user_info(id) ON DELETE CASCADE,
     KEY idx_owner_id (owner_id) COMMENT 'Index on owner_id'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet profile information table';
+
+
+CREATE TABLE locations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL, -- e.g., 'Park', 'Cafe', 'Beach', 'Trail'
+    latitude DECIMAL(10, 8) NOT NULL, -- Precision for typical GPS coordinates
+    longitude DECIMAL(11, 8) NOT NULL, -- Precision for typical GPS coordinates
+    description TEXT,
+    address VARCHAR(255),
+    image_url VARCHAR(2048), -- Optional URL for a picture
+    added_by_user_id BIGINT(20), -- Changed from INT UNSIGNED to BIGINT(20)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (added_by_user_id) REFERENCES user_info(id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE reviews (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    location_id INT UNSIGNED NOT NULL,
+    user_id BIGINT(20) NOT NULL,
+    rating TINYINT UNSIGNED NOT NULL CHECK (rating >= 1 AND rating <= 5), -- Assuming 1-5 star rating
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE, -- Delete reviews if location is deleted
+    FOREIGN KEY (user_id) REFERENCES user_info(id) ON DELETE CASCADE, -- Delete reviews if user is deleted
+    UNIQUE KEY unique_review (location_id, user_id) -- Allow only one review per user per location
+);
 
 
 

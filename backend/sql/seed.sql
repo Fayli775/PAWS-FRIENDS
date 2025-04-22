@@ -1,4 +1,3 @@
-
 INSERT INTO user_info (
   email, password, bio, region, user_name, status, avatar,
   phone_number, emergency_contact
@@ -79,4 +78,20 @@ INSERT INTO pet_info (
     'Dr. Robert Park', '021-4445555',
     'Jennifer Kim', '022-6667777',
     'Beef', 'Heart medication daily', 'Needs quiet environment');
+
+-- ============================================================
+--   Seed Data: locations
+-- ============================================================
+INSERT INTO locations (name, type, latitude, longitude, description, address, image_url, added_by_user_id) VALUES
+('Cornwall Park', 'Park', -36.8848, 174.7762, 'Great open spaces for dogs to exercise, leash-free areas available.', 'Green Lane West, Epsom, Auckland 1051', '/images/locations/cornwall-park.jpg', 1), -- Added by Alice (user_id 1)
+('Devonport Beach', 'Beach', -36.8310, 174.7980, 'Popular spot for dog walks, check local council rules for times.', 'King Edward Parade, Devonport, Auckland 0624', '/images/locations/devonport-beach.jpg', 3), -- Added by Carol (user_id 3)
+('Meola Reef Dog Park', 'Park', -36.8645, 174.7194, 'Large fully-fenced off-leash dog park with agility equipment.', '171R Meola Road, Point Chevalier, Auckland 1022', '/images/locations/meola-reef.jpg', NULL); -- Added by system/admin (NULL user_id)
+
+-- ============================================================
+--   Seed Data: reviews
+-- ============================================================
+-- Assuming the locations above got IDs 1, 2, 3 respectively
+INSERT INTO reviews (location_id, user_id, rating, comment) VALUES
+(1, 3, 5, 'Absolutely fantastic park! Huge area for dogs to run off-leash. Very clean and well-maintained.'), -- Review for Cornwall Park (location_id 1) by Carol (user_id 3)
+(2, 1, 4, 'Lovely beach for a walk, but can get busy. Make sure to check the dog access times.'); -- Review for Devonport Beach (location_id 2) by Alice (user_id 1)
 
