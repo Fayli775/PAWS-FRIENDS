@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Header from '@/components/Header';
 import SearchSection from '@/components/SearchSection';
 import ServicesSection from '@/components/ServicesSection';
+import EventsCarousel from '@/components/EventsCarousel';
 import { Box, Stack } from '@mui/material';
 
 // Types
@@ -31,6 +32,9 @@ export default function Home() {
 
         {/* Services Section */}
         <ServicesSection />
+
+        {/* Events Section */}
+        <EventsCarousel />
 
         {/* Display Search Results */}
         {searchResults.length > 0 && (
