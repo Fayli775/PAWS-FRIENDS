@@ -44,7 +44,7 @@ exports.checkEmailExists = async (req, res) => {
 
   try {
     const existing = await auth.findUserByEmail(email);
-    res.status(200).json({ exists: !!existing }); // true if exists
+    res.status(200).json({ isUnique: !existing }); // true if exists
   } catch (err) {
     console.error("Error in checkEmailExists:", err);
     res.status(500).json({ message: "Internal server error" });

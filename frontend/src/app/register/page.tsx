@@ -33,7 +33,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`/api/auch/checkEmail?email=${value}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/checkEmail?email=${value}`);
       if (!response.ok) {
         throw new Error("Failed to check email");
       }
@@ -97,7 +97,7 @@ export default function RegisterPage() {
 
     try {
       setIsSubmitting(true);
-      const response = await fetch("/api/auch/register", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         body: formData, // 使用 FormData
       });
