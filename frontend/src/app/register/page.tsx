@@ -33,7 +33,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`/api/check-email?email=${value}`);
+      const response = await fetch(`/api/auch/checkEmail?email=${value}`);
       if (!response.ok) {
         throw new Error("Failed to check email");
       }
@@ -41,7 +41,7 @@ export default function RegisterPage() {
       setIsEmailValid(data.isUnique);
     } catch (error) {
       console.error("Error checking email:", error);
-      setIsEmailValid(false); 
+      setIsEmailValid(false);
     }
   };
 
@@ -61,7 +61,13 @@ export default function RegisterPage() {
     event.preventDefault();
 
     // check if all fields are filled
-    if (!email.trim() || !username.trim() || !password.trim() || !confirmPassword.trim() || !location.trim()) {
+    if (
+      !email.trim() ||
+      !username.trim() ||
+      !password.trim() ||
+      !confirmPassword.trim() ||
+      !location.trim()
+    ) {
       alert("Registration failed. Please fill in all required fields.");
       return;
     }
@@ -78,23 +84,22 @@ export default function RegisterPage() {
       return;
     }
 
-    const userData = {
-      email,
-      username,
-      password,
-      biography,
-      location,
-      avatar,
-    };
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("user_name", username); // 注意字段名需要与后端一致
+    formData.append("bio", biography);
+    formData.append("region", location);
+    if (avatar) {
+      formData.append("avatar", avatar); // 上传文件
+    }
 
     try {
       setIsSubmitting(true);
-      const response = await fetch("/api/register", {
+      const response = await fetch("/api/auch/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
+        body: formData, // 使用 FormData
       });
 
       if (!response.ok) {
@@ -191,17 +196,12 @@ export default function RegisterPage() {
             value={location}
             onChange={(e) => setLocation(e.target.value as string)}
           />
-          <AvatarUpload avatar={avatar} setAvatar={setAvatar} />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }}
-          >
+          <AvatarUpload avatar={avatar} setAvatar={(file) => setAvatar(file)} />
+          <Button type="submit" fullWidth variant="contained" sx={{ mb: 2 }}>
             {isSubmitting ? "Registering..." : "Register"}
           </Button>
           <Typography variant="body2" align="center">
-            Already have an account?{" "}
+            Already have an account?
             <Link
               href="/login"
               style={{ color: "blue", textDecoration: "underline" }}

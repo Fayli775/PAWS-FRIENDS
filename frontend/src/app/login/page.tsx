@@ -18,9 +18,8 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
-
-      // 发送登录请求到后端
-      const response = await fetch("/api/login", {
+     
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,11 +33,11 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      // 存储 JWT 到 localStorage
+// 存储 JWT 到 localStorage
       localStorage.setItem("token", data.token);
 
       alert("Login successful!");
-      console.log("User data:", data);
+console.log("User data:", data);
 
       // 跳转到主页或其他页面
       window.location.href = "/";
