@@ -44,3 +44,30 @@ CREATE TABLE IF NOT EXISTS booking_status_log (
   note TEXT DEFAULT NULL COMMENT 'Optional notes'
 );
 
+
+-- pet info
+DROP TABLE IF EXISTS pet_info;
+CREATE TABLE pet_info (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary key: pet ID',
+    owner_id BIGINT NOT NULL COMMENT 'Foreign key: references user_info(id)',
+    type VARCHAR(20) NOT NULL COMMENT 'Pet type (e.g., dog, cat)',
+    name VARCHAR(50) NOT NULL COMMENT 'Pet name',
+    description VARCHAR(1024) DEFAULT NULL COMMENT 'Additional description',
+    photo VARCHAR(1024) DEFAULT NULL COMMENT 'Photo URL',
+    allergies TEXT DEFAULT NULL COMMENT 'Pet allergies',
+    medications TEXT DEFAULT NULL COMMENT 'Current medications',
+    special_instructions TEXT DEFAULT NULL COMMENT 'Special care instructions',
+    vet_contact_name VARCHAR(100) DEFAULT NULL COMMENT 'Veterinarian name',
+    vet_contact_phone VARCHAR(20) DEFAULT NULL COMMENT 'Veterinarian phone number',
+    emergency_contact_name VARCHAR(100) DEFAULT NULL COMMENT 'Emergency contact name',
+    emergency_contact_phone VARCHAR(20) DEFAULT NULL COMMENT 'Emergency contact phone number',
+    gmt_create DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time',
+    gmt_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last update time',
+    PRIMARY KEY (id),
+    FOREIGN KEY (owner_id) REFERENCES user_info(id) ON DELETE CASCADE,
+    KEY idx_owner_id (owner_id) COMMENT 'Index on owner_id'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet profile information table';
+
+
+
+
