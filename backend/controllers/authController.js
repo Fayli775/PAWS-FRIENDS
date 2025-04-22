@@ -34,6 +34,25 @@ exports.register = async (req, res) => {
     res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
+/// Check if email exists
+exports.checkEmailExists = async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    const existing = await auth.findUserByEmail(email);
+    res.status(200).json({ exists: !!existing }); // true if exists
+  } catch (err) {
+    console.error("Error in checkEmailExists:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
