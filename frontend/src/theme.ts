@@ -18,8 +18,7 @@ const theme = createTheme({
       main: '#ED8936', // An orange color similar to accents in the image
     },
     background: {
-        default: '#FFF9EB', // Light orange background similar to the image
-        paper: '#FFFFFF',
+        default: '#FFFFFF',
     }
   },
   typography: {
