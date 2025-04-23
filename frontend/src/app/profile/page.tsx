@@ -13,7 +13,7 @@ import Pets from './components/Pets'
 
 
 export default function MyProfilePage() {
-  const [selectedTab, setSelectedTab] = useState<'Profile'|'Calendar'|'Services'|'Reviews'>('Profile')
+  const [selectedTab, setSelectedTab] = useState<'Profile'|'Calendar'|'Services'|'Reviews'|'Pets'>('Profile')
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
