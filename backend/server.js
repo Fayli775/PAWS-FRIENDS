@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require('cors'); // Import cors package
+const path = require('path'); // Add path module
 require("dotenv").config();
 const app = express();
 
@@ -7,6 +8,9 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
+
+// Serve static files from the public directory
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);

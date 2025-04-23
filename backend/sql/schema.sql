@@ -1,15 +1,14 @@
 -- sql/init.sql
 
-CREATE DATABASE IF NOT EXISTS pet_service_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pet_service_app;
 
 -- Drop tables in reverse order of dependency
-DROP TABLE IF EXISTS reviews; -- Depends on locations and user_info
-DROP TABLE IF EXISTS locations; -- Depends on user_info
-DROP TABLE IF EXISTS pet_info; -- Depends on user_info
-DROP TABLE IF EXISTS booking_status_log; -- Depends on booking (Implied, good practice)
-DROP TABLE IF EXISTS booking; -- Depends on user_info (Implied by owner_id, sitter_id)
--- User table is last
+DROP TABLE IF EXISTS location_reviews;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS pet_info;
+DROP TABLE IF EXISTS booking_status_log;
+DROP TABLE IF EXISTS booking;
 DROP TABLE IF EXISTS user_info;
 
 CREATE TABLE user_info (
@@ -93,7 +92,7 @@ CREATE TABLE locations (
 );
 
 
-CREATE TABLE reviews (
+CREATE TABLE location_reviews (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     location_id INT UNSIGNED NOT NULL,
     user_id BIGINT(20) NOT NULL,

@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const db = require("../config/db.js");
+
 async function runSQLFile(filename) {
   const filePath = path.join(__dirname, "..", "sql", filename);
   // console.log('File path:', filePath);
@@ -15,11 +16,11 @@ async function runSQLFile(filename) {
     }
   }
 }
+
 async function initDB() {
   try {
     await runSQLFile("schema.sql");
     await runSQLFile("seed.sql");
-    await runSQLFile("booking.sql");//booking
     console.log("Database initialized!");
     process.exit(0);
   } catch (err) {
