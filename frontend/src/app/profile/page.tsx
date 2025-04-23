@@ -9,6 +9,8 @@ import ProfileForm from './components/ProfileForm'
 import Calendar from './components/Calendar'
 import Services from './components/Services'
 import Reviews from './components/Reviews'
+import Pets from './components/Pets'  
+
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<'Profile'|'Calendar'|'Services'|'Reviews'>('Profile')
@@ -37,6 +39,7 @@ export default function MyProfilePage() {
             {selectedTab === 'Calendar' && <Calendar />}
             {selectedTab === 'Services' && <Services />}
             {selectedTab === 'Reviews' && <Reviews />}
+            {selectedTab === 'Pets'     && <Pets />}
           </Grid>
         </Grid>
       </Container>

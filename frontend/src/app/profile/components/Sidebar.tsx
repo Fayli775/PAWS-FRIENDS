@@ -7,7 +7,7 @@ interface SidebarProps {
   onTabChange: (tab: string) => void
 }
 
-const menuItems = ['Profile', 'Calendar', 'Services', 'Reviews']
+const menuItems = ['Profile', 'Calendar', 'Services', 'Reviews', 'Pets']
 
 export default function Sidebar({ selectedTab, onTabChange }: SidebarProps) {
   return (
