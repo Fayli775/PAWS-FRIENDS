@@ -19,6 +19,7 @@ async function initDB() {
   try {
     await runSQLFile("schema.sql");
     await runSQLFile("seed.sql");
+    await runSQLFile("booking.sql");//booking
     console.log("Database initialized!");
     process.exit(0);
   } catch (err) {

@@ -1,11 +1,12 @@
 'use client'; // Needed for useState, useEffect, etc.
 import React, { useState } from 'react';
-import Header from '@/components/Header';
 import SearchSection from '@/components/SearchSection';
 import ServicesSection from '@/components/ServicesSection';
 import EventsCarousel from '@/components/EventsCarousel';
 import SiteShare from '@/components/SiteShare';
 import { Box, Stack } from '@mui/material';
+import Header from '@/components/Header'; // Import the header
+import { useRouter } from 'next/navigation';
 
 // Types
 interface PetSitter {
@@ -18,29 +19,33 @@ interface PetSitter {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const [keyword, setKeyword] = useState('');
+  const [location, setLocation] = useState('');
+  const [petType, setPetType] = useState('');
   const [searchResults, setSearchResults] = useState<PetSitter[]>([]);
 
-  const handleSearchResults = (results: PetSitter[]) => {
-    setSearchResults(results);
-  };
+  const handleSearch = () => {
+    const query = new URLSearchParams()
+    if (keyword) query.append('keyword', keyword)
+    if (location) query.append('location', location)
+    if (petType && petType !== 'Any') query.append('petType', petType)
+  
+    router.push(`/search?${query.toString()}`)
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
       <Stack useFlexGap direction="column" spacing={{lg:4, sm:2}}>
-        {/* Search Section */}
-        <SearchSection onSearchResults={handleSearchResults} />
+        <SearchSection onSearchResults={handleSearch} />
 
-        {/* Services Section */}
         <ServicesSection />
 
-        {/* Site Share Section */}
         <SiteShare />
 
-        {/* Events Section */}
         <EventsCarousel />
 
-        {/* Display Search Results */}
         {searchResults.length > 0 && (
           <Box sx={{ p: 4 }}>
             <ul>
