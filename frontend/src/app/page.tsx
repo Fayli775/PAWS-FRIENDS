@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import SearchSection from '@/components/SearchSection';
 import ServicesSection from '@/components/ServicesSection';
 import EventsCarousel from '@/components/EventsCarousel';
+import SiteShare from '@/components/SiteShare';
 import { Box, Stack } from '@mui/material';
 
 // Types
@@ -33,6 +34,9 @@ export default function Home() {
         {/* Services Section */}
         <ServicesSection />
 
+        {/* Site Share Section */}
+        <SiteShare />
+
         {/* Events Section */}
         <EventsCarousel />
 
@@ -46,14 +50,6 @@ export default function Home() {
             </ul>
           </Box>
         )}
-
-        {/* You can add more sections here */}
-        {/* Example:
-        <FeaturedSittersSection />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <ContactSection />
-        */}
       </Stack>
     </Box>
   );
