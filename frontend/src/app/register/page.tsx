@@ -38,7 +38,7 @@ export default function RegisterPage() {
         throw new Error("Failed to check email");
       }
       const data = await response.json();
-      setIsEmailValid(data.isUnique);
+      setIsEmailValid(!data.exists); 
     } catch (error) {
       console.error("Error checking email:", error);
       setIsEmailValid(false);
@@ -88,18 +88,18 @@ export default function RegisterPage() {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("user_name", username); // 注意字段名需要与后端一致
+    formData.append("user_name", username); 
     formData.append("bio", biography);
     formData.append("region", location);
     if (avatar) {
-      formData.append("avatar", avatar); // 上传文件
+      formData.append("avatar", avatar); 
     }
 
     try {
       setIsSubmitting(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
-        body: formData, // 使用 FormData
+        body: formData, 
       });
 
       if (!response.ok) {

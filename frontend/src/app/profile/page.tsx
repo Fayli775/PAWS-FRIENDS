@@ -1,30 +1,50 @@
 'use client'
-
-import { Box, Grid } from '@mui/material'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Header from '@/components/Header'
 import Sidebar from './components/Sidebar'
 import ProfileForm from './components/ProfileForm'
-import Calendar from './components/Calendar' // 🆕
-import Services from './components/Services' // ⏳未来添加
-import Reviews from './components/Reviews'   // ⏳未来添加
+import Calendar from './components/Calendar'
+import Services from './components/Services'
+import Reviews from './components/Reviews'
+import Pets from './components/Pets'  
 
-export default function ProfilePage() {
-  const [selectedTab, setSelectedTab] = useState('Profile')
+
+export default function MyProfilePage() {
+  const [selectedTab, setSelectedTab] = useState<'Profile'|'Calendar'|'Services'|'Reviews'|'Pets'>('Profile')
 
   return (
-    <Grid container minHeight="100vh">
-      {/* Sidebar 左侧 */}
-      <Grid item xs={12} md={3} sx={{ backgroundColor: '#F7F3FF', p: 3 }}>
-        <Sidebar selectedTab={selectedTab} onTabChange={setSelectedTab} />
-      </Grid>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* 全局头部 */}
+      <Header />
 
-      {/* Main Content 区域右侧 */}
-      <Grid item xs={12} md={9} sx={{ backgroundColor: '#FFFDF5', p: 4 }}>
-        {selectedTab === 'Profile' && <ProfileForm />}
-        {selectedTab === 'Calendar' && <Calendar />}
-        {selectedTab === 'Services' && <Services />}
-        {selectedTab === 'Reviews' && <Reviews />}
-      </Grid>
-    </Grid>
+      {/* 主内容容器 */}
+      <Container
+        component="main"
+        maxWidth="lg"
+        sx={{ flex: 1, mt: 4, mb: 4 }}
+      >
+        {/* Grid: 左侧 Sidebar + 右侧内容 */}
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={3}>
+            <Sidebar
+              selectedTab={selectedTab}
+              onTabChange={setSelectedTab}
+            />
+          </Grid>
+          <Grid item xs={12} md={9}>
+            {selectedTab === 'Profile' && <ProfileForm />}
+            {selectedTab === 'Calendar' && <Calendar />}
+            {selectedTab === 'Services' && <Services />}
+            {selectedTab === 'Reviews' && <Reviews />}
+            {selectedTab === 'Pets'     && <Pets />}
+          </Grid>
+        </Grid>
+      </Container>
+
+      {/* （如果有 Footer 则放这儿） */}
+    </Box>
   )
 }
