@@ -9,7 +9,7 @@ INSERT INTO user_info (
   'North Shore',
   'AliceCat',
   0,
-  'images/user1-avatar',
+  '/images/uploads/avatars/user1-avatar',
   '0211234567',
   '0219876543'
 ),
@@ -20,7 +20,7 @@ INSERT INTO user_info (
   'West Auckland',
   'BobWoof',
   0,
-  'images/user2-avatar',
+  '/images/uploads/avatars/user2-avatar',
   '0227654321',
   '0214567890'
 ),
@@ -31,7 +31,7 @@ INSERT INTO user_info (
   'Central Auckland',
   'CarolPaws',
   0,
-  'images/user3-avatar',
+  '/images/uploads/avatars/user3-avatar',
   '0201112222',
   '0273334444'
 ),
@@ -42,39 +42,39 @@ INSERT INTO user_info (
   'East Auckland',
   'DaveTrain',
   0,
-  'images/user4-avatar',
+  '/images/uploads/avatars/user4-avatar',
   '0275556666',
   '0208889999'
 );
 
 -- Add pet records
 INSERT INTO pet_info (
-    owner_id, type, name, description, photo,
+    owner_id, type, name, description, photo_url,
     vet_contact_name, vet_contact_phone,
     emergency_contact_name, emergency_contact_phone,
     allergies, medications, special_instructions
 ) VALUES
-(3, 'dog', 'Max', 'Friendly golden retriever, loves swimming.', 'https://example.com/max.jpg',
+(3, 'dog', 'Max', 'Friendly golden retriever, loves swimming.', '/images/uploads/pets/max.jpg',
     'Dr. James Wilson', '021-5556666',
     'Mary Smith', '022-3334444',
     'Peanut butter', 'Flea treatment monthly', 'Needs daily joint supplements'),
     
-(3, 'cat', 'Luna', 'Black cat, indoor only.', 'https://example.com/luna.jpg',
+(3, 'cat', 'Luna', 'Black cat, indoor only.', '/images/uploads/pets/luna.jpg',
     'Dr. Emma Chen', '021-7778888',
     'Peter Wong', '022-9990000',
     'Chicken', 'Thyroid medication twice daily', 'Sensitive stomach - special diet only'),
     
-(4, 'dog', 'Charlie', 'Energetic beagle puppy.', 'https://example.com/charlie.jpg',
+(4, 'dog', 'Charlie', 'Energetic beagle puppy.', '/images/uploads/pets/charlie.jpg',
     'Dr. Michael Brown', '021-2223333',
     'Sarah Johnson', '022-4445555',
     'None', 'Deworming medication', 'Needs three walks daily'),
     
-(1, 'cat', 'Oliver', 'Senior ginger cat.', 'https://example.com/oliver.jpg',
+(1, 'cat', 'Oliver', 'Senior ginger cat.', '/images/uploads/pets/oliver.jpg',
     'Dr. Lisa Taylor', '021-8889999',
     'David Lee', '022-1112222',
     'Dairy', 'Arthritis medication', 'Cannot jump high - food and litter must be easily accessible'),
     
-(2, 'dog', 'Bella', 'Calm labrador, therapy dog.', 'https://example.com/bella.jpg',
+(2, 'dog', 'Bella', 'Calm labrador, therapy dog.', '/images/uploads/pets/bella.jpg',
     'Dr. Robert Park', '021-4445555',
     'Jennifer Kim', '022-6667777',
     'Beef', 'Heart medication daily', 'Needs quiet environment');

@@ -52,7 +52,6 @@ CREATE TABLE IF NOT EXISTS booking_status_log (
   note TEXT DEFAULT NULL COMMENT 'Optional notes'
 );
 
-
 -- pet info
 CREATE TABLE pet_info (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary key: pet ID',
@@ -60,7 +59,7 @@ CREATE TABLE pet_info (
     type VARCHAR(20) NOT NULL COMMENT 'Pet type (e.g., dog, cat)',
     name VARCHAR(50) NOT NULL COMMENT 'Pet name',
     description VARCHAR(1024) DEFAULT NULL COMMENT 'Additional description',
-    photo VARCHAR(1024) DEFAULT NULL COMMENT 'Photo URL',
+    photo_url VARCHAR(1024) DEFAULT NULL COMMENT 'Photo URL',
     allergies TEXT DEFAULT NULL COMMENT 'Pet allergies',
     medications TEXT DEFAULT NULL COMMENT 'Current medications',
     special_instructions TEXT DEFAULT NULL COMMENT 'Special care instructions',
@@ -90,7 +89,6 @@ CREATE TABLE locations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (added_by_user_id) REFERENCES user_info(id) ON DELETE SET NULL
 );
-
 
 CREATE TABLE location_reviews (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

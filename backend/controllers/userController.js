@@ -57,33 +57,12 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-const upload = require("../utils/uploadConfig");
-// Middleware(用于 router)
-exports.uploadAvatarMiddleware = upload.single("avatar");
-
-// udpdateAvatar 
-exports.updateAvatar = async (req, res) => {
-  const { id } = req.params;
-
-  if (!req.file) {
-    return res.status(400).json({ status: "error", message: "No file uploaded" });
-  }
-
-  const avatarPath = req.file.path;
-
-  try {
-    const result = await userModel.uploadAvatar(id, avatarPath);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ status: "error", message: error.message });
-  }
-};
 
 
-// updateProfile
 
+// updateProfile including avatar
 exports.updateProfile = async (req, res) => {
-  const userId = req.user.id; // 从 protect middleware 拿的
+  const userId = req.user.id; // 从authMiddleware中获取用户ID
 
   // 1. 定义验证 schema
   const schema = yup.object().shape({
@@ -98,11 +77,15 @@ exports.updateProfile = async (req, res) => {
     // 2. 验证 req.body
     const validatedData = await schema.validate(req.body, { stripUnknown: true });
 
-    // 3. 如果没有任何要更新的字段
-    if (Object.keys(validatedData).length === 0) {
+     // 如果没有任何要更新的字段且没有上传头像
+     if (Object.keys(validatedData).length === 0 && !req.file) {
       return res.status(400).json({ message: 'No fields provided for update' });
     }
-
+     // 如果上传了头像，处理头像路径
+     if (req.file) {
+      const avatarPath = `/images/uploads/avatars/${req.file.filename}`;
+      validatedData.avatar = avatarPath; // 将头像路径添加到更新数据中
+    }
     // 4. 调用 model 更新
     await userModel.updateUserProfile(userId, validatedData);
 

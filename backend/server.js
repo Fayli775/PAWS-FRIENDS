@@ -1,10 +1,8 @@
 const express = require("express");
-const cors = require('cors'); // Import cors package
-const path = require('path'); // Add path module
+const cors = require("cors"); // Import cors package
+const path = require("path"); // Add path module
 require("dotenv").config();
-const cors = require("cors");
 const app = express();
-
 
 // Enable CORS for all origins (adjust options if needed for production)
 app.use(cors());
@@ -12,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the public directory
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
@@ -22,6 +20,9 @@ app.use("/api/users", userRoutes);
 
 const bookingRoutes = require("./routes/bookingRoutes");
 app.use("/api/bookings", bookingRoutes);
+// get getPetById
+const petRoutes = require("./routes/petRoutes.js");
+app.use("/api/pets", petRoutes);
 
 // Add the new location routes
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
