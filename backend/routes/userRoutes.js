@@ -22,4 +22,7 @@ router.put(
   userController.updatePassword
 );
 
+// New route for searching sitters
+router.get('/sitters/search', userController.searchSitters); // No auth for general search? Or add authMiddleware if needed
+
 module.exports = router;
