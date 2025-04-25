@@ -21,6 +21,12 @@ app.use("/api/users", userRoutes);
 const bookingRoutes = require("./routes/bookingRoutes");
 app.use("/api/bookings", bookingRoutes);
 
+const availabilityRoutes = require("./routes/availabilityRoutes");
+app.use("/api/availability", availabilityRoutes);
+
+const reviewRoutes = require("./routes/reviewRoutes");
+app.use("/api/reviews", reviewRoutes);
+
 // Add the new location routes
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
 app.use("/api/locations", locationRoutes); // Use location routes
