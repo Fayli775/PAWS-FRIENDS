@@ -16,9 +16,38 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PetForm, { Pet } from './PetForm'
 
+const defaultAvatars = {
+  Dog: '/dog-avatar.png',
+  Cat: '/cat-avatar.png',
+}
+
 const mockPets: Pet[] = [
-  { id: 1, name: 'Buddy', type: 'Dog', description: 'Golden Retriever, 3 yo', photo: '/pets/buddy.jpg' },
-  { id: 2, name: 'Whiskers', type: 'Cat', description: 'Tabby cat, loves naps', photo: '/pets/whiskers.jpg' },
+  {
+    id: 1,
+    name: 'Buddy',
+    type: 'Dog',
+    description: 'Golden Retriever, 3 yo',
+    vetContact: '0211234567',
+    familyEmergencyContact: '0229876543',
+    medicalConditions: 'None',
+    allergies: 'None',
+    medications: 'None',
+    specialInstructions: 'Loves long walks',
+    photo: '',
+  },
+  {
+    id: 2,
+    name: 'Whiskers',
+    type: 'Cat',
+    description: 'Tabby cat, loves naps',
+    vetContact: '0217654321',
+    familyEmergencyContact: '0221234567',
+    medicalConditions: 'Asthma',
+    allergies: 'None',
+    medications: 'Inhaler',
+    specialInstructions: 'Keep indoors',
+    photo: '',
+  },
 ]
 
 export default function Pets() {
@@ -27,8 +56,12 @@ export default function Pets() {
   const [editingPet, setEditingPet] = useState<Pet | null>(null)
 
   useEffect(() => {
-    // TODO: 用 GET /pet/list?ownerId=xxx 替代
-    setPets(mockPets)
+    // 模拟从后端获取宠物数据，并设置默认头像
+    const petsWithDefaultPhotos = mockPets.map((pet) => ({
+      ...pet,
+      photo: pet.photo,
+    }))
+    setPets(petsWithDefaultPhotos)
   }, [])
 
   const handleEdit = (pet: Pet) => {
@@ -38,7 +71,6 @@ export default function Pets() {
 
   const handleDelete = (petId: number) => {
     if (!confirm('Are you sure you want to delete this pet?')) return
-    // TODO: 调用 DELETE /pet/{petId}
     setPets((prev) => prev.filter((p) => p.id !== petId))
   }
 
@@ -61,10 +93,19 @@ export default function Pets() {
       </Box>
 
       {/* 宠物卡片列表 */}
-      <Grid container spacing={2}>
+      <Grid container spacing={4}>
         {pets.map((pet) => (
-          <Grid item key={pet.id} xs={12} sm={6} md={4}>
-            <Card variant="outlined" sx={{ position: 'relative' }}>
+          <Grid item xs={12} sm={6} md={3} key={pet.id} style={{ display: 'grid', width: '25%' }}>
+            <Card
+              variant="outlined"
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative',
+              }}
+            >
               {/* 编辑 & 删除 按钮组 */}
               <Stack
                 direction="row"
@@ -79,18 +120,48 @@ export default function Pets() {
                 </IconButton>
               </Stack>
 
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent>
+                {/* 宠物头像 */}
                 <Avatar
-                  src={pet.photo}
-                  sx={{ width: 80, height: 80, mx: 'auto', mb: 1 }}
+                  src={
+                    pet.photo ||
+                    (pet.type === 'Cat'
+                      ? '/defaultAvatarCat.png'
+                      : '/defaultAvatarDog.png')
+                  }
+                  sx={{ width: 100, height: 100, mx: 'auto', mb: 1 }}
                 />
-                <Typography fontWeight={600}>{pet.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                {/* 宠物名字和类型 */}
+                <Typography variant="h6" fontWeight={600} textAlign="center">
+                  {pet.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" textAlign="center">
                   {pet.type}
                 </Typography>
-                <Typography variant="body2" mt={1}>
-                  {pet.description}
-                </Typography>
+                {/* 其他信息左对齐 */}
+                <Box mt={2}>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Description:</strong> {pet.description}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Vet Contact:</strong> {pet.vetContact}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Emergency Contact:</strong> {pet.familyEmergencyContact}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Medical Conditions:</strong> {pet.medicalConditions}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Allergies:</strong> {pet.allergies}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Medications:</strong> {pet.medications}
+                  </Typography>
+                  <Typography variant="body2" mt={1}>
+                    <strong>Special Instructions:</strong> {pet.specialInstructions}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
@@ -106,16 +177,23 @@ export default function Pets() {
             if (editingPet) {
               // 编辑模式
               setPets((prev) =>
-                prev.map((p) => (p.id === newPet.id ? newPet : p))
+                prev.map((p) =>
+                  p.id === newPet.id
+                    ? { ...newPet, photo: newPet.photo }
+                    : p
+                )
               )
             } else {
               // 新增模式
-              setPets((prev) => [...prev, newPet])
+              setPets((prev) => [
+                ...prev,
+                { ...newPet, photo: newPet.photo },
+              ])
             }
             setOpenForm(false)
           }}
         />
       )}
     </Box>
-)
+  )
 }
