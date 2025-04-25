@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent, useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -16,69 +16,92 @@ import {
   Avatar,
 } from '@mui/material'
 
-export type Pet = {
+export interface Pet {
   id: number
   name: string
   type: string
-  description?: string
-  photo?: string
+  description: string
+  vetContact: string
+  familyEmergencyContact: string
+  medicalConditions: string
+  allergies: string
+  medications: string
+  specialInstructions: string
+  photo: string
 }
 
-type PetFormProps = {
+interface PetFormProps {
   initialData: Pet | null
   onClose: () => void
   onSubmit: (pet: Pet) => void
 }
 
-const PET_TYPES = ['Dog', 'Cat', 'Rabbit', 'Other']
+const PET_TYPES = ['Dog', 'Cat']
 
 export default function PetForm({
   initialData,
   onClose,
   onSubmit,
 }: PetFormProps) {
-  // 表单状态
-  const [name, setName] = useState('')
-  const [type, setType] = useState('')
-  const [description, setDescription] = useState('')
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | undefined>(undefined)
-
-  // 初始化：如果是编辑模式，填充 initialData
-  useEffect(() => {
-    if (initialData) {
-      setName(initialData.name)
-      setType(initialData.type)
-      setDescription(initialData.description || '')
-      setPhotoPreview(initialData.photo)
+  const [formData, setFormData] = useState<Pet>(
+    initialData || {
+      id: Date.now(),
+      name: '',
+      type: 'Dog', // 默认类型为 Dog
+      description: '',
+      vetContact: '',
+      familyEmergencyContact: '',
+      medicalConditions: '',
+      allergies: '',
+      medications: '',
+      specialInstructions: '',
+      photo: '',
     }
-  }, [initialData])
+  )
 
-  // 处理文件选择
+  const [errors, setErrors] = useState({
+    vetContact: '',
+    familyEmergencyContact: '',
+  })
+
+  const getAvatar = () => {
+    if (formData.photo) return formData.photo
+    return formData.type === 'Cat' ? '/defaultAvatarCat.png' : '/defaultAvatarDog.png'
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const { name, value } = e.target as HTMLInputElement
+
+    // 验证电话号码格式
+    if (name === 'vetContact' || name === 'familyEmergencyContact') {
+      const phoneRegex = /^0\d{1,9}$/ // 新西兰电话号码格式
+      if (!phoneRegex.test(value)) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: 'Invalid phone number. Must start with 0 and contain 2-10 digits.',
+        }))
+      } else {
+        setErrors((prev) => ({ ...prev, [name]: '' }))
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null
-    setPhotoFile(file)
     if (file) {
-      setPhotoPreview(URL.createObjectURL(file))
+      setFormData((prev) => ({ ...prev, photo: URL.createObjectURL(file) }))
     }
   }
 
-  // 提交时聚合数据
   const handleSubmit = () => {
-    // 简单校验
-    if (!name.trim() || !type) {
-      alert('Please enter both name and type.')
+    // 检查是否有未通过验证的字段
+    if (errors.vetContact || errors.familyEmergencyContact) {
+      alert('Please fix the errors before submitting.')
       return
     }
-
-    const pet: Pet = {
-      id: initialData?.id ?? Date.now(), // 新增时用临时 ID
-      name: name.trim(),
-      type,
-      description: description.trim(),
-      photo: photoPreview,
-    }
-    onSubmit(pet)
+    onSubmit(formData)
   }
 
   return (
@@ -88,20 +111,20 @@ export default function PetForm({
       <DialogContent dividers>
         <TextField
           label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
           fullWidth
-          required
           margin="normal"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
         />
-
         <FormControl fullWidth margin="normal" required>
           <InputLabel id="pet-type-label">Type</InputLabel>
           <Select
             labelId="pet-type-label"
             label="Type"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
+            name="type"
+            value={formData.type}
+            onChange={(e) => setFormData((prev) => ({ ...prev, type: e.target.value as string }))}
           >
             {PET_TYPES.map((t) => (
               <MenuItem key={t} value={t}>
@@ -110,17 +133,66 @@ export default function PetForm({
             ))}
           </Select>
         </FormControl>
-
         <TextField
           label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
           fullWidth
-          multiline
-          rows={3}
           margin="normal"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
         />
-
+        <TextField
+          label="Vet Contact"
+          name="vetContact"
+          value={formData.vetContact}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          error={!!errors.vetContact}
+          helperText={errors.vetContact}
+        />
+        <TextField
+          label="Family Emergency Contact"
+          name="familyEmergencyContact"
+          value={formData.familyEmergencyContact}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          error={!!errors.familyEmergencyContact}
+          helperText={errors.familyEmergencyContact}
+        />
+        <TextField
+          label="Medical Conditions"
+          name="medicalConditions"
+          value={formData.medicalConditions}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Allergies"
+          name="allergies"
+          value={formData.allergies}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Medications"
+          name="medications"
+          value={formData.medications}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Special Instructions"
+          name="specialInstructions"
+          value={formData.specialInstructions}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
         <Box mt={2}>
           <input
             accept="image/*"
@@ -131,20 +203,17 @@ export default function PetForm({
           />
           <label htmlFor="pet-photo-upload">
             <Button variant="outlined" component="span">
-              {photoPreview ? 'Change Photo' : 'Upload Photo'}
+              {formData.photo ? 'Change Photo' : 'Upload Photo'}
             </Button>
           </label>
         </Box>
-
-        {photoPreview && (
-          <Box mt={2} display="flex" justifyContent="center">
-            <Avatar
-              src={photoPreview}
-              alt="pet-photo-preview"
-              sx={{ width: 100, height: 100 }}
-            />
-          </Box>
-        )}
+        <Box mt={2} display="flex" justifyContent="center">
+          <Avatar
+            src={getAvatar()}
+            alt="pet-photo-preview"
+            sx={{ width: 100, height: 100 }}
+          />
+        </Box>
       </DialogContent>
 
       <DialogActions>

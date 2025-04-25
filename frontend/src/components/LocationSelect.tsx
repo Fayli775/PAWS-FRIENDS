@@ -11,7 +11,7 @@ interface LocationSelectProps {
 
 export default function LocationSelect({ value, onChange }: LocationSelectProps) {
   return (
-    <FormControl fullWidth margin="normal">
+    <FormControl fullWidth>
       <InputLabel id="location-label">Location</InputLabel>
       <Select
         labelId="location-label"

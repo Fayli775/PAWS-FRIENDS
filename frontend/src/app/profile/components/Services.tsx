@@ -1,71 +1,99 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
-  Checkbox,
-  FormControlLabel,
-  Paper,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  OutlinedInput,
-  ListItemText,
   Button,
   Snackbar,
-} from '@mui/material'
+  Card,
+  CardContent,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { width } from "@mui/system";
 
-// 模拟服务数据
-const mockServices = [
-  { id: 1, name: 'Dog Walking', description: 'outdoor walks' },
-  { id: 2, name: 'Pet Sitting', description: 'In-home care for pets' },
-  { id: 3, name: 'Cat Feeding', description: 'Daily feeding and check-ins' },
-]
+// 服务数据
+const services = [
+  {
+    id: 1,
+    name: "In-Home Feeding",
+    description: "We visit your pet at home and ensure timely meals.",
+    price: "From $25/hr",
+    icon: "/in-home-feeding.png",
+  },
+  {
+    id: 2,
+    name: "Dog Walking",
+    description: "Daily walks to keep your dog happy and healthy.",
+    price: "From $25/hr",
+    icon: "/dog-walking.png",
+  },
+  {
+    id: 3,
+    name: "Boarding",
+    description: "Safe, cozy home for your pets while you're away.",
+    price: "From $25/hr",
+    icon: "/boarding.png",
+  },
+  {
+    id: 4,
+    name: "Grooming",
+    description: "Professional grooming to keep pets clean and pretty.",
+    price: "From $25/hr",
+    icon: "/grooming.png",
+  },
+];
 
-const ALL_PET_TYPES = ['Dog', 'Cat', 'Rabbit', 'Other'] as const
+// Styled components
+const ServiceCard = styled(Card)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+  textAlign: "center",
+  padding: theme.spacing(3),
+  transition: "transform 0.2s ease-in-out",
+  backgroundColor: "#fffffa",
+  "&:hover": {
+    transform: "translateY(-8px)",
+    boxShadow: theme.shadows[4],
+  },
+}));
+
+const IconWrapper = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& img": {
+    width: "100%",
+    height: "auto",
+    objectFit: "contain",
+  },
+}));
 
 export default function Services() {
-  const [selectedServices, setSelectedServices] = useState<number[]>([])
-  const [selectedPetTypes, setSelectedPetTypes] = useState<string[]>([])
-  const [dirty, setDirty] = useState(false)
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [selectedServices, setSelectedServices] = useState<number[]>([]);
+  const [dirty, setDirty] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  // 读取初始数据
   useEffect(() => {
-    // TODO: GET /user/{id}
-    const initialServices = [1, 3]
-    const initialPetTypes = ['Dog']
-    setSelectedServices(initialServices)
-    setSelectedPetTypes(initialPetTypes)
-  }, [])
+    const initialServices = [1, 3]; // 假设用户已选择 "In-Home Feeding" 和 "Boarding"
+    setSelectedServices(initialServices);
+  }, []);
 
   const toggleService = (id: number) => {
-    setSelectedServices(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
-    setDirty(true)
-  }
-
-  const handlePetTypesChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedPetTypes(e.target.value as string[])
-    setDirty(true)
-  }
+    setSelectedServices((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+    setDirty(true);
+  };
 
   const handleSave = async () => {
-    // TODO: 调用 PUT /user/{id} 接口
-    // 示例：
-    // await fetch(`/api/user/${userId}`, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ serviceIds: selectedServices, petTypes: selectedPetTypes }),
-    // })
-
-    setDirty(false)
-    setSnackbarOpen(true)
-  }
+    console.log("Saving selected services:", selectedServices);
+    setDirty(false);
+    setSnackbarOpen(true);
+  };
 
   return (
     <Box>
@@ -73,82 +101,62 @@ export default function Services() {
         Services You Provide
       </Typography>
 
-      <Grid container spacing={2} mb={4}>
-        {mockServices.map(service => (
-          <Grid item xs={12} md={6} key={service.id}>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedServices.includes(service.id)}
-                    onChange={() => toggleService(service.id)}
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography fontWeight={600}>
-                      {service.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      {service.description}
-                    </Typography>
-                  </Box>
-                }
-              />
-            </Paper>
+      <Grid container spacing={4}>
+        {services.map((service) => (
+          <Grid size={{xs:12, sm:6, md:3}} style={{ display: 'flex' }} key={service.id}>
+
+            <ServiceCard elevation={2}>
+              <IconWrapper>
+                <img src={service.icon} alt={service.name} />
+              </IconWrapper>
+              <CardContent>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  {service.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {service.description}
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: "medium",
+                    color: "primary.main",
+                    mb: 2,
+                  }}
+                >
+                  {service.price}
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedServices.includes(service.id)}
+                      onChange={() => toggleService(service.id)}
+                    />
+                  }
+                  label="Select"
+                />
+              </CardContent>
+            </ServiceCard>
           </Grid>
         ))}
       </Grid>
 
-      <Typography variant="h5" fontWeight={600} color="#1E1B4B" mb={2}>
-        Supported Pet Types
-      </Typography>
-
-      <FormControl fullWidth>
-        <InputLabel id="pet-types-label">Pet Types</InputLabel>
-        <Select
-          labelId="pet-types-label"
-          multiple
-          value={selectedPetTypes}
-          onChange={handlePetTypesChange}
-          input={<OutlinedInput label="Pet Types" />}
-          renderValue={selected => (selected as string[]).join(', ')}
-        >
-          {ALL_PET_TYPES.map(type => (
-            <MenuItem key={type} value={type}>
-              <Checkbox checked={selectedPetTypes.includes(type)} />
-              <ListItemText primary={type} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {/* —— 新增 Save 按钮 —— */}
-      <Box mt={4} display="flex" gap={2}>
-        <Button
-          variant="contained"
-          disabled={!dirty}
-          onClick={handleSave}
-        >
+      <Box mt={4} display="flex" gap={2} justifyContent="center">
+        <Button variant="contained" disabled={!dirty} onClick={handleSave}>
           Save
         </Button>
         <Button
           variant="outlined"
           disabled={!dirty}
           onClick={() => {
-            // 重置为上次保存时的值
-            // TODO: 用初始值重新 setSelectedServices/Types
-            setDirty(false)
+            setSelectedServices([1, 3]); // 重置为初始值
+            setDirty(false);
           }}
         >
           Reset
         </Button>
       </Box>
 
-      {/* 操作反馈 */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -156,5 +164,5 @@ export default function Services() {
         message="Settings saved"
       />
     </Box>
-  )
+  );
 }

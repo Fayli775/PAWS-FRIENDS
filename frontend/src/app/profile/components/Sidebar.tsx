@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { Box, List, ListItemButton, ListItemText } from '@mui/material'
+import { Box, List, ListItemButton, ListItemText } from "@mui/material";
 
 interface SidebarProps {
-  selectedTab: string
-  onTabChange: (tab: string) => void
+  selectedTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-const menuItems = ['Profile', 'Calendar', 'Services', 'Reviews', 'Pets']
+const menuItems = ["Profile", "Pets", "Services", "Calendar", "Reviews"];
 
 export default function Sidebar({ selectedTab, onTabChange }: SidebarProps) {
   return (
@@ -24,5 +24,5 @@ export default function Sidebar({ selectedTab, onTabChange }: SidebarProps) {
         ))}
       </List>
     </Box>
-  )
+  );
 }
