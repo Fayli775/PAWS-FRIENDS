@@ -1,3 +1,4 @@
+//authController.js
 const bcrypt = require("bcrypt");
 const auth = require("../models/authModel");
 exports.register = async (req, res) => {
@@ -16,6 +17,7 @@ exports.register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    
     const avatar = req.file ? req.file.filename : null;  // req.file 是 multer 上传的文件
 
 
@@ -25,7 +27,7 @@ exports.register = async (req, res) => {
       user_name,
       bio,
       region,
-      avatar,
+      avatar, //如果有头像
     });
 
     res.status(201).json({ status: "success", userId });
@@ -44,7 +46,7 @@ exports.checkEmailExists = async (req, res) => {
 
   try {
     const existing = await auth.findUserByEmail(email);
-    res.status(200).json({ exists: !!existing }); // true if exists
+    res.status(200).json({ isUnique: !existing }); // true if exists
   } catch (err) {
     console.error("Error in checkEmailExists:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -85,3 +87,5 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+

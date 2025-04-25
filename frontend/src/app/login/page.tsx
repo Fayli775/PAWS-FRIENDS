@@ -33,11 +33,11 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-// 存储 JWT 到 localStorage
+      // 存储 JWT 到 localStorage
       localStorage.setItem("token", data.token);
 
       alert("Login successful!");
-console.log("User data:", data);
+      console.log("User data:", data);
 
       // 跳转到主页或其他页面
       window.location.href = "/";
@@ -95,7 +95,10 @@ console.log("User data:", data);
           </Button>
           <Typography variant="body2" align="center">
             Don't have an account?{" "}
-            <Link href="/register" style={{ color: "blue", textDecoration: "underline" }}>
+            <Link
+              href="/register"
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
               Register
             </Link>
           </Typography>
@@ -104,4 +107,3 @@ console.log("User data:", data);
     </Box>
   );
 }
-
