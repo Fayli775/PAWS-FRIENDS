@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS pet_info;
 DROP TABLE IF EXISTS booking_status_log;
 DROP TABLE IF EXISTS booking;
+DROP TABLE IF EXISTS availability;
+DROP TABLE IF EXISTS booking_review;
 DROP TABLE IF EXISTS user_info;
 
 CREATE TABLE user_info (
@@ -50,6 +52,33 @@ CREATE TABLE IF NOT EXISTS booking_status_log (
   status ENUM('pending', 'accepted', 'rejected', 'cancelled', 'completed') NOT NULL COMMENT 'New status',
   changed_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp of status change',
   note TEXT DEFAULT NULL COMMENT 'Optional notes'
+);
+
+
+-- 服务者可预约时间表
+CREATE TABLE IF NOT EXISTS availability (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user_info(id) ON DELETE CASCADE
+);
+
+-- 订单评价表：每个订单一次评价，1-5 星 + 评论
+CREATE TABLE IF NOT EXISTS booking_review (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT NOT NULL,
+  reviewer_id BIGINT NOT NULL,
+  sitter_id BIGINT NOT NULL,
+  rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (booking_id) REFERENCES booking(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewer_id) REFERENCES user_info(id) ON DELETE CASCADE,
+  FOREIGN KEY (sitter_id) REFERENCES user_info(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_booking_review (booking_id)
 );
 
 -- pet info
