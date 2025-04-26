@@ -7,6 +7,7 @@ import SiteShare from '@/components/SiteShare';
 import { Box, Stack } from '@mui/material';
 import Header from '@/components/Header'; // Import the header
 import { useRouter } from 'next/navigation';
+import Footer from '@/components/Footer';
 
 // Types
 interface PetSitter {
@@ -36,7 +37,6 @@ export default function Home() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header />
       <Stack useFlexGap direction="column" spacing={{lg:4, sm:2}}>
         <SearchSection onSearchResults={handleSearch} />
 
@@ -45,7 +45,6 @@ export default function Home() {
         <SiteShare />
 
         <EventsCarousel />
-
         {searchResults.length > 0 && (
           <Box sx={{ p: 4 }}>
             <ul>

@@ -97,7 +97,7 @@ export default function Services() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={600} color="#1E1B4B" mb={2}>
+      <Typography variant="h5" fontWeight={600}  mb={2}>
         Services You Provide
       </Typography>
 

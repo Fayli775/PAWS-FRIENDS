@@ -78,7 +78,7 @@ export default function Pets() {
     <Box>
       {/* 顶部标题 + 新增按钮 */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5" fontWeight={600} color="#1E1B4B">
+        <Typography variant="h5" fontWeight={600}>
           My Pets
         </Typography>
         <Button

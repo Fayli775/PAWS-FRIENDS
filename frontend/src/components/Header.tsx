@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <AppBar position="static" color="transparent" elevation={0} sx={{  backgroundColor: '#fff8e9' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box component={Link} href="/" sx={{ display: 'flex', alignItems: 'center' }}>
           <img src="/logo.png" alt="Paw's Friend Logo" style={{ width:'60px', height:'60px', marginRight: '10px' }} />
           <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', fontFamily: 'var(--font-comic-neue)' }}>
             Paw's Friend

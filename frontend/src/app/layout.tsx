@@ -3,9 +3,9 @@ import { Comic_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import StoreProvider from "@/store/StoreProvider";
-import useMockServiceWorker from "@/mocks/useMockServiceWorker";
 import MockWrapper from "@/components/MockWrapper"; // ✅ 新增
-
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 const comicNeue = Comic_Neue({ // Ensure Comic_Neue is configured here
   weight: ['400', '700'],
@@ -26,7 +26,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.className} ${comicNeue.variable}`}>
         <StoreProvider>
-          <ThemeRegistry><MockWrapper>{children}</MockWrapper></ThemeRegistry>
+          <ThemeRegistry>
+            <MockWrapper>
+              <Header />
+              {children}
+              <Footer />
+            </MockWrapper>
+          </ThemeRegistry>
         </StoreProvider>
       </body>
     </html>

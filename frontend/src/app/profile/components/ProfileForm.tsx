@@ -79,7 +79,7 @@ export default function ProfileForm() {
 
   return (
     <Box display="flex" flexDirection="column" gap={3} maxWidth={500}>
-      <Typography variant="h5" fontWeight={600} color="#1E1B4B">
+      <Typography variant="h5" fontWeight={600} >
         Profile
       </Typography>
 

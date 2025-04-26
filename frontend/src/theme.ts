@@ -19,7 +19,11 @@ const theme = createTheme({
     },
     background: {
         default: '#FFFFFF',
-    }
+    },
+    text: {
+      primary: '#1E1B4B',
+      secondary: '#5C6C8F',
+    },
   },
   typography: {
     fontFamily: roboto.style.fontFamily,
