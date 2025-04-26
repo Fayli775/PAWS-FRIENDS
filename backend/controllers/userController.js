@@ -95,3 +95,26 @@ exports.updateProfile = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+// Function for searching sitters
+exports.searchSitters = async (req, res) => {
+  try {
+    // Extract and potentially sanitize/validate search parameters
+    const filters = req.query;
+
+    console.log('Searching sitters with filters:', filters);
+
+    // Call the model function to perform the search
+    // The model function now returns an object { sitters: [...], pagination: {...} }
+    const searchResult = await userModel.searchSitters(filters);
+
+    res.status(200).json(searchResult); // Return the whole object with sitters and pagination info
+  } catch (error) {
+    console.error('Error searching sitters:', error);
+    // Handle specific errors like invalid pagination params if needed
+    if (error.message === "Invalid pagination parameters") {
+        return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Error searching sitters', error: error.message });
+  }
+};
