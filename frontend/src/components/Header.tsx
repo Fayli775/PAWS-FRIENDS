@@ -19,7 +19,7 @@ const navItems = [
 
 export default function Header() {
   return (
-    <AppBar position="static" color="transparent" elevation={0} sx={{  backgroundColor: '#fff8e9' }}>
+    <AppBar component="nav" position="sticky" color="transparent" elevation={0} sx={{  backgroundColor: '#fff8e9' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box component={Link} href="/" sx={{ display: 'flex', alignItems: 'center' }}>
           <img src="/logo.png" alt="Paw's Friend Logo" style={{ width:'60px', height:'60px', marginRight: '10px' }} />
