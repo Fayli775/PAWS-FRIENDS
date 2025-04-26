@@ -79,7 +79,7 @@ export default function SitterPublicProfilePage({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header />
+      
 
       <Container component="main" maxWidth="lg" sx={{ flex: 1, mt: 4, mb: 4 }}>
         <Grid container spacing={4}>

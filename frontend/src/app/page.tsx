@@ -37,7 +37,6 @@ export default function Home() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header />
       <Stack useFlexGap direction="column" spacing={{lg:4, sm:2}}>
         <SearchSection onSearchResults={handleSearch} />
 
@@ -46,9 +45,6 @@ export default function Home() {
         <SiteShare />
 
         <EventsCarousel />
-
-        <Footer />
-
         {searchResults.length > 0 && (
           <Box sx={{ p: 4 }}>
             <ul>

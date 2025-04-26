@@ -51,7 +51,7 @@ export default function LoginPage() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header />
+      
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <img src="/defaultAvatarCat.png" alt="Default Avatar" width={150} />
       </Box>

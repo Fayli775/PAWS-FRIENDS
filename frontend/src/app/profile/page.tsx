@@ -15,7 +15,7 @@ export default function MyProfilePage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* 全局头部 */}
-      <Header />
+      
 
       {/* 主内容容器 */}
       <Box sx={{ display: 'flex', flex: 1 }}>
