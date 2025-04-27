@@ -1,5 +1,5 @@
 const db = require("../config/db.js");
-exports.getUserById = (id) => {
+exports.getUserById = async (id) => {
   return db
     .query("SELECT * FROM user_info WHERE id = ?", [id])
     .then((result) => {

@@ -118,7 +118,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", backgroundColor:"#fef8f2" }}>
       
       <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
