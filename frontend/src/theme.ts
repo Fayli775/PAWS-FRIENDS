@@ -1,5 +1,5 @@
 'use client';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
@@ -8,7 +8,7 @@ const roboto = Roboto({
   display: 'swap',
 });
 
-const theme = createTheme({
+let theme = createTheme({
   palette: {
     mode: 'light', // Start with light mode, can be made dynamic later
     primary: {
@@ -41,4 +41,5 @@ const theme = createTheme({
   },
 });
 
+theme = responsiveFontSizes(theme);
 export default theme; 
