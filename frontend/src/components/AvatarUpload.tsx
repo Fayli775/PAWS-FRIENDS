@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
+
 import Box from "@mui/material/Box"; 
+import { Button } from "@mui/material";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (avatar: string | null) => void;
+  setAvatar: (avatar: string | null, file?: File) => void;
 }
 
 export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
@@ -15,11 +15,8 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     if (file) {
       const fileType = file.type;
       if (fileType === "image/jpeg" || fileType === "image/png") {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setAvatar(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        const url = URL.createObjectURL(file);
+        setAvatar(url, file); // Update preview and file
       } else {
         alert("Only JPG, JPEG, and PNG files are allowed.");
       }
@@ -30,8 +27,8 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 2 }}>
       <Avatar
         alt="User Avatar"
-        src={avatar || "/defaultAvatarDog.png"}
-        sx={{ width: 150, height: 150, }} 
+        src={avatar || "/defaultAvatarDog.png"} // 显示预览或默认头像
+        sx={{ width: 150, height: 150 }}
       />
       <input
         accept="image/jpeg, image/png, image/jpg"
@@ -41,9 +38,9 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
         onChange={handleAvatarChange}
       />
       <label htmlFor="upload-avatar">
-        <IconButton color="primary" aria-label="upload picture" component="span" sx={{ marginTop: 2 }}>
-          <PhotoCamera />
-        </IconButton>
+        <Button variant="contained" component="span">
+          Upload Avatar
+        </Button>
       </label>
     </Box>
   );

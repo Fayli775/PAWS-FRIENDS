@@ -101,7 +101,7 @@ export default function Services() {
         Services You Provide
       </Typography>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         {services.map((service) => (
           <Grid size={{xs:12, sm:6, md:3}} style={{ display: 'flex' }} key={service.id}>
 

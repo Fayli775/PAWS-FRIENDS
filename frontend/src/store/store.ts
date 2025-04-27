@@ -4,7 +4,9 @@ import { configureStore } from '@reduxjs/toolkit';
 
 export const makeStore = () => {
   return configureStore({
-    reducer: {},
+    reducer: {
+      dummy: (state = {}) => state,
+    },
      // Add reducers here later, e.g.:
     // root: rootReducer,
   });

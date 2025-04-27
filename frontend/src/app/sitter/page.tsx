@@ -20,7 +20,7 @@ import {
 } from '@mui/material'
 import Image from 'next/image'
 import Header from '@/components/Header'
-import Calendar from '@/app/profile/components/Calendar'
+import Calendar from '@/app/profile/[id]/components/Calendar'
 
 type Pet = { id: number; name: string; photo?: string }
 
