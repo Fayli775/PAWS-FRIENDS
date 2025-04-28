@@ -7,12 +7,20 @@ interface SidebarProps {
   onTabChange: (tab: string) => void;
 }
 
-const menuItems = ["Personal Info", "Pets", "Services", "Calendar", "Reviews"];
+const menuItems = [
+  "Personal Info",
+  "Pets",
+  "Services",
+  "Calendar",
+  "Reviews",
+  "Security",        // 新增
+  "Certifications",  // 新增
+];
 
 export default function Sidebar({ selectedTab, onTabChange }: SidebarProps) {
   return (
-<Box sx={{ backgroundColor:"RGB(253, 244, 246)", margin: 0, padding:0, }}>
-      <List sx={{margin:0, padding:0 }}>
+    <Box sx={{ backgroundColor: "RGB(253, 244, 246)", margin: 0, padding: 0 }}>
+      <List sx={{ margin: 0, padding: 0 }}>
         {menuItems.map((item) => (
           <ListItemButton
             key={item}
