@@ -20,81 +20,75 @@ import {
 } from '@mui/material';
 
 interface PetSitter {
-  id: string;
-  name: string;
-  location: string;
-  petTypes: string[];
-  rate: number;
-  imageUrl: string;
+  id: number;
+  user_name: string;
   bio: string;
-  rating: number;
-  reviewCount: number;
-  badges: string[];
+  avatar: string;
+  region: string;
+  average_rating: number | null;
+  review_count: number;
 }
 
-const locations = ['Auckland', 'Wellington', 'Christchurch'];
-const petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit'];
+const regions = ['North Shore', 'West Auckland', 'Central Auckland', 'East Auckland', 'South Auckland'];
 
 const SearchPageContent = () => {
   const params = useSearchParams();
   const router = useRouter();
+
   const [sitters, setSitters] = useState<PetSitter[]>([]);
   const [page, setPage] = useState(1);
-  const perPage = 4;
+  const [totalPages, setTotalPages] = useState(1);
+  const perPage = 8; // 每页 8 个
 
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
-  const [location, setLocation] = useState(params.get('location') || '');
-  const [petType, setPetType] = useState(params.get('petType') || '');
+  const [region, setRegion] = useState(params.get('region') || '');
 
   useEffect(() => {
-    const fetchResults = async () => {
+    const fetchSitters = async () => {
       try {
         const query = new URLSearchParams();
         if (keyword) query.set('keyword', keyword);
-        if (location) query.set('location', location);
-        if (petType) query.set('petType', petType);
+        if (region) query.set('region', region);
+        query.set('page', String(page));
+        query.set('limit', String(perPage));
 
-        const res = await fetch(`/api/sitters?${query.toString()}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sitters/search?${query.toString()}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch sitters');
+        }
         const data = await res.json();
-
-        const enhancedData = data.map((sitter: any) => ({
-          ...sitter,
-          rating: (4.7 + Math.random() * 0.3).toFixed(1),
-          reviewCount: Math.floor(20 + Math.random() * 30),
-          badges: ['Certified', 'Experienced'],
-          bio: sitter.bio || 'Pet lover with lots of care!',
-        }));
-
-        setSitters(enhancedData);
+        setSitters(data.sitters || []);
+        setTotalPages(data.pagination?.total_pages || 1);
       } catch (error) {
-        console.error('Failed to fetch sitters:', error);
+        console.error('Error fetching sitters:', error);
       }
     };
 
-    fetchResults();
-  }, [params]);
+    fetchSitters();
+  }, [page, params]); // 注意：params 变化重新拉数据
 
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword) query.set('keyword', keyword);
-    if (location) query.set('location', location);
-    if (petType) query.set('petType', petType);
+    if (region) query.set('region', region);
 
     router.push(`/search?${query.toString()}`);
+    setPage(1); // 搜索后回到第一页
   };
 
-  const paginatedSitters = sitters.slice((page - 1) * perPage, page * perPage);
+  const handlePageChange = (_: any, value: number) => {
+    setPage(value);
+  };
 
   return (
     <Box sx={{ backgroundColor: '#FFF9EB', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
-      {/* Title + Search bar */}
+      {/* 搜索栏 */}
       <Box sx={{ py: 6, textAlign: 'center' }}>
         <Typography variant="h3" fontWeight="bold" gutterBottom>
           Find the Right Pet Sitter
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Search by keyword, location or pet type
+          Search by keyword or region
         </Typography>
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
           <TextField
@@ -105,56 +99,43 @@ const SearchPageContent = () => {
           />
           <TextField
             select
-            label="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            sx={{ width: 200 }}
+            label="Region"
+            value={region}
+            onChange={(e) => setRegion(e.target.value)}
+            sx={{ width: 250 }}
           >
-            {locations.map((loc) => (
-              <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+            <MenuItem value="">All</MenuItem>
+            {regions.map((r) => (
+              <MenuItem key={r} value={r}>{r}</MenuItem>
             ))}
           </TextField>
-          <TextField
-            select
-            label="Pet Type"
-            value={petType}
-            onChange={(e) => setPetType(e.target.value)}
-            sx={{ width: 200 }}
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: '#8e44ad', borderRadius: '20px' }}
+            onClick={handleSearch}
           >
-            {petTypes.map((type) => (
-              <MenuItem key={type} value={type}>{type}</MenuItem>
-            ))}
-          </TextField>
-          <Button variant="contained" sx={{ backgroundColor: '#8e44ad', borderRadius: '20px' }} onClick={handleSearch}>
             Search
           </Button>
         </Box>
       </Box>
 
-      {/* Results */}
+      {/* 搜索结果 */}
       <Container sx={{ flexGrow: 1 }}>
         <Typography variant="h5" fontWeight="bold" mb={3}>
           Found {sitters.length} sitters
         </Typography>
 
-        {paginatedSitters.length === 0 ? (
-          <Box textAlign="center" mt={6}>
-            <img
-              src="/empty-cat.png"
-              alt="No Results"
-              style={{ width: '200px', marginBottom: '20px' }}
-            />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              No sitters found.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Try searching without a keyword?
+        {sitters.length === 0 ? (
+          <Box textAlign="center" mt={4}>
+            <img src="/empty-cat.png" alt="No sitters found" style={{ width: '240px', marginBottom: '16px' }} />
+            <Typography variant="body1" color="text.secondary">
+              No sitters found. Try searching with different keywords!
             </Typography>
           </Box>
         ) : (
           <>
             <Grid container spacing={4}>
-              {paginatedSitters.map((sitter) => (
+              {sitters.map((sitter) => (
                 <Grid item xs={12} sm={6} md={3} key={sitter.id}>
                   <Card sx={{
                     height: '100%',
@@ -169,36 +150,24 @@ const SearchPageContent = () => {
                     transition: '0.3s',
                     '&:hover': { boxShadow: 6 },
                   }}>
-                    <Avatar src={sitter.imageUrl} alt={sitter.name} sx={{ width: 80, height: 80, mb: 2 }} />
-                    <Typography variant="h6" fontWeight="bold">{sitter.name}</Typography>
+                    <Avatar
+                      src={sitter.avatar}
+                      alt={sitter.user_name}
+                      sx={{ width: 80, height: 80, mb: 2 }}
+                    />
+                    <Typography variant="h6" fontWeight="bold">{sitter.user_name}</Typography>
                     <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
-                      <Rating value={parseFloat(sitter.rating)} precision={0.1} readOnly size="small" />
+                      <Rating value={sitter.average_rating || 0} precision={0.1} readOnly size="small" />
                       <Typography variant="body2" color="text.secondary">
-                        ({sitter.reviewCount})
+                        ({sitter.review_count})
                       </Typography>
                     </Stack>
                     <Typography variant="body2" color="text.secondary" mt={1}>
-                      📍 {sitter.location}
-                    </Typography>
-                    <Typography variant="body2" mt={1}>
-                      Starts from ${sitter.rate}/hr
+                      📍 {sitter.region}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" mt={1}>
                       {sitter.bio}
                     </Typography>
-                    <Stack direction="row" spacing={1} mt={2} flexWrap="wrap" justifyContent="center">
-                      {sitter.badges.map((badge, index) => (
-                        <Chip
-                          key={index}
-                          label={badge}
-                          size="small"
-                          sx={{
-                            backgroundColor: badge === 'Certified' ? '#d1f0d1' : '#d1e8ff',
-                            color: '#333',
-                          }}
-                        />
-                      ))}
-                    </Stack>
                   </Card>
                 </Grid>
               ))}
@@ -206,9 +175,9 @@ const SearchPageContent = () => {
 
             <Box mt={6} display="flex" justifyContent="center">
               <Pagination
-                count={Math.ceil(sitters.length / perPage)}
+                count={totalPages}
                 page={page}
-                onChange={(_, value) => setPage(value)}
+                onChange={handlePageChange}
                 color="primary"
                 shape="rounded"
               />

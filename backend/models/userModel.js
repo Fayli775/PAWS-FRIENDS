@@ -130,7 +130,8 @@ exports.searchSitters = async (filters) => {
   query += ' GROUP BY u.id, u.user_name, u.bio, u.avatar, u.region';
 
   // Order by average rating (highest first), NULL ratings last
-  query += ' ORDER BY average_rating DESC NULLS LAST, u.id'; // Added secondary sort by id for stable order
+  // query += ' ORDER BY average_rating DESC NULLS LAST, u.id'; // Added secondary sort by id for stable order
+  query += ' ORDER BY average_rating DESC, u.id'; // Added secondary sort by id for stable order
 
   // Add pagination
   query += ' LIMIT ? OFFSET ?';

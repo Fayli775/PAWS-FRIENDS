@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -12,46 +13,45 @@ import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 
 interface PetSitter {
-  id: string;
-  name: string;
-  location: string;
-  petTypes: string[];
-  rate: number;
-  imageUrl: string;
+  id: number;
+  user_name: string;
+  bio: string;
+  avatar: string;
+  region: string;
+  average_rating: number | null;
+  review_count: number;
 }
 
 interface SearchSectionProps {
   onSearchResults?: (results: PetSitter[]) => void;
 }
 
+const regions = ['North Shore', 'West Auckland', 'Central Auckland', 'East Auckland', 'South Auckland'];
+
 const SearchSection: React.FC<SearchSectionProps> = ({ onSearchResults }) => {
   const [keyword, setKeyword] = useState('');
-  const [location, setLocation] = useState('');
-  const [petType, setPetType] = useState('');
+  const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Placeholder locations and pet types - can be fetched from API later
-  const locations = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'];
-  const petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Any'];
-
-  // Function to handle search
   const handleSearch = async () => {
     setLoading(true);
+
     const queryParams = new URLSearchParams();
     if (keyword) queryParams.append('keyword', keyword);
-    if (location) queryParams.append('location', location);
-    if (petType && petType !== 'Any') queryParams.append('petType', petType);
+    if (region) queryParams.append('region', region);
+    queryParams.append('page', '1'); // 默认查第一页
+    queryParams.append('limit', '8'); // 每页查8条，跟之前设定一致
 
     try {
-      const response = await fetch(`/api/sitters?${queryParams.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sitters/search?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      const data: PetSitter[] = await response.json();
-      onSearchResults?.(data);
+      const data = await response.json();
+      onSearchResults?.(data.sitters || []);
       console.log('Search Results:', data);
     } catch (error) {
-      console.error("Failed to fetch sitters:", error);
+      console.error('Failed to fetch sitters:', error);
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearchResults }) => {
         </Typography>
 
         <Grid container spacing={2} alignItems="center" justifyContent="center">
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Search by keyword..."
@@ -92,38 +92,24 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearchResults }) => {
               sx={{ backgroundColor: 'background.paper' }}
             />
           </Grid>
-          <Grid size={{ xs: 6, sm: 3 }}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth variant="outlined" sx={{ backgroundColor: 'background.paper' }}>
-              <InputLabel>Location</InputLabel>
+              <InputLabel>Region</InputLabel>
               <Select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                label="Location"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                label="Region"
               >
                 <MenuItem value="">
-                  <em>Any</em>
+                  <em>All</em>
                 </MenuItem>
-                {locations.map((loc) => (
-                  <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                {regions.map((r) => (
+                  <MenuItem key={r} value={r}>{r}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid size={{ xs: 6, sm: 3 }}>
-            <FormControl fullWidth variant="outlined" sx={{ backgroundColor: 'background.paper' }}>
-              <InputLabel>Pet Type</InputLabel>
-              <Select
-                value={petType}
-                onChange={(e) => setPetType(e.target.value)}
-                label="Pet Type"
-              >
-                {petTypes.map((type) => (
-                  <MenuItem key={type} value={type}>{type}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 2 }}>
+          <Grid item xs={12} sm={4}>
             <Button
               fullWidth
               variant="contained"
@@ -142,4 +128,4 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearchResults }) => {
   );
 };
 
-export default SearchSection; 
+export default SearchSection;
