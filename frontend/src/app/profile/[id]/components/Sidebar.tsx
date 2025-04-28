@@ -15,6 +15,7 @@ const menuItems = [
   "Reviews",
   "Security",        // 新增
   "Certifications",  // 新增
+  "Orders",    
 ];
 
 export default function Sidebar({ selectedTab, onTabChange }: SidebarProps) {

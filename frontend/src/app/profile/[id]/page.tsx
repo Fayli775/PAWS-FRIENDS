@@ -9,6 +9,8 @@ import Reviews from './components/Reviews'
 import Pets from './components/Pets'
 import ChangePassword from './components/ChangePassword' // 新加
 import Certifications from './components/Certifications' // 新加
+import Orders from './components/Orders' //  新增
+
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
@@ -32,6 +34,8 @@ export default function MyProfilePage() {
           {selectedTab === 'Reviews' && <Reviews />}
           {selectedTab === 'Security' && <ChangePassword />}        {/* 新增 */}
           {selectedTab === 'Certifications' && <Certifications />}  {/* 新增 */}
+          {selectedTab === 'Orders' && <Orders />}   
+
         </Box>
       </Box>
     </Box>
