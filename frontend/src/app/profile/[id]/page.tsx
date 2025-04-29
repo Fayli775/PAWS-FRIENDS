@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import Sidebar from './components/Sidebar'
@@ -7,14 +8,15 @@ import Calendar from './components/Calendar'
 import Services from './components/Services'
 import Reviews from './components/Reviews'
 import Pets from './components/Pets'
-import ChangePassword from './components/ChangePassword' // 新加
-import Certifications from './components/Certifications' // 新加
-import Orders from './components/Orders' //  新增
+import ChangePassword from './components/ChangePassword'
+import Certifications from './components/Certifications'
+import Header from '@/components/Header'
+import OrdersPage from './components/OrdersPage'
 
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
-    'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Security' | 'Certifications'
+    'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications'
   >('Personal Info')
 
   return (
@@ -31,11 +33,10 @@ export default function MyProfilePage() {
           {selectedTab === 'Pets' && <Pets />}
           {selectedTab === 'Services' && <Services />}
           {selectedTab === 'Calendar' && <Calendar />}
+          {selectedTab === 'Orders' && <OrdersPage />}  {/* ✅ 加上新 Orders */}
           {selectedTab === 'Reviews' && <Reviews />}
-          {selectedTab === 'Security' && <ChangePassword />}        {/* 新增 */}
-          {selectedTab === 'Certifications' && <Certifications />}  {/* 新增 */}
-          {selectedTab === 'Orders' && <Orders />}   
-
+          {selectedTab === 'Security' && <ChangePassword />}
+          {selectedTab === 'Certifications' && <Certifications />}
         </Box>
       </Box>
     </Box>
