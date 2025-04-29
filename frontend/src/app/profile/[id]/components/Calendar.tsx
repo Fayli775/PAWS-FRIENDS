@@ -1,4 +1,3 @@
-// src/app/profile/components/Calendar.tsx
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -11,6 +10,7 @@ import {
   TableBody,
   Button,
   Typography,
+  CircularProgress,
 } from '@mui/material'
 
 export const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -35,24 +35,24 @@ const publicHolidays = [
   { date: '2025-12-26', name: 'Boxing Day' },
 ]
 
-type CalendarProps = {}
+type CalendarProps = {
+  readOnly?: boolean;  // 🔥 是否外部强制只读
+}
 
-export default function Calendar({}: CalendarProps) {
+export default function Calendar({ readOnly: externalReadOnly = false }: CalendarProps) {
   const [selected, setSelected] = useState<Record<string, boolean>>({})
-  const [readOnly, setReadOnly] = useState(true) // 控制是否可编辑
-  const [loading, setLoading] = useState(false) // 控制加载状态
+  const [readOnly, setReadOnly] = useState(externalReadOnly)
+  const [loading, setLoading] = useState(false)
 
-  // 从数据库加载用户的日历数据
+  // 加载日历数据
   useEffect(() => {
     const fetchCalendar = async () => {
       setLoading(true)
       try {
-        const response = await fetch('/api/calendar') // 替换为你的后端 API 路径
-        if (!response.ok) {
-          throw new Error('Failed to fetch calendar data')
-        }
+        const response = await fetch('/api/calendar')
+        if (!response.ok) throw new Error('Failed to fetch calendar data')
         const data = await response.json()
-        setSelected(data) // 假设后端返回的格式与 `selected` 状态一致
+        setSelected(data)
       } catch (error) {
         console.error('Error fetching calendar data:', error)
       } finally {
@@ -79,19 +79,17 @@ export default function Calendar({}: CalendarProps) {
     if (readOnly) return
     try {
       const response = await fetch('/api/calendar', {
-        method: 'POST', // 或 'PUT'，根据你的后端设计
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(selected),
       })
-      if (!response.ok) {
-        throw new Error('Failed to save calendar data')
-      }
+      if (!response.ok) throw new Error('Failed to save calendar')
       alert('Calendar saved successfully!')
-      setReadOnly(true) // 保存后切换回只读模式
+      setReadOnly(true)
     } catch (error) {
-      console.error('Error saving calendar data:', error)
+      console.error('Error saving calendar:', error)
       alert('Failed to save calendar. Please try again.')
     }
   }
@@ -104,13 +102,15 @@ export default function Calendar({}: CalendarProps) {
 
   return (
     <Box>
-      {/* 提示信息 */}
+      {/* 提示 */}
       <Typography variant="h6" align="center" gutterBottom>
         <strong>Please choose your available time for providing pet services</strong>
       </Typography>
 
       {loading ? (
-        <Typography align="center">Loading...</Typography>
+        <Box display="flex" justifyContent="center" mt={4}>
+          <CircularProgress />
+        </Box>
       ) : (
         <>
           <Table size="small" sx={{ marginTop: 3 }}>
@@ -128,7 +128,7 @@ export default function Calendar({}: CalendarProps) {
               {timeSlots.map(slot => (
                 <TableRow key={slot}>
                   <TableCell>{slot}</TableCell>
-                  {weekdays.map((d, index) => {
+                  {weekdays.map(d => {
                     const key = `${d}-${slot}`
                     return (
                       <TableCell
@@ -140,6 +140,9 @@ export default function Calendar({}: CalendarProps) {
                           backgroundColor: selected[key] ? '#A78BFA' : '#F3F4F6',
                           borderRadius: 1,
                           userSelect: 'none',
+                          '&:hover': {
+                            backgroundColor: readOnly ? '#F3F4F6' : (selected[key] ? '#A78BFA' : '#E5E7EB'),
+                          },
                         }}
                       >
                         {selected[key] ? '✔️' : ''}
@@ -151,7 +154,7 @@ export default function Calendar({}: CalendarProps) {
             </TableBody>
           </Table>
 
-          {/* 即将到来的公众假期 */}
+          {/* 公众假期 */}
           <Box mt={4}>
             <Typography variant="h6" gutterBottom>
               Upcoming Public Holidays in New Zealand
@@ -159,7 +162,7 @@ export default function Calendar({}: CalendarProps) {
             <Box>
               {getUpcomingHolidays().map(holiday => {
                 const holidayDate = new Date(holiday.date)
-                const weekday = weekdays[holidayDate.getDay()] // 获取星期几
+                const weekday = weekdays[holidayDate.getDay()] || ''
                 return (
                   <Typography key={holiday.date} variant="body1">
                     <strong>{holiday.date} ({weekday}):</strong> {holiday.name}
@@ -169,23 +172,25 @@ export default function Calendar({}: CalendarProps) {
             </Box>
           </Box>
 
-          {/* 按钮 */}
-          <Box mt={2} display="flex" gap={2}>
-            {readOnly ? (
-              <Button variant="contained" onClick={() => setReadOnly(false)}>
-                Modify
-              </Button>
-            ) : (
-              <>
-                <Button variant="contained" onClick={saveAll}>
-                  Save
+          {/* 按钮区 */}
+          {!externalReadOnly && (
+            <Box mt={3} display="flex" gap={2}>
+              {readOnly ? (
+                <Button variant="contained" onClick={() => setReadOnly(false)}>
+                  Modify
                 </Button>
-                <Button variant="outlined" onClick={clearAll}>
-                  Clear
-                </Button>
-              </>
-            )}
-          </Box>
+              ) : (
+                <>
+                  <Button variant="contained" onClick={saveAll}>
+                    Save
+                  </Button>
+                  <Button variant="outlined" onClick={clearAll}>
+                    Clear
+                  </Button>
+                </>
+              )}
+            </Box>
+          )}
         </>
       )}
     </Box>
