@@ -15,57 +15,66 @@ import {
   Button,
   TextField,
   Rating,
+  Tabs,
+  Tab
 } from '@mui/material'
 
-// Mock 初始订单数据
-const initialOrders = [
+// Mock初始数据
+const mockMyBookings = [
   {
     id: 1,
     petName: 'Buddy',
     serviceType: 'Dog Walking',
-    bookingTime: '2024-05-01 10:00',
-    status: 'Pending',
-    notes: 'Please be careful, Buddy is a bit shy.',
+    bookingTime: '2024-05-20T10:00:00',  // ISO格式
+    status: 'Confirmed',
+    notes: '',
     review: '',
     rating: null,
     complaint: '',
+    role: 'owner',
   },
   {
     id: 2,
     petName: 'Mittens',
     serviceType: 'Pet Sitting',
-    bookingTime: '2024-05-03 15:00',
-    status: 'Confirmed',
-    notes: 'Mittens loves to play with yarn.',
-    review: '',
-    rating: null,
+    bookingTime: '2024-05-15T15:00:00',
+    status: 'Completed',
+    notes: '',
+    review: 'Amazing service!',
+    rating: 5,
     complaint: '',
-  },
+    role: 'owner',
+  }
+]
+
+const mockReceivedBookings = [
   {
     id: 3,
     petName: 'Oscar',
     serviceType: 'Dog Walking',
-    bookingTime: '2024-05-07 08:00',
-    status: 'Completed',
+    bookingTime: '2024-05-21T08:00:00',
+    status: 'Pending',
     notes: '',
-    review: 'Oscar enjoyed the walk!',
-    rating: 5,
+    review: '',
+    rating: null,
     complaint: '',
+    role: 'sitter',
   },
   {
     id: 4,
     petName: 'Luna',
     serviceType: 'Pet Sitting',
-    bookingTime: '2024-05-10 11:00',
+    bookingTime: '2024-05-10T11:00:00',
     status: 'Cancelled',
-    notes: 'Owner had to cancel due to travel change.',
+    notes: '',
     review: '',
     rating: null,
     complaint: '',
+    role: 'sitter',
   }
 ]
 
-// 订单状态对应颜色
+// 状态颜色
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
   Confirmed: 'success',
@@ -73,9 +82,26 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   Cancelled: 'error',
 }
 
+// 动态判断时间阶段
+function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
+  const now = new Date()
+  const booking = new Date(bookingTime)
+  const diffMinutes = (booking.getTime() - now.getTime()) / 60000
+
+  if (diffMinutes > 0) {
+    return 'upcoming'
+  } else if (diffMinutes > -90) {
+    return 'ongoing'
+  } else {
+    return 'completed'
+  }
+}
+
 export default function Orders() {
-  const [orders, setOrders] = useState(initialOrders)
-  const [selectedOrder, setSelectedOrder] = useState<typeof initialOrders[0] | null>(null)
+  const [tab, setTab] = useState<'myBookings' | 'receivedBookings'>('myBookings')
+  const [myOrders, setMyOrders] = useState(mockMyBookings)
+  const [receivedOrders, setReceivedOrders] = useState(mockReceivedBookings)
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
   const [newReview, setNewReview] = useState('')
   const [newRating, setNewRating] = useState<number | null>(null)
   const [newComplaint, setNewComplaint] = useState('')
@@ -88,67 +114,57 @@ export default function Orders() {
   }
 
   const handleConfirm = () => {
-    if (selectedOrder) {
-      const updated = orders.map((order) =>
-        order.id === selectedOrder.id ? { ...order, status: 'Confirmed' } : order
-      )
-      setOrders(updated)
-      setSelectedOrder({ ...selectedOrder, status: 'Confirmed' })
-    }
+    if (!selectedOrder) return
+    updateOrder(selectedOrder.id, { status: 'Confirmed' })
   }
 
   const handleCancel = () => {
-    if (selectedOrder) {
-      const updated = orders.map((order) =>
-        order.id === selectedOrder.id ? { ...order, status: 'Cancelled' } : order
-      )
-      setOrders(updated)
-      setSelectedOrder({ ...selectedOrder, status: 'Cancelled' })
-    }
+    if (!selectedOrder) return
+    updateOrder(selectedOrder.id, { status: 'Cancelled' })
   }
 
   const handleComplete = () => {
-    if (selectedOrder) {
-      const updated = orders.map((order) =>
-        order.id === selectedOrder.id ? { ...order, status: 'Completed' } : order
-      )
-      setOrders(updated)
-      setSelectedOrder({ ...selectedOrder, status: 'Completed' })
-    }
+    if (!selectedOrder) return
+    updateOrder(selectedOrder.id, { status: 'Completed' })
   }
 
   const handleSubmitReview = () => {
-    if (selectedOrder && newReview.trim() && newRating) {
-      const updated = orders.map((order) =>
-        order.id === selectedOrder.id
-          ? { ...order, review: newReview, rating: newRating }
-          : order
-      )
-      setOrders(updated)
-      setSelectedOrder({ ...selectedOrder, review: newReview, rating: newRating })
-      setNewReview('')
-      setNewRating(null)
-    }
+    if (!selectedOrder || !newReview.trim() || !newRating) return
+    updateOrder(selectedOrder.id, { review: newReview, rating: newRating })
+    setNewReview('')
+    setNewRating(null)
   }
 
   const handleSubmitComplaint = () => {
-    if (selectedOrder && newComplaint.trim()) {
-      const updated = orders.map((order) =>
-        order.id === selectedOrder.id
-          ? { ...order, complaint: newComplaint }
-          : order
-      )
-      setOrders(updated)
-      setSelectedOrder({ ...selectedOrder, complaint: newComplaint })
-      setNewComplaint('')
+    if (!selectedOrder || !newComplaint.trim()) return
+    updateOrder(selectedOrder.id, { complaint: newComplaint })
+    setNewComplaint('')
+  }
+
+  const updateOrder = (id: number, fields: any) => {
+    const update = (list: any[]) =>
+      list.map((order) => (order.id === id ? { ...order, ...fields } : order))
+    if (tab === 'myBookings') {
+      setMyOrders(update(myOrders))
+      setSelectedOrder({ ...selectedOrder, ...fields })
+    } else {
+      setReceivedOrders(update(receivedOrders))
+      setSelectedOrder({ ...selectedOrder, ...fields })
     }
   }
+
+  const orders = tab === 'myBookings' ? myOrders : receivedOrders
 
   return (
     <Box>
       <Typography variant="h5" fontWeight={600} mb={3}>
         My Orders
       </Typography>
+
+      <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 3 }}>
+        <Tab value="myBookings" label="My Bookings" />
+        <Tab value="receivedBookings" label="Received Bookings" />
+      </Tabs>
 
       <Stack spacing={2}>
         {orders.map((order) => (
@@ -185,33 +201,51 @@ export default function Orders() {
               <Typography><strong>Service:</strong> {selectedOrder.serviceType}</Typography>
               <Typography><strong>Time:</strong> {selectedOrder.bookingTime}</Typography>
               <Typography><strong>Status:</strong> {selectedOrder.status}</Typography>
-              <Typography><strong>Notes:</strong> {selectedOrder.notes || 'None'}</Typography>
 
-              {/* 操作按钮 */}
-              {selectedOrder.status === 'Pending' && (
-                <Stack direction="row" spacing={2} mt={2}>
-                  <Button variant="contained" color="success" onClick={handleConfirm}>
-                    Confirm
-                  </Button>
-                  <Button variant="outlined" color="error" onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                </Stack>
-              )}
+              {/* 动态判断时间状态 */}
+              {(() => {
+                const timeStatus = getTimeStatus(selectedOrder.bookingTime)
 
-              {selectedOrder.status === 'Confirmed' && (
-                <Stack direction="row" spacing={2} mt={2}>
-                  <Button variant="contained" color="primary" onClick={handleComplete}>
-                    Mark as Completed
-                  </Button>
-                </Stack>
-              )}
+                // Upcoming阶段
+                if (timeStatus === 'upcoming') {
+                  if (selectedOrder.role === 'owner') {
+                    return (
+                      <Button variant="outlined" color="error" onClick={handleCancel}>
+                        Cancel Booking
+                      </Button>
+                    )
+                  }
+                  if (selectedOrder.role === 'sitter' && selectedOrder.status === 'Pending') {
+                    return (
+                      <Stack direction="row" spacing={2}>
+                        <Button variant="contained" color="success" onClick={handleConfirm}>
+                          Accept
+                        </Button>
+                        <Button variant="outlined" color="error" onClick={handleCancel}>
+                          Reject
+                        </Button>
+                      </Stack>
+                    )
+                  }
+                }
 
-              {/* Completed 或 Cancelled 后展示 Review 和 Complaint */}
+                // Confirmed时Owner可以手动Mark Completed
+                if (timeStatus === 'ongoing' && selectedOrder.role === 'owner' && selectedOrder.status === 'Confirmed') {
+                  return (
+                    <Button variant="contained" color="primary" onClick={handleComplete}>
+                      Mark as Completed
+                    </Button>
+                  )
+                }
+
+                return null
+              })()}
+
+              {/* Completed阶段展示 Review + Complaint */}
               {(selectedOrder.status === 'Completed' || selectedOrder.status === 'Cancelled') && (
-                <Box mt={3}>
+                <>
                   {/* Review区 */}
-                  <Typography variant="subtitle1" fontWeight={600}>
+                  <Typography variant="subtitle1" fontWeight={600} mt={4}>
                     Review
                   </Typography>
                   {selectedOrder.review ? (
@@ -272,7 +306,7 @@ export default function Orders() {
                       </Button>
                     </Stack>
                   )}
-                </Box>
+                </>
               )}
             </Box>
           )}

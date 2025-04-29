@@ -1,0 +1,133 @@
+'use client'
+
+import React, { useState } from 'react'
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material'
+import OrderDialog from './OrderDialog'
+
+// Mock数据（Sitter版，包含不同时间段）
+const mockReceivedBookings = [
+  {
+    id: 10,
+    petName: 'Oscar',
+    serviceType: 'Dog Walking',
+    bookingTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2小时后（Upcoming）
+    status: 'Pending',
+    notes: '',
+    review: '',
+    rating: null,
+    complaint: '',
+    role: 'sitter',
+  },
+  {
+    id: 11,
+    petName: 'Luna',
+    serviceType: 'Pet Sitting',
+    bookingTime: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45分钟前（Ongoing）
+    status: 'Confirmed',
+    notes: '',
+    review: '',
+    rating: null,
+    complaint: '',
+    role: 'sitter',
+  },
+  {
+    id: 12,
+    petName: 'Max',
+    serviceType: 'Dog Walking',
+    bookingTime: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5小时前（Completed）
+    status: 'Completed',
+    notes: '',
+    review: '',
+    rating: 4,
+    complaint: '',
+    role: 'sitter',
+  }
+]
+
+// 状态颜色
+const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+  Pending: 'warning',
+  Confirmed: 'success',
+  Completed: 'success',
+  Cancelled: 'error',
+}
+
+// 动态时间阶段
+function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
+  const now = new Date()
+  const booking = new Date(bookingTime)
+  const diffMinutes = (booking.getTime() - now.getTime()) / 60000
+
+  if (diffMinutes > 0) {
+    return 'upcoming'
+  } else if (diffMinutes > -90) {
+    return 'ongoing'
+  } else {
+    return 'completed'
+  }
+}
+
+export default function ReceivedBookings() {
+  const [orders, setOrders] = useState(mockReceivedBookings)
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
+
+  const handleCloseDialog = () => {
+    setSelectedOrder(null)
+  }
+
+  const handleUpdateOrder = (updatedFields: any) => {
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === selectedOrder.id ? { ...order, ...updatedFields } : order
+      )
+    )
+    setSelectedOrder((prev) => prev ? { ...prev, ...updatedFields } : prev)
+  }
+
+  // 分类
+  const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
+  const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
+  const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')
+
+  const renderOrderCard = (order: any) => (
+    <Card
+      key={order.id}
+      variant="outlined"
+      sx={{ cursor: 'pointer', mb: 2 }}
+      onClick={() => setSelectedOrder(order)}
+    >
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <strong>{order.petName}</strong> - {order.serviceType}
+            <Box color="text.secondary">{new Date(order.bookingTime).toLocaleString()}</Box>
+          </Box>
+          <Chip label={order.status} color={statusColorMap[order.status]} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <Box>
+      <Typography variant="h6" mt={2}>Upcoming Orders</Typography>
+      {upcomingOrders.length > 0 ? upcomingOrders.map(renderOrderCard) : <Typography>No upcoming orders.</Typography>}
+
+      <Typography variant="h6" mt={4}>Ongoing Orders</Typography>
+      {ongoingOrders.length > 0 ? ongoingOrders.map(renderOrderCard) : <Typography>No ongoing orders.</Typography>}
+
+      <Typography variant="h6" mt={4}>Completed Orders</Typography>
+      {completedOrders.length > 0 ? completedOrders.map(renderOrderCard) : <Typography>No completed orders.</Typography>}
+
+      {/* 订单详情弹窗 */}
+      {selectedOrder && (
+        <OrderDialog
+          order={selectedOrder}
+          role="sitter"
+          onClose={handleCloseDialog}
+          onUpdate={handleUpdateOrder}
+        />
+      )}
+    </Box>
+  )
+}
