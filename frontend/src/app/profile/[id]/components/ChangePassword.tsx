@@ -1,6 +1,14 @@
 'use client'
+
 import React, { useState } from 'react'
-import { Box, TextField, Button, Typography, Snackbar, Alert } from '@mui/material'
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Snackbar,
+  Alert,
+} from '@mui/material'
 import axios from 'axios'
 
 export default function ChangePassword() {
@@ -10,6 +18,8 @@ export default function ChangePassword() {
     confirmNewPassword: '',
   })
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -21,12 +31,19 @@ export default function ChangePassword() {
       alert('New passwords do not match.')
       return
     }
+
     try {
+      setLoading(true)
+
       const token = localStorage.getItem('token')
-      if (!token) throw new Error('No token found.')
+      const userStr = localStorage.getItem('user')
+
+      if (!token || !userStr) throw new Error('No user session found.')
+
+      const user = JSON.parse(userStr)
 
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/me/changePassword`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/updatePassword/${user.id}`,
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
@@ -37,11 +54,14 @@ export default function ChangePassword() {
           },
         }
       )
+
       setSnackbarOpen(true)
       setFormData({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
     } catch (error) {
       console.error('Failed to change password:', error)
-      alert('Failed to change password.')
+      setErrorSnackbarOpen(true)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -50,6 +70,7 @@ export default function ChangePassword() {
       <Typography variant="h5" fontWeight={600}>
         Change Password
       </Typography>
+
       <TextField
         label="Current Password"
         type="password"
@@ -74,10 +95,17 @@ export default function ChangePassword() {
         onChange={handleChange}
         fullWidth
       />
-      <Button variant="contained" onClick={handleSubmit} sx={{ backgroundColor: '#A78BFA' }}>
-        Save
+
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={loading}
+        sx={{ backgroundColor: '#A78BFA', textTransform: 'none' }}
+      >
+        {loading ? 'Saving...' : 'Save'}
       </Button>
 
+      {/* 成功提示 */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -86,6 +114,18 @@ export default function ChangePassword() {
       >
         <Alert severity="success" variant="filled">
           Password changed successfully!
+        </Alert>
+      </Snackbar>
+
+      {/* 失败提示 */}
+      <Snackbar
+        open={errorSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setErrorSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" variant="filled">
+          Failed to change password. Please try again.
         </Alert>
       </Snackbar>
     </Box>
