@@ -152,3 +152,37 @@ INSERT INTO location_reviews (location_id, user_id, rating, comment, created_at)
 (15, 2, 5, 'Unique park with farm animals. My dog loves watching the sheep!', '2023-08-18 11:15:00'),
 (15, 4, 4, 'Educational and fun for both pets and owners.', '2023-12-10 16:40:00');
 
+-- ========================
+-- 初始化服务数据
+-- ========================
+-- 基础服务
+INSERT INTO services (name, base_price, duration, description)
+VALUES 
+  ('遛狗', 25.00, '30分钟', '每日户外散步服务'),
+  ('上门喂猫', 30.00, '30分钟', '包括喂食和清理猫砂'),
+  ('宠物寄养', 50.00, '24小时', '全天候居家看护');
+
+-- 服务支持的宠物类型
+INSERT INTO service_pet_types (service_id, pet_type, price_adjustment)
+VALUES
+  (1, '狗', 0),    -- 遛狗仅支持狗
+  (2, '猫', 0),     -- 上门喂猫仅支持猫
+  (3, '狗', 5.00),  -- 寄养狗比基础价贵5元
+  (3, '猫', 0);     -- 寄养猫按基础价
+
+-- 服务支持的语言
+INSERT INTO service_languages (service_id, language)
+VALUES
+  (1, '中文'),
+  (1, 'English'),
+  (2, '中文'),
+  (3, '中文'),
+  (3, 'English'),
+  (3, '日本語');
+
+-- 照看者提供的服务（示例：用户ID 1001 和 1002 是照看者）
+INSERT INTO sitter_services (sitter_id, service_id, custom_price)
+VALUES 
+  (1001, 1, 28.00), -- 用户1001提供遛狗服务，自定义价格28元
+  (1001, 3, 60.00), -- 用户1001提供寄养服务，自定义价格60元
+  (1002, 2, 35.00); -- 用户1002提供上门喂猫服务，自定义价格35元
