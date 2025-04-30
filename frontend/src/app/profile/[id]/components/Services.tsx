@@ -11,9 +11,10 @@ import {
   CardContent,
   Checkbox,
   FormControlLabel,
+  FormGroup,
+  FormLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { width } from "@mui/system";
 
 // 服务数据
 const services = [
@@ -47,6 +48,17 @@ const services = [
   },
 ];
 
+// 可选语言
+const availableLanguages = [
+  "English",
+  "中文",
+  "Te Reo Māori",
+  "Hindi",
+  "Korean",
+  "Japanese",
+  "Spanish",
+];
+
 // Styled components
 const ServiceCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -65,21 +77,50 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 
 const IconWrapper = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
+  height: 150, // 固定图像区域高度
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   "& img": {
-    width: "100%",
-    height: "auto",
+    maxHeight: "100%",
+    maxWidth: "100%",
     objectFit: "contain",
   },
 }));
 
 export default function Services() {
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [dirty, setDirty] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
-    const initialServices = [1, 3]; // 假设用户已选择 "In-Home Feeding" 和 "Boarding"
-    setSelectedServices(initialServices);
+    const fetchUserSettings = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        const user = userStr ? JSON.parse(userStr) : null;
+
+        if (!token || !user?.id) return;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        setSelectedServices(data.user.services || []);
+        setSelectedLanguages(data.user.languages_supported || []);
+      } catch (err) {
+        console.error("Failed to load user preferences", err);
+      }
+    };
+
+    fetchUserSettings();
   }, []);
 
   const toggleService = (id: number) => {
@@ -89,22 +130,76 @@ export default function Services() {
     setDirty(true);
   };
 
+  const toggleLanguage = (lang: string) => {
+    setSelectedLanguages((prev) =>
+      prev.includes(lang) ? prev.filter((x) => x !== lang) : [...prev, lang]
+    );
+    setDirty(true);
+  };
+
   const handleSave = async () => {
-    console.log("Saving selected services:", selectedServices);
-    setDirty(false);
-    setSnackbarOpen(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token");
+
+      const payload = {
+        services: selectedServices,
+        languages_supported: selectedLanguages,
+      };
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/me/updateProfile`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to save");
+      setSnackbarOpen(true);
+      setDirty(false);
+    } catch (err) {
+      console.error("Error saving settings:", err);
+      alert("Failed to save. Please try again.");
+    }
   };
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={600}  mb={2}>
+      {/* ✅ 语言选择放在页面最上方 */}
+      <Box mb={5} maxWidth="lg" mx="auto" px={{ xs: 2, md: 4 }}>
+        <FormLabel component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
+          Languages You Support
+        </FormLabel>
+        <FormGroup row sx={{ gap: 2 }}>
+          {availableLanguages.map((lang) => (
+            <FormControlLabel
+              key={lang}
+              control={
+                <Checkbox
+                  checked={selectedLanguages.includes(lang)}
+                  onChange={() => toggleLanguage(lang)}
+                />
+              }
+              label={lang}
+            />
+          ))}
+        </FormGroup>
+      </Box>
+
+      {/* 服务模块标题 */}
+      <Typography variant="h5" fontWeight={600} mb={2} textAlign="center">
         Services You Provide
       </Typography>
 
+      {/* 服务卡片模块 */}
       <Grid container spacing={2}>
         {services.map((service) => (
-          <Grid size={{xs:12, sm:6, md:3}} style={{ display: 'flex' }} key={service.id}>
-
+          <Grid item xs={12} sm={6} md={3}  lg={3} xl={3} key={service.id} style={{ display: "flex" }}>
             <ServiceCard elevation={2}>
               <IconWrapper>
                 <img src={service.icon} alt={service.name} />
@@ -141,6 +236,7 @@ export default function Services() {
         ))}
       </Grid>
 
+      {/* Save / Reset 按钮 */}
       <Box mt={4} display="flex" gap={2} justifyContent="center">
         <Button variant="contained" disabled={!dirty} onClick={handleSave}>
           Save
@@ -149,7 +245,8 @@ export default function Services() {
           variant="outlined"
           disabled={!dirty}
           onClick={() => {
-            setSelectedServices([1, 3]); // 重置为初始值
+            setSelectedServices([]);
+            setSelectedLanguages([]);
             setDirty(false);
           }}
         >
