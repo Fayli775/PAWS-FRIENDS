@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Container,
@@ -11,14 +11,18 @@ import {
   Chip,
   List,
   ListItem,
+  CircularProgress,
 } from '@mui/material'
 import Image from 'next/image'
-import Header from '@/components/Header'
 import Calendar from '@/app/profile/[id]/components/Calendar'
 import CertificationsDisplay from './components/CertificationsDisplay'
 import BookingCard from './components/BookingCard'
 
-type Pet = { id: number; name: string; photo?: string }
+type Pet = {
+  id: number
+  name: string
+  photo_url?: string
+}
 
 export default function SitterPublicProfilePage({
   params,
@@ -27,79 +31,95 @@ export default function SitterPublicProfilePage({
 }) {
   const sitterId = params.id
 
-  // 👤 Sitter's own pets (showcase)
   const [sitterPets, setSitterPets] = useState<Pet[]>([])
-
-  // 🐾 Owner's pets (for booking dropdown)
   const [ownerPets, setOwnerPets] = useState<Pet[]>([])
-
-  // --- Mock sitter data (replace later with real API) ---
-  const mockPetTypes = ['Dog', 'Cat']
-  const mockServicesOffered = ['Dog Walking', 'Pet Sitting']
-  const mockAvailabilitySlots: Record<string, boolean> = {
-    'Mon-09:00–10:00': true,
-    'Wed-11:00–12:00': true,
-    'Fri-14:00–15:00': true,
-  }
+  const [services, setServices] = useState<string[]>([])
+  const [userName, setUserName] = useState('')
+  const [region, setRegion] = useState('')
+  const [avatar, setAvatar] = useState('/avatar.jpg')
+  const [bio, setBio] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: replace with real API calls
-    // 1️⃣ Fetch sitter's own pets
-    setSitterPets([
-      { id: 1, name: 'Buddy', photo: '/dog-photo.jpg' },
-      { id: 2, name: 'Mittens', photo: '/pets/mittens.jpg' },
-    ])
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token')
 
-    // 2️⃣ Fetch current (booking) owner's pets
-    setOwnerPets([
-      { id: 10, name: 'Oscar', photo: '/pets/oscar.jpg' },
-      { id: 11, name: 'Luna', photo: '/pets/luna.jpg' },
-    ])
-  }, [])
+        const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${sitterId}`)
+        const userData = await userRes.json()
+        const user = userData.user
+
+        setUserName(user.user_name || 'Sitter')
+        setRegion(user.region || '')
+        setAvatar(user.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : '/avatar.jpg')
+        setBio(user.bio || '')
+
+        const petsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${sitterId}`)
+        const petsData = await petsRes.json()
+        setSitterPets(petsData || [])
+
+        const servicesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${sitterId}/services`)
+        const servicesData = await servicesRes.json()
+        setServices(servicesData.map((s: any) => s.name))
+
+        const userStr = localStorage.getItem('user')
+        const currentUser = userStr ? JSON.parse(userStr) : null
+        if (currentUser?.id) {
+          const myPetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${currentUser.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          const myPetsData = await myPetsRes.json()
+          setOwnerPets(myPetsData || [])
+        }
+
+      } catch (err) {
+        console.error('❌ Failed to load sitter data', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [sitterId])
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Container component="main" maxWidth="lg" sx={{ flex: 1, mt: 4, mb: 4 }}>
         <Grid container spacing={4}>
-          {/* Left Column: Sitter Info */}
           <Grid item xs={12} md={7}>
-            {/* Avatar, Name, Certifications */}
+            {/* Header Section */}
             <Box display="flex" alignItems="center" gap={2}>
-              <Avatar
-                src="/avatar.jpg"
-                sx={{ width: 80, height: 80 }}
-                alt="sitter-avatar"
-              />
+              <Avatar src={avatar} sx={{ width: 80, height: 80 }} alt="sitter-avatar" />
               <Box>
-                <Typography variant="h6" fontWeight="bold">
-                  James S.
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Auckland, NZ
-                </Typography>
-
-                {/* ✅ Certifications Badge */}
+                <Typography variant="h6" fontWeight="bold">{userName}</Typography>
+                <Typography variant="body2" color="text.secondary">{region}</Typography>
                 <CertificationsDisplay sitterId={Number(sitterId)} />
               </Box>
             </Box>
 
             {/* Bio */}
             <Box mt={3}>
-              <Typography>
-                I provide experienced, loving care for dogs in the Auckland area.
-                Whether your pup is high-energy or a couch potato, I’ll make sure
-                they have a great time while you’re away...
-              </Typography>
+              <Typography>{bio}</Typography>
             </Box>
 
-            {/* Sitter's Pets */}
+            {/* Pets */}
             <Box mt={3}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>
-                My Pets
-              </Typography>
+              <Typography variant="subtitle1" fontWeight={600} mb={1}>My Pets</Typography>
               {sitterPets.length > 0 ? (
-                <Image
-                  src={sitterPets[0].photo!}
+                <img
+                  src={
+                    sitterPets[0].photo_url
+                      ? `${process.env.NEXT_PUBLIC_API_URL}${sitterPets[0].photo_url}`
+                      : '/dog-photo.jpg'
+                  }
                   alt={sitterPets[0].name}
                   width={400}
                   height={250}
@@ -116,42 +136,26 @@ export default function SitterPublicProfilePage({
               )}
             </Box>
 
-            {/* Supported Pet Types */}
+            {/* Services */}
             <Box mt={3}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>
-                Pet Types I Care For
-              </Typography>
-              <Stack direction="row" spacing={1}>
-                {mockPetTypes.map((type) => (
-                  <Chip key={type} label={type} />
-                ))}
-              </Stack>
-            </Box>
-
-            {/* Services Offered */}
-            <Box mt={3}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>
-                Services I Offer
-              </Typography>
+              <Typography variant="subtitle1" fontWeight={600} mb={1}>Services I Offer</Typography>
               <List dense>
-                {mockServicesOffered.map((svc) => (
+                {services.map(svc => (
                   <ListItem key={svc}>• {svc}</ListItem>
                 ))}
               </List>
             </Box>
 
-            {/* Availability (Calendar) */}
+            {/* Availability */}
             <Box mt={4}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>
-                My Availability
-              </Typography>
-              <Calendar readOnly selectedSlots={mockAvailabilitySlots} />
+              <Typography variant="subtitle1" fontWeight={600} mb={1}>My Availability</Typography>
+              <Calendar readOnly userId={sitterId} />
             </Box>
           </Grid>
 
-          {/* Right Column: Booking */}
+          {/* Booking Section */}
           <Grid item xs={12} md={5}>
-            <BookingCard sitterId={Number(sitterId)} />
+            <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
           </Grid>
         </Grid>
       </Container>
