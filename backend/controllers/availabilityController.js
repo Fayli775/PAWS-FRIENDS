@@ -23,3 +23,15 @@ exports.getAvailabilityByUser = async (req, res) => {
         res.status(500).json({ status: "error", message: err.message });
     }
 };
+
+// ✅ 新增：DELETE 可用时间
+exports.deleteAvailabilityByUser = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        await Availability.deleteAvailabilityByUser(userId);
+        res.json({ status: "success", message: "Availability deleted" });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};

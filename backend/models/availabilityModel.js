@@ -30,3 +30,8 @@ exports.getAvailabilityByUser = async (user_id) => {
   );
   return rows;
 };
+//
+// 删除用户的可预约时间
+exports.deleteAvailabilityByUser = async (user_id) => {
+  await db.query("DELETE FROM availability WHERE user_id = ?", [user_id]);
+};

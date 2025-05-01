@@ -179,3 +179,22 @@ exports.searchSitters = async (filters) => {
     throw error; // Re-throw the error to be caught by the controller
   }
 };
+
+// 获取用户的语言列表
+
+exports.getUserLanguages = async (userId) => {
+  const [rows] = await db.query("SELECT language FROM user_languages WHERE user_id = ?", [userId]);
+  return rows.map((r) => r.language);
+};
+
+exports.addUserLanguages = async (userId, languages) => {
+  if (!Array.isArray(languages)) throw new Error("languages must be array");
+  await db.query("DELETE FROM user_languages WHERE user_id = ?", [userId]); // 清空后插入
+  for (const lang of languages) {
+    await db.query("INSERT INTO user_languages (user_id, language) VALUES (?, ?)", [userId, lang]);
+  }
+};
+
+exports.deleteUserLanguages = async (userId) => {
+  await db.query("DELETE FROM user_languages WHERE user_id = ?", [userId]);
+};
