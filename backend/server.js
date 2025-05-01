@@ -30,6 +30,10 @@ app.use("/api/availability", availabilityRoutes);
 const reviewRoutes = require("./routes/reviewRoutes");
 app.use("/api/reviews", reviewRoutes);
 
+const serviceRoutes = require("./routes/serviceRoutes");
+app.use("/api/services", serviceRoutes);
+
+
 // Add the new location routes
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
 app.use("/api/locations", locationRoutes); // Use location routes
@@ -44,3 +48,4 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+

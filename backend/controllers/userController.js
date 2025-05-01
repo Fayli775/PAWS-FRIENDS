@@ -121,3 +121,33 @@ exports.searchSitters = async (req, res) => {
     res.status(500).json({ message: 'Error searching sitters', error: error.message });
   }
 };
+
+// Function to get user languages
+
+exports.getUserLanguages = async (req, res) => {
+  try {
+    const languages = await userModel.getUserLanguages(req.params.id);
+    res.json({ status: "success", languages });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+exports.addUserLanguages = async (req, res) => {
+  try {
+    const { languages } = req.body; // e.g., ['English', '中文']
+    await userModel.addUserLanguages(req.params.id, languages);
+    res.json({ status: "success" });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+exports.deleteUserLanguages = async (req, res) => {
+  try {
+    await userModel.deleteUserLanguages(req.params.id);
+    res.json({ status: "success" });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};

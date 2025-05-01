@@ -26,4 +26,9 @@ router.put(
 // New route for searching sitters
 router.get('/sitters/search', userController.searchSitters); // No auth for general search? Or add authMiddleware if needed
 
+// New route for language 
+router.get("/:id/languages", userController.getUserLanguages);
+router.post("/:id/languages", userController.addUserLanguages);
+router.delete("/:id/languages", userController.deleteUserLanguages);
+
 module.exports = router;

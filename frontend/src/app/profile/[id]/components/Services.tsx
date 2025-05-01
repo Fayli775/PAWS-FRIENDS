@@ -16,39 +16,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-// 服务数据
-const services = [
-  {
-    id: 1,
-    name: "In-Home Feeding",
-    description: "We visit your pet at home and ensure timely meals.",
-    price: "From $25/hr",
-    icon: "/in-home-feeding.png",
-  },
-  {
-    id: 2,
-    name: "Dog Walking",
-    description: "Daily walks to keep your dog happy and healthy.",
-    price: "From $25/hr",
-    icon: "/dog-walking.png",
-  },
-  {
-    id: 3,
-    name: "Boarding",
-    description: "Safe, cozy home for your pets while you're away.",
-    price: "From $25/hr",
-    icon: "/boarding.png",
-  },
-  {
-    id: 4,
-    name: "Grooming",
-    description: "Professional grooming to keep pets clean and pretty.",
-    price: "From $25/hr",
-    icon: "/grooming.png",
-  },
-];
-
-// 可选语言
 const availableLanguages = [
   "English",
   "中文",
@@ -59,7 +26,6 @@ const availableLanguages = [
   "Spanish",
 ];
 
-// Styled components
 const ServiceCard = styled(Card)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -67,7 +33,6 @@ const ServiceCard = styled(Card)(({ theme }) => ({
   alignItems: "center",
   textAlign: "center",
   padding: theme.spacing(3),
-  transition: "transform 0.2s ease-in-out",
   backgroundColor: "#fffffa",
   "&:hover": {
     transform: "translateY(-8px)",
@@ -77,7 +42,7 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 
 const IconWrapper = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
-  height: 150, // 固定图像区域高度
+  height: 150,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -89,66 +54,80 @@ const IconWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export default function Services() {
-  const [selectedServices, setSelectedServices] = useState<number[]>([]);
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
-  const [dirty, setDirty] = useState(false);
+  const [availableServices, setAvailableServices] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [initialSelectedServices, setInitialSelectedServices] = useState([]);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [initialSelectedLanguages, setInitialSelectedLanguages] = useState([]);
+  const [dirtyService, setDirtyService] = useState(false);
+  const [dirtyLanguage, setDirtyLanguage] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
-    const fetchUserSettings = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const userStr = localStorage.getItem("user");
-        const user = userStr ? JSON.parse(userStr) : null;
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-        if (!token || !user?.id) return;
-
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`,
+        // 服务类型
+        const serviceRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
+        const serviceData = await serviceRes.json();
+        const serviceIds = serviceData.map((s) => s.service_id);
+        setSelectedServices(serviceIds);
+        setInitialSelectedServices(serviceIds);
 
-        const data = await res.json();
-        setSelectedServices(data.user.services || []);
-        setSelectedLanguages(data.user.languages_supported || []);
+        // 语言
+        const langRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const langData = await langRes.json();
+        setSelectedLanguages(langData.languages || []);
+        setInitialSelectedLanguages(langData.languages || []);
+
+        // 所有服务（用于显示）
+        const allRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
+        const allData = await allRes.json();
+        setAvailableServices(allData.services || []);
       } catch (err) {
-        console.error("Failed to load user preferences", err);
+        console.error("加载失败:", err);
       }
     };
 
-    fetchUserSettings();
+    fetchData();
   }, []);
 
-  const toggleService = (id: number) => {
+  const toggleService = (id) => {
     setSelectedServices((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-    setDirty(true);
+    setDirtyService(true);
   };
 
-  const toggleLanguage = (lang: string) => {
+  const toggleLanguage = (lang) => {
     setSelectedLanguages((prev) =>
       prev.includes(lang) ? prev.filter((x) => x !== lang) : [...prev, lang]
     );
-    setDirty(true);
+    setDirtyLanguage(true);
   };
 
-  const handleSave = async () => {
+  const handleSaveServices = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-      const payload = {
-        services: selectedServices,
-        languages_supported: selectedLanguages,
-      };
+      const payload = selectedServices.map((id) => ({ service_id: id }));
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/me/updateProfile`,
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
         {
           method: "PUT",
           headers: {
@@ -159,18 +138,90 @@ export default function Services() {
         }
       );
 
-      if (!res.ok) throw new Error("Failed to save");
+      setInitialSelectedServices([...selectedServices]);
+      setSnackbarMessage("Save services successfully");
       setSnackbarOpen(true);
-      setDirty(false);
+      setDirtyService(false);
     } catch (err) {
-      console.error("Error saving settings:", err);
-      alert("Failed to save. Please try again.");
+      console.error("服务保存失败:", err);
     }
+  };
+
+  const handleResetServices = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setSelectedServices([]);
+      setInitialSelectedServices([]);
+      setSnackbarMessage("Reset services successfully");
+      setSnackbarOpen(true);
+      setDirtyService(false);
+    } catch (err) {
+      console.error("服务重置失败:", err);
+    }
+  };
+
+  const handleSaveLanguages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ languages: selectedLanguages }),
+      });
+
+      setInitialSelectedLanguages([...selectedLanguages]);
+      setSnackbarMessage("Save languages successfully");
+      setSnackbarOpen(true);
+      setDirtyLanguage(false);
+    } catch (err) {
+      console.error("语言保存失败:", err);
+    }
+  };
+
+  const handleResetLanguages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setSelectedLanguages([]);
+      setInitialSelectedLanguages([]);
+      setSnackbarMessage("Reset languages successfully");
+      setSnackbarOpen(true);
+      setDirtyLanguage(false);
+    } catch (err) {
+      console.error("语言重置失败:", err);
+    }
+  };
+
+  const getServiceIcon = (name) => {
+    if (name === "Dog Walking") return "/dog-walking.png";
+    if (name === "In-Home Feeding") return "/in-home-feeding.png";
+    if (name === "Dog Grooming & Care") return "/grooming.png";
+    return "/default.png";
   };
 
   return (
     <Box>
-      {/* ✅ 语言选择放在页面最上方 */}
       <Box mb={5} maxWidth="lg" mx="auto" px={{ xs: 2, md: 4 }}>
         <FormLabel component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
           Languages You Support
@@ -189,37 +240,39 @@ export default function Services() {
             />
           ))}
         </FormGroup>
+        <Box mt={2} display="flex" gap={2}>
+          <Button variant="contained" disabled={!dirtyLanguage} onClick={handleSaveLanguages}>
+            Save Languages
+          </Button>
+          <Button variant="outlined" disabled={!dirtyLanguage} onClick={handleResetLanguages}>
+            Reset Languages
+          </Button>
+        </Box>
       </Box>
 
-      {/* 服务模块标题 */}
       <Typography variant="h5" fontWeight={600} mb={2} textAlign="center">
         Services You Provide
       </Typography>
 
-      {/* 服务卡片模块 */}
       <Grid container spacing={2}>
-        {services.map((service) => (
-          <Grid item xs={12} sm={6} md={3}  lg={3} xl={3} key={service.id} style={{ display: "flex" }}>
+        {availableServices.map((service) => (
+          <Grid item xs={12} sm={6} md={3} key={service.id} style={{ display: "flex" }}>
             <ServiceCard elevation={2}>
               <IconWrapper>
-                <img src={service.icon} alt={service.name} />
+                <img src={getServiceIcon(service.name)} alt={service.name} />
               </IconWrapper>
               <CardContent>
                 <Typography variant="h6" component="h3" gutterBottom>
                   {service.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {service.description}
+                  {service.duration}
                 </Typography>
                 <Typography
                   variant="subtitle1"
-                  sx={{
-                    fontWeight: "medium",
-                    color: "primary.main",
-                    mb: 2,
-                  }}
+                  sx={{ fontWeight: "medium", color: "primary.main", mb: 2 }}
                 >
-                  {service.price}
+                  ${service.price}
                 </Typography>
                 <FormControlLabel
                   control={
@@ -236,21 +289,12 @@ export default function Services() {
         ))}
       </Grid>
 
-      {/* Save / Reset 按钮 */}
       <Box mt={4} display="flex" gap={2} justifyContent="center">
-        <Button variant="contained" disabled={!dirty} onClick={handleSave}>
-          Save
+        <Button variant="contained" disabled={!dirtyService} onClick={handleSaveServices}>
+          Save Services
         </Button>
-        <Button
-          variant="outlined"
-          disabled={!dirty}
-          onClick={() => {
-            setSelectedServices([]);
-            setSelectedLanguages([]);
-            setDirty(false);
-          }}
-        >
-          Reset
+        <Button variant="outlined" disabled={!dirtyService} onClick={handleResetServices}>
+          Reset Services
         </Button>
       </Box>
 
@@ -258,7 +302,7 @@ export default function Services() {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
-        message="Settings saved"
+        message={snackbarMessage}
       />
     </Box>
   );

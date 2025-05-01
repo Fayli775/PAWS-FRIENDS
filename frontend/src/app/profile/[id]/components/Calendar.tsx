@@ -131,9 +131,33 @@ export default function Calendar({ readOnly = false }: { readOnly?: boolean }) {
     setSelected(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const clearAll = () => {
-    if (!readOnly) setSelected({})
+  const clearAll = async () => {
+    if (readOnly) return
+  
+    setSelected({}) // 清空前端状态
+  
+    try {
+      const token = localStorage.getItem('token')
+      const userStr = localStorage.getItem('user')
+      const user = userStr ? JSON.parse(userStr) : null
+  
+      if (!token || !user?.id) return
+  
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/availability/${user.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+  
+      if (!res.ok) throw new Error('Failed to clear calendar from server')
+      alert('Availability cleared successfully!')
+    } catch (err) {
+      alert('Failed to clear availability. Please try again.')
+      console.error('Error clearing availability:', err)
+    }
   }
+  
 
   const saveAll = async () => {
     if (readOnly) return
