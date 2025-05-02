@@ -1,182 +1,227 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Stack,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Avatar,
-} from '@mui/material'
+  TextField,
+  Button,
+  MenuItem,
+  Grid,
+  Box,
+  Typography,
+} from '@mui/material';
+import AvatarUpload from "@/components/AvatarUpload";
+import { Pet } from './PetCard';
 
-export type Pet = {
-  id?: number
-  name: string
-  type: string
-  description?: string
-  photo?: string
-  vetContact?: string
-  familyEmergencyContact?: string
-  medicalConditions?: string
-  allergies?: string
-  medications?: string
-  specialInstructions?: string
-}
-
-type PetFormProps = {
-  initialData: Pet | null
-  onClose: () => void
-  onSubmit: (pet: Pet) => void
-}
-
-const defaultPet: Pet = {
-  name: '',
-  type: '',
-  description: '',
-  photo: '',
-  vetContact: '',
-  familyEmergencyContact: '',
-  medicalConditions: '',
-  allergies: '',
-  medications: '',
-  specialInstructions: '',
+interface PetFormProps {
+  initialData?: Pet | null;
+  onClose: () => void;
+  onSubmit: (pet: Pet) => void;
 }
 
 export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps) {
-  const [formData, setFormData] = useState<Pet>(defaultPet)
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined)
+  const [pet, setPet] = useState<Pet>({
+    name: '',
+    type: 'Dog',
+    description: '',
+    photo: '',
+    vet_contact_phone: '',
+    emergency_contact_phone: '',
+    allergies: '',
+    medications: '',
+    special_instructions: ''
+  });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData)
-      setPreviewUrl(initialData.photo || '')
+      setPet(initialData);
     }
-  }, [initialData])
+  }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPet(prev => ({ ...prev, [name]: value }));
+  };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string)
+  // 使用 UploadAvatar 的回调处理图片上传
+  const handleAvatarUpload = async (imageData: string, file: File) => {
+    setIsUploading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/pets/uploadTempPhoto`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to upload photo');
+      const { photoUrl } = await response.json();
+      
+      setPet(prev => ({ 
+        ...prev, 
+        photo: photoUrl.startsWith('http') 
+          ? photoUrl 
+          : `${process.env.NEXT_PUBLIC_API_URL}${photoUrl}`
+      }));
+    } catch (err) {
+      console.error('Upload error:', err);
+      throw err; // 抛出错误让 UploadAvatar 组件处理
+    } finally {
+      setIsUploading(false);
     }
-    reader.readAsDataURL(file)
-    // 暂时只做预览：实际上传建议交给父组件处理
-    setFormData(prev => ({ ...prev, photo: URL.createObjectURL(file) }))
-  }
+  };
 
-  const handleSubmit = () => {
-    if (!formData.name || !formData.type) {
-      alert('Please fill in name and type.')
-      return
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(pet);
+    } finally {
+      setIsSubmitting(false);
     }
-    onSubmit(formData)
-  }
+  };
 
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={true} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{initialData ? 'Edit Pet' : 'Add New Pet'}</DialogTitle>
       <DialogContent>
-        <Stack spacing={2} mt={1}>
-          {/* 宠物照片预览 */}
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar src={previewUrl || '/defaultAvatarDog.png'} sx={{ width: 80, height: 80 }} />
-            <Button variant="outlined" component="label">
-              Upload Photo
-              <input type="file" hidden onChange={handlePhotoChange} />
-            </Button>
-          </Stack>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {/* 使用 UploadAvatar 组件替换原来的头像上传逻辑 */}
+          <Grid item xs={12} textAlign="center">
+            <AvatarUpload
+              initialImage={pet.photo || (pet.type === 'Cat' ? '/defaultAvatarCat.png' : '/defaultAvatarDog.png')}
+              onImageChange={handleAvatarUpload}
+            />
+            {isUploading && (
+              <Typography variant="caption" color="text.secondary">
+                Uploading...
+              </Typography>
+            )}
+          </Grid>
 
-          <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            fullWidth
-            required
-          />
-          <TextField
-            select
-            label="Type"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            fullWidth
-            required
-          >
-            <MenuItem value="Dog">Dog</MenuItem>
-            <MenuItem value="Cat">Cat</MenuItem>
-          </TextField>
-          <TextField
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={2}
-          />
-          <TextField
-            label="Vet Contact"
-            name="vetContact"
-            value={formData.vetContact}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Emergency Contact"
-            name="familyEmergencyContact"
-            value={formData.familyEmergencyContact}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Medical Conditions"
-            name="medicalConditions"
-            value={formData.medicalConditions}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Allergies"
-            name="allergies"
-            value={formData.allergies}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Medications"
-            name="medications"
-            value={formData.medications}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Special Instructions"
-            name="specialInstructions"
-            value={formData.specialInstructions}
-            onChange={handleChange}
-            fullWidth
-          />
-        </Stack>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Pet Name"
+              name="name"
+              value={pet.name}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              select
+              fullWidth
+              label="Pet Type"
+              name="type"
+              value={pet.type}
+              onChange={handleChange}
+              required
+            >
+              <MenuItem value="Dog">Dog</MenuItem>
+              <MenuItem value="Cat">Cat</MenuItem>
+              <MenuItem value="Other">Other</MenuItem>
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="Description"
+              name="description"
+              value={pet.description}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Vet Contact Phone"
+              name="vet_contact_phone"
+              value={pet.vet_contact_phone}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Emergency Contact Phone"
+              name="emergency_contact_phone"
+              value={pet.emergency_contact_phone}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Allergies"
+              name="allergies"
+              value={pet.allergies}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Medications"
+              name="medications"
+              value={pet.medications}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="Special Instructions"
+              name="special_instructions"
+              value={pet.special_instructions}
+              onChange={handleChange}
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: '#A78BFA' }}>
-          Save
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={isSubmitting || !pet.name}
+          sx={{
+            backgroundColor: '#A78BFA',
+            '&:hover': {
+              backgroundColor: '#8B5CF6',
+            }
+          }}
+        >
+          {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 }

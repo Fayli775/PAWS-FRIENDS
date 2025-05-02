@@ -1,216 +1,193 @@
-"use client"
+'use client'
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from 'react'
 import {
   Box,
+  Card,
+  CardContent,
   Typography,
-  Button,
   MenuItem,
+  Select,
+  Button,
   TextField,
-  Snackbar,
-  Alert,
-} from "@mui/material"
-import axios from "axios"
+} from '@mui/material'
+import axios from 'axios'
 
-interface BookingCardProps {
-  sitterId: number
-}
-
-interface Pet {
-  id: number
-  name: string
-}
-
-export default function BookingCard({ sitterId }: BookingCardProps) {
-  const [petId, setPetId] = useState("")
-  const [pets, setPets] = useState<Pet[]>([])
-  const [serviceType, setServiceType] = useState("")
-  const [bookingTime, setBookingTime] = useState("")
+export default function BookingCard({ sitterId, ownerPets }: { sitterId: number, ownerPets: any[] }) {
+  const [pets, setPets] = useState<any[]>([])
+  const [services, setServices] = useState<any[]>([])
+  const [languages, setLanguages] = useState<string[]>([])
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
-  const [preferredLanguage, setPreferredLanguage] = useState("")
-  const [openSnackbar, setOpenSnackbar] = useState(false)
 
-  const availableLanguages = [
-    "English",
-    "中文",
-    "Te Reo Māori",
-    "Hindi",
-    "Korean",
-    "Japanese",
-    "Spanish",
-  ]
+  const [selectedPetId, setSelectedPetId] = useState<number | null>(null)
+  const [selectedService, setSelectedService] = useState<number | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<string>('')
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
 
-  // ✅ 加载宠物列表 & 可预约时间段
+
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("token")
+      if (!token) return
+
+      try {
+        const petRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/pets/get/my`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        setPets(Array.isArray(petRes.data) ? petRes.data : petRes.data.pets || [])
+
+        const slotRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${sitterId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        const slots = (slotRes.data.availability || []).map((s: any) => {
+          const abbr = s.weekday.slice(0, 3)
+          return `${abbr} ${s.start_time.slice(0,5)}–${s.end_time.slice(0,5)}`
+        })
+        setAvailableSlots(slots)
+
+        const servicesRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${sitterId}/services`
+        )
+        setServices(Array.isArray(servicesRes.data) ? servicesRes.data : servicesRes.data.services || [])
+
+        const langRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${sitterId}/languages`
+        )
+        setLanguages(Array.isArray(langRes.data) ? langRes.data : langRes.data.languages || [])
+
+      } catch (err: any) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          alert("Session expired. Please log in again.")
+          window.location.href = "/login"
+        } else {
+          console.error("🐾 Failed to load booking info", err)
+        }
+      }
+    }
+    fetchData()
+  }, [sitterId])
+
+  const handleBooking = async () => {
+    if (!selectedPetId || !selectedService || !selectedSlot) {
+      alert("Please fill in all fields before booking.")
+      return
+    }
+
+    try {
       const token = localStorage.getItem("token")
       const userStr = localStorage.getItem("user")
       if (!token || !userStr) return
 
       const user = JSON.parse(userStr)
-
-      try {
-        // 获取宠物列表
-        const petRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${user.id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        setPets(petRes.data || [])
-
-        // 获取 sitter 的可用时间段
-        const slotRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${sitterId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-
-        // 转换为 Mon 09:00–10:00 格式
-        const slots = (slotRes.data.availability || []).map((s: any) => {
-          const dayAbbr = s.weekday.slice(0, 3)
-          return `${dayAbbr} ${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`
-        })
-
-        setAvailableSlots(slots)
-      } catch (err) {
-        console.error("Failed to load pets or availability", err)
+      const selectedPet = pets.find(p => p.id === selectedPetId)
+      const selectedServiceObj = services.find(s => s.service_id === selectedService)
+      const [abbr, timeRange] = selectedSlot.split(' ')
+      const [startTime, endTime] = timeRange.split('–')
+      const weekdayAbbrMap: Record<string, string> = {
+        Monday: 'Mon',
+        Tuesday: 'Tue',
+        Wednesday: 'Wed',
+        Thursday: 'Thu',
+        Friday: 'Fri',
+        Saturday: 'Sat',
+        Sunday: 'Sun',
       }
-    }
+      
+      const weekdayAbbr = weekdayAbbrMap[abbr] || 'Mon'
+      
 
-    fetchData()
-  }, [sitterId])
-
-  const handleBooking = async () => {
-    const token = localStorage.getItem("token")
-    const userStr = localStorage.getItem("user")
-
-    if (!token || !userStr) {
-      alert("Please log in before making a booking.")
-      window.location.href = "/login"
-      return
-    }
-
-    const user = JSON.parse(userStr)
-    const ownerId = user.id
-
-    try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/new`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
         {
-          sitterId,
-          ownerId,
-          petId,
-          serviceType,
-          bookingTime,
-          preferredLanguage,
+          sitter_id: sitterId,
+          owner_id: user.id,
+          pet_type: selectedPet?.type,
+          service_type: selectedServiceObj?.name,
+          weekday: weekdayAbbr,
+          time_slot: `${startTime}-${endTime}`,
+          language: selectedLanguage,
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         }
       )
 
-      setOpenSnackbar(true)
-      setPetId("")
-      setServiceType("")
-      setBookingTime("")
-      setPreferredLanguage("")
-    } catch (error) {
-      console.error("Booking failed:", error)
-      alert("Failed to submit booking.")
+      alert("Booking successful!")
+    } catch (err: any) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        alert("Session expired. Please log in again.")
+        window.location.href = "/login"
+      } else {
+        alert("Booking failed. Please try again later.")
+        console.error("Booking error:", err)
+      }
     }
   }
 
   return (
-    <Box sx={{ p: 3, border: "1px solid #eee", borderRadius: 2 }}>
-      <Typography variant="h6" fontWeight={600} mb={2}>
-        Book This Sitter
-      </Typography>
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>Make a Booking</Typography>
 
-      {/* 🐶 Pet Selector */}
-      <TextField
-        label="Select Your Pet"
-        select
-        value={petId}
-        onChange={(e) => setPetId(e.target.value)}
-        fullWidth
-        margin="normal"
-      >
-        {pets.map((pet) => (
-          <MenuItem key={pet.id} value={pet.id}>
-            {pet.name}
-          </MenuItem>
-        ))}
-      </TextField>
+        <TextField
+          select fullWidth margin="normal"
+          label="Select Pet"
+          value={selectedPetId ?? ''}
+          onChange={(e) => setSelectedPetId(Number(e.target.value))}
+        >
+          {pets.map(pet => (
+            <MenuItem key={pet.id} value={pet.id}>{pet.name}</MenuItem>
+          ))}
+        </TextField>
 
-      {/* 🛠️ Service Type */}
-      <TextField
-        label="Service Type"
-        select
-        value={serviceType}
-        onChange={(e) => setServiceType(e.target.value)}
-        fullWidth
-        margin="normal"
-      >
-        <MenuItem value="Dog Walking">Dog Walking</MenuItem>
-        <MenuItem value="Pet Sitting">Pet Sitting</MenuItem>
-        <MenuItem value="Boarding">Boarding</MenuItem>
-      </TextField>
+        <TextField
+          select fullWidth margin="normal"
+          label="Select Service"
+          value={selectedService ?? ''}
+          onChange={(e) => setSelectedService(Number(e.target.value))}
+        >
+          {services.map(svc => (
+            <MenuItem key={svc.service_id} value={svc.service_id}>
+              {svc.name} {svc.custom_price !== null ? `($${svc.custom_price})` : '(N/A)'}
+            </MenuItem>
+          ))}
+        </TextField>
 
-      {/* 🕒 Booking Time */}
-      <TextField
-        label="Available Time Slot"
-        select
-        value={bookingTime}
-        onChange={(e) => setBookingTime(e.target.value)}
-        fullWidth
-        margin="normal"
-      >
-        {availableSlots.map((slot, idx) => (
-          <MenuItem key={idx} value={slot}>
-            {slot}
-          </MenuItem>
-        ))}
-      </TextField>
+        <TextField
+          select fullWidth margin="normal"
+          label="Select Time Slot"
+          value={selectedSlot}
+          onChange={(e) => setSelectedSlot(e.target.value)}
+        >
+          {availableSlots.map(slot => (
+            <MenuItem key={slot} value={slot}>{slot}</MenuItem>
+          ))}
+        </TextField>
 
-      {/* 🗣 Language */}
-      <TextField
-        label="Preferred Language"
-        select
-        value={preferredLanguage}
-        onChange={(e) => setPreferredLanguage(e.target.value)}
-        fullWidth
-        margin="normal"
-      >
-        {availableLanguages.map((lang) => (
-          <MenuItem key={lang} value={lang}>
-            {lang}
-          </MenuItem>
-        ))}
-      </TextField>
+        <TextField
+          select fullWidth margin="normal"
+          label="Preferred Language"
+          value={selectedLanguage}
+          onChange={(e) => setSelectedLanguage(e.target.value)}
+        >
+          {languages.map(lang => (
+            <MenuItem key={lang} value={lang}>{lang}</MenuItem>
+          ))}
+        </TextField>
 
-      <Button
-        variant="contained"
-        fullWidth
-        sx={{ mt: 3, backgroundColor: "#A78BFA" }}
-        onClick={handleBooking}
-      >
-        Confirm Booking
-      </Button>
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert severity="success" variant="filled">
-          Booking submitted successfully!
-        </Alert>
-      </Snackbar>
-    </Box>
+
+        <Box mt={2}>
+          <Button variant="contained" fullWidth onClick={handleBooking}>
+            Submit Booking
+          </Button>
+        </Box>
+      </CardContent>
+    </Card>
   )
 }

@@ -114,17 +114,20 @@ export default function SitterPublicProfilePage({
             <Box mt={3}>
               <Typography variant="subtitle1" fontWeight={600} mb={1}>My Pets</Typography>
               {sitterPets.length > 0 ? (
-                <img
-                  src={
-                    sitterPets[0].photo_url
-                      ? `${process.env.NEXT_PUBLIC_API_URL}${sitterPets[0].photo_url}`
-                      : '/dog-photo.jpg'
-                  }
-                  alt={sitterPets[0].name}
-                  width={400}
-                  height={250}
-                  style={{ borderRadius: 8 }}
-                />
+                sitterPets.map((pet, index) => (
+                  <img
+                    key={index}  // Don't forget to add a unique key when mapping in React
+                    src={
+                      pet.photo_url
+                        ? `${process.env.NEXT_PUBLIC_API_URL}${pet.photo_url}`
+                        : '/dog-photo.jpg'
+                    }
+                    alt={pet.name}
+                    width={400}
+                    height={250}
+                    style={{ borderRadius: 8 }}
+                  />
+                ))
               ) : (
                 <Image
                   src="/dog-photo.jpg"
