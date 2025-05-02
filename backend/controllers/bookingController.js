@@ -10,11 +10,15 @@ exports.createBooking = async (req, res) => {
             pet_type,
             service_type,
             weekday,        // ⬅ 前端传入的 weekday（例如 "Mon"）
-            time_slot       // ⬅ 前端传入的时间段（例如 "09:00–10:00"）
+            time_slot  ,     // ⬅ 前端传入的时间段（例如 "09:00–10:00"）
+            language // ✅ 加这一行
+
         } = req.body;
 
         // ⏱️ 拼出标准 UTC 起止时间
         const { start_time, end_time } = parseFrontendTimeSlot(weekday, time_slot);
+        console.log("Parsed start_time:", start_time);
+        console.log("Parsed end_time:", end_time);
 
         // 封装成 booking 对象传入 model
         const bookingData = {
@@ -23,13 +27,15 @@ exports.createBooking = async (req, res) => {
             pet_type,
             service_type,
             start_time,
-            end_time
+            end_time,
+            language,   // ✅ 新增
         };
 
         const bookingId = await Booking.createBooking(bookingData);
 
         res.status(201).json({ status: "success", bookingId });
     } catch (err) {
+        console.error("Error creating booking:", err);
         res.status(500).json({ status: "error", message: err.message });
     }
 };

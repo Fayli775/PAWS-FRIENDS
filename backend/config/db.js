@@ -6,6 +6,12 @@ const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,      // 默认值
+  queueLimit: 0,            // 无限制排队
+  idleTimeout: 60000,       // 空闲连接超时（毫秒）
+  enableKeepAlive: true,     // 保持连接活跃
+  keepAliveInitialDelay: 0,
 });
 // The pool object is exported for use in other parts of the application.
 const testConnection = async () => {

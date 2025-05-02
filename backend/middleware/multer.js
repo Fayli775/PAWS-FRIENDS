@@ -42,7 +42,7 @@ const petStorage = createStorage("pets"); // 宠物头像存储
 // 创建 multer 实例
 const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 限制文件大小为2MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 限制文件大小为10MB
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image files are allowed!")); // 错误处理

@@ -36,6 +36,22 @@ exports.getPetsByOwnerId = async (req, res) => {
   }
 };
 
+exports.getMyPets = async (req, res) => {
+  const ownerId = req.user.id; // 从请求的用户信息中获取 ownerId
+  try {
+    const pets = await PetModel.getPetsByOwnerId(ownerId);
+
+    if (!pets || pets.length === 0) {
+      return res.status(404).json({ message: "No pets found for this owner" });
+    }
+
+    res.json(pets);
+  } catch (error) {
+    console.error("Error getting pets by owner ID:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 //add a new pet
 
 exports.addNewPet = async (req, res) => {

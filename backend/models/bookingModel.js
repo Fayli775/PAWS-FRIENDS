@@ -14,15 +14,16 @@ exports.createBooking = async (bookingData) => {
         service_type,
         start_time,
         end_time,
-    } = bookingData;
+        language, // ✅ 新增
+      } = bookingData;
+      
 
     const formattedStart = dayjs(start_time).utc().format("YYYY-MM-DD HH:mm:ss");
     const formattedEnd = dayjs(end_time).utc().format("YYYY-MM-DD HH:mm:ss");
 
-    const [result] = await db.query(
-        `INSERT INTO booking (owner_id, sitter_id, pet_type, service_type, start_time, end_time)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [owner_id, sitter_id, pet_type, service_type, formattedStart, formattedEnd]
+    const [result] = await db.execute(
+        `INSERT INTO booking (owner_id, sitter_id, pet_type, service_type, start_time, end_time, language) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [owner_id, sitter_id, pet_type, service_type, formattedStart, formattedEnd, language]
     );
 
     const bookingId = result.insertId;
