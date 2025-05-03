@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useEffect, useState } from 'react'
 import {
   Typography,
   Box,
@@ -9,49 +10,70 @@ import {
   Divider,
 } from '@mui/material'
 
-// 模拟评价数据
-const mockReviews = [
-  {
-    id: 1,
-    rating: 5,
-    reviewer: 'Alice',
-    date: '2024-03-21',
-    comment: 'Great service! My dog was super happy.',
-  },
-  {
-    id: 2,
-    rating: 4,
-    reviewer: 'Bob',
-    date: '2024-04-02',
-    comment: 'Good sitter. Communication could improve.',
-  },
-]
+interface Review {
+  id: number
+  rating: number
+  reviewer: string
+  created_at: string
+  comment: string
+  pet_type: string
+  service_type: string
+}
 
-export default function Reviews() {
+export default function Reviews({ sitterId }: { sitterId: number }) {
+  const [reviews, setReviews] = useState<Review[]>([])
+  
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const userStr = localStorage.getItem("user")
+        const user = userStr ? JSON.parse(userStr) : null
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/sitter/${user?.id}`)
+        const data = await res.json()
+
+        if (data.status === 'success') {
+          setReviews(data.reviews)
+        } else {
+          console.error('❌ Failed to load reviews:', data.message)
+        }
+      } catch (err) {
+        console.error('❌ API error:', err)
+      }
+    }
+
+    fetchReviews()
+  }, [sitterId])
+
+
   return (
     <Box>
-      <Typography variant="h5" fontWeight={600}  mb={2}>
+      <Typography variant="h5" fontWeight={600} mb={2}>
         Your Ratings & Reviews
       </Typography>
 
-      {mockReviews.map((review) => (
-        <Card key={review.id} variant="outlined" sx={{ mb: 2 }}>
-          <CardContent>
-            <Box display="flex" justifyContent="space-between">
-              <Typography fontWeight={600}>{review.reviewer}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {review.date}
-              </Typography>
-            </Box>
+      {reviews.length === 0 ? (
+        <Typography>No reviews yet.</Typography>
+      ) : (
+        reviews.map((review) => (
+          <Card key={review.id} variant="outlined" sx={{ mb: 2 }}>
+            <CardContent>
+              <Box display="flex" justifyContent="space-between">
+                <Typography fontWeight={600}>{review.pet_type}</Typography>
+                <Typography fontWeight={600}>{review.service_type}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(review.created_at).toLocaleDateString()}
+                </Typography>
+              </Box>
 
-            <Rating value={review.rating} readOnly size="small" sx={{ my: 1 }} />
-            <Divider />
-            <Typography variant="body2" mt={1}>
-              {review.comment}
-            </Typography>
-          </CardContent>
-        </Card>
-      ))}
+              <Rating value={review.rating} readOnly size="small" sx={{ my: 1 }} />
+              <Divider />
+              <Typography variant="body2" mt={1}>
+                {review.comment}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))
+      )}
     </Box>
   )
 }

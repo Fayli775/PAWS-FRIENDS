@@ -8,9 +8,10 @@ exports.createBooking = async (req, res) => {
             owner_id,
             sitter_id,
             pet_type,
+            pet_id,
             service_type,
             weekday,        // ⬅ 前端传入的 weekday（例如 "Mon"）
-            time_slot  ,     // ⬅ 前端传入的时间段（例如 "09:00–10:00"）
+            time_slot,     // ⬅ 前端传入的时间段（例如 "09:00–10:00"）
             language // ✅ 加这一行
 
         } = req.body;
@@ -25,6 +26,7 @@ exports.createBooking = async (req, res) => {
             owner_id,
             sitter_id,
             pet_type,
+            pet_id,
             service_type,
             start_time,
             end_time,
@@ -49,6 +51,7 @@ exports.updateBookingStatus = async (req, res) => {
         await Booking.updateBookingStatus(id, status, note);
         res.json({ status: "success", message: `Booking ${id} updated to ${status}` });
     } catch (err) {
+        console.error("Error updating booking status:", err);
         res.status(500).json({ status: "error", message: err.message });
     }
 };

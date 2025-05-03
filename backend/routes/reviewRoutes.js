@@ -10,4 +10,7 @@ router.post("/", authMiddleware, reviewController.addReview);
 // 查看 sitter 的所有评价
 router.get("/sitter/:sitterId", reviewController.getReviewsBySitter);
 
+// 查看 booking 的所有评价
+router.get("/booking/:bookingId", reviewController.getReviewsByBooking);
+
 module.exports = router;

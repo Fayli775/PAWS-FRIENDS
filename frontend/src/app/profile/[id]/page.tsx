@@ -19,6 +19,10 @@ export default function MyProfilePage() {
     'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications'
   >('Personal Info')
 
+  const userStr = localStorage.getItem('user') 
+  const user = userStr ? JSON.parse(userStr) : null
+  const userId = user ? user.id : null
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
       <Box sx={{ display: 'flex', flex: 1 }}>
@@ -32,7 +36,7 @@ export default function MyProfilePage() {
           {selectedTab === 'Personal Info' && <PersonalInfo />}
           {selectedTab === 'Pets' && <Pets />}
           {selectedTab === 'Services' && <Services />}
-          {selectedTab === 'Calendar' && <Calendar />}
+          {selectedTab === 'Calendar' && <Calendar userId={userId}/>}
           {selectedTab === 'Orders' && <OrdersPage />}  {/* ✅ 加上新 Orders */}
           {selectedTab === 'Reviews' && <Reviews />}
           {selectedTab === 'Security' && <ChangePassword />}

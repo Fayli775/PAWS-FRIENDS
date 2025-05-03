@@ -11,6 +11,7 @@ exports.createBooking = async (bookingData) => {
         owner_id,
         sitter_id,
         pet_type,
+        pet_id,
         service_type,
         start_time,
         end_time,
@@ -22,8 +23,8 @@ exports.createBooking = async (bookingData) => {
     const formattedEnd = dayjs(end_time).utc().format("YYYY-MM-DD HH:mm:ss");
 
     const [result] = await db.execute(
-        `INSERT INTO booking (owner_id, sitter_id, pet_type, service_type, start_time, end_time, language) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [owner_id, sitter_id, pet_type, service_type, formattedStart, formattedEnd, language]
+        `INSERT INTO booking (owner_id, sitter_id, pet_type, pet_id, service_type, start_time, end_time, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [owner_id, sitter_id, pet_type, pet_id, service_type, formattedStart, formattedEnd, language]
     );
 
     const bookingId = result.insertId;
@@ -52,3 +53,23 @@ exports.updateBookingStatus = async (bookingId, newStatus, note = null) => {
         [bookingId, newStatus, note, nowUTC]
     );
 };
+
+// 3. 获取某sitter的所有订单
+exports.getBookingsBySitter = async (sitter_id) => {
+    const [rows] = await db.query(
+      `select * from booking
+      where sitter_id = ?`,
+      [sitter_id]
+    );
+    return rows;
+  };
+
+// 3. 获取某user的所有订单
+exports.getBookingsByUser = async (user_id) => {
+    const [rows] = await db.query(
+      `select * from booking
+      where owner_id = ?`,
+      [user_id]
+    );
+    return rows;
+  };  

@@ -13,6 +13,11 @@ import {
   CircularProgress,
 } from '@mui/material'
 
+interface CalendarProps {
+  readOnly?: boolean
+  userId?: string
+}
+
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const timeSlots = [
   '09:00–10:00',
@@ -56,7 +61,7 @@ const publicHolidays = [
   { date: '2025-12-26', name: 'Boxing Day' },
 ]
 
-export default function Calendar({ readOnly = false }: { readOnly?: boolean }) {
+export default function Calendar({ readOnly = false, userId }: CalendarProps) {
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
 
@@ -99,13 +104,10 @@ export default function Calendar({ readOnly = false }: { readOnly?: boolean }) {
     const fetchAvailability = async () => {
       try {
         const token = localStorage.getItem('token')
-        const userStr = localStorage.getItem('user')
-        const user = userStr ? JSON.parse(userStr) : null
-
-        if (!token || !user?.id) return
+        if (!token) return
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${user.id}?t=${Date.now()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${userId}?t=${Date.now()}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -123,7 +125,7 @@ export default function Calendar({ readOnly = false }: { readOnly?: boolean }) {
     }
 
     fetchAvailability()
-  }, [])
+  }, [userId])
 
   const handleToggle = (d: string, slot: string) => {
     if (readOnly) return
@@ -131,33 +133,9 @@ export default function Calendar({ readOnly = false }: { readOnly?: boolean }) {
     setSelected(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const clearAll = async () => {
-    if (readOnly) return
-  
-    setSelected({}) // 清空前端状态
-  
-    try {
-      const token = localStorage.getItem('token')
-      const userStr = localStorage.getItem('user')
-      const user = userStr ? JSON.parse(userStr) : null
-  
-      if (!token || !user?.id) return
-  
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/availability/${user.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-  
-      if (!res.ok) throw new Error('Failed to clear calendar from server')
-      alert('Availability cleared successfully!')
-    } catch (err) {
-      alert('Failed to clear availability. Please try again.')
-      console.error('Error clearing availability:', err)
-    }
+  const clearAll = () => {
+    if (!readOnly) setSelected({})
   }
-  
 
   const saveAll = async () => {
     if (readOnly) return
