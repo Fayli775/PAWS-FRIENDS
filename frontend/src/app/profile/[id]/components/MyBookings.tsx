@@ -1,50 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material'
 import OrderDialog from './OrderDialog'
+import axios from 'axios'
 
-// Mock数据（Owner版，包含不同时间段）
-const mockMyBookings = [
-  {
-    id: 1,
-    petName: 'Buddy',
-    serviceType: 'Dog Walking',
-    bookingTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1小时后（Upcoming）
-    status: 'Confirmed',
-    notes: '',
-    review: '',
-    rating: null,
-    complaint: '',
-    role: 'owner',
-  },
-  {
-    id: 2,
-    petName: 'Mittens',
-    serviceType: 'Pet Sitting',
-    bookingTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30分钟前（Ongoing）
-    status: 'Confirmed',
-    notes: '',
-    review: '',
-    rating: null,
-    complaint: '',
-    role: 'owner',
-  },
-  {
-    id: 3,
-    petName: 'Charlie',
-    serviceType: 'Cat Sitting',
-    bookingTime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3小时前（Completed）
-    status: 'Completed',
-    notes: '',
-    review: 'Very good!',
-    rating: 5,
-    complaint: '',
-    role: 'owner',
-  }
-]
-
-// 状态颜色
+// 状态颜色映射
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
   Confirmed: 'success',
@@ -58,18 +19,50 @@ function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed
   const booking = new Date(bookingTime)
   const diffMinutes = (booking.getTime() - now.getTime()) / 60000
 
-  if (diffMinutes > 0) {
-    return 'upcoming'
-  } else if (diffMinutes > -90) {
-    return 'ongoing'
-  } else {
-    return 'completed'
-  }
+  if (diffMinutes > 0) return 'upcoming'
+  else if (diffMinutes > -90) return 'ongoing'
+  else return 'completed'
 }
 
 export default function MyBookings() {
-  const [orders, setOrders] = useState(mockMyBookings)
+  const [orders, setOrders] = useState<any[]>([])
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
+
+  useEffect(() => {
+    const fetchMyBookings = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const userStr = localStorage.getItem('user')
+        const currentUser = userStr ? JSON.parse(userStr) : null
+        if (!currentUser?.id) return
+
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/user/${currentUser.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+
+        const bookings = res.data.bookings.map((b: any) => ({
+          id: b.id,
+          petName: b.pet_type,
+          serviceType: b.service_type,
+          bookingTime: b.start_time,
+          status: b.status || 'Pending',
+          review: b.review || '',
+          rating: b.rating ?? null,
+          notes: b.notes || '',
+          complaint: b.complaint || '',
+          role: 'owner',
+        }))
+        setOrders(bookings)
+      } catch (err) {
+        console.error('❌ Failed to fetch my bookings:', err)
+      }
+    }
+
+    fetchMyBookings()
+  }, [])
 
   const handleCloseDialog = () => {
     setSelectedOrder(null)
@@ -78,13 +71,42 @@ export default function MyBookings() {
   const handleUpdateOrder = (updatedFields: any) => {
     setOrders((prev) =>
       prev.map((order) =>
-        order.id === selectedOrder.id ? { ...order, ...updatedFields } : order
+        order.id === selectedOrder?.id ? { ...order, ...updatedFields } : order
       )
     )
-    setSelectedOrder((prev) => prev ? { ...prev, ...updatedFields } : prev)
+    setSelectedOrder((prev) => (prev ? { ...prev, ...updatedFields } : prev))
   }
+  
+  const updateBookingStatus = async (status: string, note?: string) => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        alert('You need to login first.')
+        return
+      }
+  
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${selectedOrder?.id}/status`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status, note: note || '' }),
+      })
+  
+      if (res.ok) {
+        // 更新前端状态
+        handleUpdateOrder({ status })
+      } else {
+        alert('Failed to update booking status.')
+      }
+    } catch (err) {
+      console.error('❌ Booking status update failed:', err)
+    }
+  }
+  
 
-  // 分类
+  // 分类订单
   const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
   const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
   const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')
@@ -100,7 +122,9 @@ export default function MyBookings() {
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
             <strong>{order.petName}</strong> - {order.serviceType}
-            <Box color="text.secondary">{new Date(order.bookingTime).toLocaleString()}</Box>
+            <Box color="text.secondary">
+              {new Date(order.bookingTime).toLocaleString()}
+            </Box>
           </Box>
           <Chip label={order.status} color={statusColorMap[order.status]} />
         </Box>
@@ -119,13 +143,12 @@ export default function MyBookings() {
       <Typography variant="h6" mt={4}>Completed Orders</Typography>
       {completedOrders.length > 0 ? completedOrders.map(renderOrderCard) : <Typography>No completed orders.</Typography>}
 
-      {/* 订单详情弹窗 */}
       {selectedOrder && (
         <OrderDialog
           order={selectedOrder}
           role="owner"
           onClose={handleCloseDialog}
-          onUpdate={handleUpdateOrder}
+          onUpdate={updateBookingStatus}
         />
       )}
     </Box>

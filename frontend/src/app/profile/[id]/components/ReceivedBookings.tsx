@@ -1,50 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material'
+import axios from 'axios'
 import OrderDialog from './OrderDialog'
 
-// Mock数据（Sitter版，包含不同时间段）
-const mockReceivedBookings = [
-  {
-    id: 10,
-    petName: 'Oscar',
-    serviceType: 'Dog Walking',
-    bookingTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2小时后（Upcoming）
-    status: 'Pending',
-    notes: '',
-    review: '',
-    rating: null,
-    complaint: '',
-    role: 'sitter',
-  },
-  {
-    id: 11,
-    petName: 'Luna',
-    serviceType: 'Pet Sitting',
-    bookingTime: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45分钟前（Ongoing）
-    status: 'Confirmed',
-    notes: '',
-    review: '',
-    rating: null,
-    complaint: '',
-    role: 'sitter',
-  },
-  {
-    id: 12,
-    petName: 'Max',
-    serviceType: 'Dog Walking',
-    bookingTime: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5小时前（Completed）
-    status: 'Completed',
-    notes: '',
-    review: '',
-    rating: 4,
-    complaint: '',
-    role: 'sitter',
-  }
-]
-
-// 状态颜色
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
   Confirmed: 'success',
@@ -52,7 +12,6 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   Cancelled: 'error',
 }
 
-// 动态时间阶段
 function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
   const now = new Date()
   const booking = new Date(bookingTime)
@@ -68,8 +27,41 @@ function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed
 }
 
 export default function ReceivedBookings() {
-  const [orders, setOrders] = useState(mockReceivedBookings)
+  const [orders, setOrders] = useState<any[]>([])
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const token = localStorage.getItem('token')
+      const userStr = localStorage.getItem('user')
+      const user = userStr ? JSON.parse(userStr) : null
+      if (!token || !user?.id) return
+
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/sitter/${user.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        const data = res.data.bookings.map((b: any) => ({
+          id: b.id,
+          petName: b.pet_type,
+          serviceType: b.service_type,
+          bookingTime: b.start_time,
+          status: b.status || 'Pending',
+          notes: b.notes || '',
+          review: b.review || '',
+          rating: b.rating || null,
+          complaint: b.complaint || '',
+          role: 'sitter',
+        }))
+        setOrders(data)
+      } catch (err) {
+        console.error('Failed to fetch sitter bookings:', err)
+      }
+    }
+
+    fetchBookings()
+  }, [])
 
   const handleCloseDialog = () => {
     setSelectedOrder(null)
@@ -81,10 +73,9 @@ export default function ReceivedBookings() {
         order.id === selectedOrder.id ? { ...order, ...updatedFields } : order
       )
     )
-    setSelectedOrder((prev) => prev ? { ...prev, ...updatedFields } : prev)
+    setSelectedOrder((prev) => (prev ? { ...prev, ...updatedFields } : prev))
   }
 
-  // 分类
   const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
   const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
   const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')
@@ -119,7 +110,6 @@ export default function ReceivedBookings() {
       <Typography variant="h6" mt={4}>Completed Orders</Typography>
       {completedOrders.length > 0 ? completedOrders.map(renderOrderCard) : <Typography>No completed orders.</Typography>}
 
-      {/* 订单详情弹窗 */}
       {selectedOrder && (
         <OrderDialog
           order={selectedOrder}

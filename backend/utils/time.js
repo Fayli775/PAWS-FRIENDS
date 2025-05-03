@@ -26,8 +26,8 @@ exports.parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
     const baseDate = today.day() <= targetDay
         ? today.day(targetDay)
         : today.add(1, "week").day(targetDay);
-
-    const [startRaw, endRaw] = timeSlot.split("–");
+    
+    const [startRaw, endRaw] = timeSlot.split(/[–-]/).map(s => s.trim());
 
     const start_time = dayjs(`${baseDate.format("YYYY-MM-DD")} ${startRaw}`)
         .utc()

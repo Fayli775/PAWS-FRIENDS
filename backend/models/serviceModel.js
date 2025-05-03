@@ -61,7 +61,7 @@ exports.updateSitterServices = async (sitterId, serviceList) => {
 
   exports.getServicesBySitterId = async (sitterId) => {
     const [rows] = await db.query(`
-      SELECT ss.service_id, s.name, ss.custom_price
+      SELECT ss.service_id, s.name, s.base_price as custom_price
       FROM sitter_services ss
       JOIN services s ON ss.service_id = s.id
       WHERE ss.sitter_id = ?

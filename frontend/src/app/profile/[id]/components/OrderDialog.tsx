@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState,useEffect} from 'react'
 import {
   Box,
   Typography,
@@ -42,23 +42,50 @@ export default function OrderDialog({
   onClose: () => void
   onUpdate: (updatedFields: any) => void
 }) {
-  const [newReview, setNewReview] = useState('')
+  const [newComment, setNewComment] = useState('')
   const [newRating, setNewRating] = useState<number | null>(null)
   const [newComplaint, setNewComplaint] = useState('')
 
   const timeStatus = getTimeStatus(order.bookingTime)
+  console.log('Time Status:', timeStatus)
+  console.log('Order:', order)
+  console.log('Role:', role)
+  
+  const handleConfirm = () => onUpdate('confirmed')
+  const handleCancel = () => onUpdate('cancelled')
+  const handleComplete = () => onUpdate('completed')
 
-  const handleConfirm = () => onUpdate({ status: 'Confirmed' })
-  const handleCancel = () => onUpdate({ status: 'Cancelled' })
-  const handleComplete = () => onUpdate({ status: 'Completed' })
-
-  const handleSubmitReview = () => {
-    if (newReview.trim() && newRating) {
-      onUpdate({ review: newReview, rating: newRating })
-      setNewReview('')
-      setNewRating(null)
+  const handleSubmitReview = async () => {
+    if (newComment.trim() && newRating) {
+      try {
+        const token = localStorage.getItem("token")
+        const payload = {
+          booking_id: order.id,
+          comment: newComment,
+          rating: newRating,
+        }
+  
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+  
+        if (res.ok) {
+          setNewComment(newComment)
+          setNewRating(newRating)
+        } else {
+          alert('❌ Failed to submit review.')
+        }
+      } catch (err) {
+        console.error('Review submit error:', err)
+      }
     }
   }
+  
 
   const handleSubmitComplaint = () => {
     if (newComplaint.trim()) {
@@ -67,6 +94,29 @@ export default function OrderDialog({
     }
   }
 
+
+  useEffect(() => {
+    const fetchReview = async () => {
+      try {
+        console.log("🔍 order.id", order.id)
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/booking/${order.id}`)
+        const data = await res.json()
+
+        if (data.status === 'success') {
+          setNewComment(data.reviews[0].comment)
+          setNewRating(data.reviews[0].rating)
+        }
+      } catch (err) {
+        console.error('Failed to fetch review:', err)
+      }
+    }
+
+    if (order.status === 'completed' && (!order.review || !order.rating)) {
+      fetchReview()
+    }
+  }, [order])
+
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Order Details</DialogTitle>
@@ -74,7 +124,7 @@ export default function OrderDialog({
         <Box display="flex" flexDirection="column" gap={2}>
           <Typography><strong>Pet:</strong> {order.petName}</Typography>
           <Typography><strong>Service:</strong> {order.serviceType}</Typography>
-          <Typography><strong>Time:</strong> {order.bookingTime}</Typography>
+          <Typography><strong>Time:</strong> {new Date(order.bookingTime).toLocaleString()}</Typography>
           <Typography><strong>Status:</strong> {order.status}</Typography>
 
           {/* 按时间阶段和角色渲染操作按钮 */}
@@ -85,7 +135,7 @@ export default function OrderDialog({
                   Cancel Booking
                 </Button>
               )}
-              {role === 'sitter' && order.status === 'Pending' && (
+              {role === 'sitter' && order.status === 'pending' && (
                 <Stack direction="row" spacing={2}>
                   <Button variant="contained" color="success" onClick={handleConfirm}>
                     Accept
@@ -105,25 +155,35 @@ export default function OrderDialog({
           )}
 
           {/* Review + Complaint */}
-          {(order.status === 'Completed' || order.status === 'Cancelled') && (
-            <>
+          {order.status === 'completed' && (
+          <>
+            {order.review && order.rating ? (
+              <Box>
+                <Typography variant="subtitle1"><strong>Your Review:</strong></Typography>
+                <Typography>{order.review}</Typography>
+                <Rating value={order.rating} readOnly />
+              </Box>
+            ) : (
               <ReviewForm
                 existingReview={order.review}
                 existingRating={order.rating}
-                newReview={newReview}
+                newReview={newComment}
                 newRating={newRating}
-                onReviewChange={setNewReview}
+                onReviewChange={setNewComment}
                 onRatingChange={setNewRating}
                 onSubmit={handleSubmitReview}
               />
-              <ComplaintForm
-                existingComplaint={order.complaint}
-                newComplaint={newComplaint}
-                onComplaintChange={setNewComplaint}
-                onSubmit={handleSubmitComplaint}
-              />
-            </>
-          )}
+            )}
+
+            <ComplaintForm
+              existingComplaint={order.complaint}
+              newComplaint={newComplaint}
+              onComplaintChange={setNewComplaint}
+              onSubmit={handleSubmitComplaint}
+            />
+          </>
+        )}
+
         </Box>
       </DialogContent>
       <DialogActions>
