@@ -54,6 +54,7 @@ export default function MyBookings() {
           notes: b.notes || '',
           complaint: b.complaint || '',
           role: 'owner',
+          owner_id: b.owner_id,
         }))
         setOrders(bookings)
       } catch (err) {

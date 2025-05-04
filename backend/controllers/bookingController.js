@@ -1,4 +1,5 @@
 const Booking = require("../models/bookingModel");
+const Notice = require("../models/noticeModel");
 const { parseFrontendTimeSlot } = require("../utils/time");
 
 // 创建新预约
@@ -34,7 +35,7 @@ exports.createBooking = async (req, res) => {
         };
 
         const bookingId = await Booking.createBooking(bookingData);
-
+        Notice.createNotice(sitter_id, 'new booking', 'You have received a new booking. Please check your bookings.');
         res.status(201).json({ status: "success", bookingId });
     } catch (err) {
         console.error("Error creating booking:", err);
@@ -49,6 +50,8 @@ exports.updateBookingStatus = async (req, res) => {
 
     try {
         await Booking.updateBookingStatus(id, status, note);
+        // 发送通知给用户
+        Notice.createNotice(id, 'booking status change', `Your booking status has been updated to ${status}.`);
         res.json({ status: "success", message: `Booking ${id} updated to ${status}` });
     } catch (err) {
         console.error("Error updating booking status:", err);

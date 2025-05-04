@@ -30,6 +30,12 @@ app.use("/api/availability", availabilityRoutes);
 const reviewRoutes = require("./routes/reviewRoutes");
 app.use("/api/reviews", reviewRoutes);
 
+const complainRoutes = require("./routes/complainRoutes");
+app.use("/api/complain", complainRoutes);
+
+const noticeRoutes = require("./routes/noticeRoutes");
+app.use("/api/notice", noticeRoutes);
+
 const serviceRoutes = require("./routes/serviceRoutes");
 app.use("/api/services", serviceRoutes);
 

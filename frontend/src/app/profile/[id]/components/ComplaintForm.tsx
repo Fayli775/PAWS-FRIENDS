@@ -7,11 +7,13 @@ export default function ComplaintForm({
   existingComplaint,
   newComplaint,
   onComplaintChange,
+  isOwner,
   onSubmit,
 }: {
   existingComplaint: string
   newComplaint: string
   onComplaintChange: (value: string) => void
+  isOwner: boolean
   onSubmit: () => void
 }) {
   return (
@@ -38,7 +40,7 @@ export default function ComplaintForm({
             variant="outlined"
             color="error"
             onClick={onSubmit}
-            disabled={!newComplaint.trim()}
+            disabled={!isOwner || !newComplaint.trim()}
           >
             Submit Complaint
           </Button>

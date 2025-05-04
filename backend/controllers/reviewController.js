@@ -1,5 +1,6 @@
 // controllers/reviewController.js
 const Review = require("../models/reviewModel");
+const Notice = require("../models/noticeModel");
 const db = require("../config/db");
 
 exports.addReview = async (req, res) => {
@@ -32,7 +33,12 @@ exports.addReview = async (req, res) => {
         }
         const sitter_id = booking.sitter_id;
         await Review.addReview({ booking_id, reviewer_id, sitter_id, rating, comment });
-
+        // 通知
+        Notice.createNotice(
+            sitter_id,
+            "New Review Received",
+            `You have received a new review for booking, which id is: ${booking_id}.`
+        );
         res.status(200).json({
             status: "success",
             message: "Review submitted"
