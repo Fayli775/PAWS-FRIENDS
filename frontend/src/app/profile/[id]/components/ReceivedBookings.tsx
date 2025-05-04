@@ -53,6 +53,7 @@ export default function ReceivedBookings() {
           rating: b.rating || null,
           complaint: b.complaint || '',
           role: 'sitter',
+          owner_id: b.owner_id,
         }))
         setOrders(data)
       } catch (err) {

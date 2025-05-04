@@ -44,12 +44,18 @@ export default function OrderDialog({
 }) {
   const [newComment, setNewComment] = useState('')
   const [newRating, setNewRating] = useState<number | null>(null)
-  const [newComplaint, setNewComplaint] = useState('')
+  const [newComplain, setNewComplain] = useState('')
 
   const timeStatus = getTimeStatus(order.bookingTime)
   console.log('Time Status:', timeStatus)
   console.log('Order:', order)
   console.log('Role:', role)
+
+  const user = localStorage.getItem("user")
+  const userId = user ? JSON.parse(user).id : null
+  console.log('User ID:', userId)
+  console.log('Order Owner ID:', order.owner_id)
+  const isOwner = userId === order.owner_id
   
   const handleConfirm = () => onUpdate('confirmed')
   const handleCancel = () => onUpdate('cancelled')
@@ -85,17 +91,39 @@ export default function OrderDialog({
       }
     }
   }
+  const handleSubmitComplain = async () => {
+    if (newComplain.trim()) {
+      try {
+        const token = localStorage.getItem("token")
+        const payload = {
+          booking_id: order.id,
+          content: newComplain,
+        }
   
-
-  const handleSubmitComplaint = () => {
-    if (newComplaint.trim()) {
-      onUpdate({ complaint: newComplaint })
-      setNewComplaint('')
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complain`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+  
+        if (res.ok) {
+          setNewComplain(newComplain)
+        } else {
+          alert('❌ Failed to submit complain.')
+        }
+      } catch (err) {
+        console.error('Complian submit error:', err)
+      }
     }
   }
 
 
+
   useEffect(() => {
+    
     const fetchReview = async () => {
       try {
         console.log("🔍 order.id", order.id)
@@ -112,9 +140,26 @@ export default function OrderDialog({
       }
     }
 
+    const fetchComplain = async () => {
+      try {
+        console.log("🔍 order.id", order.id)
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complain/booking/${order.id}`)
+        const data = await res.json()
+
+        if (data.status === 'success') {
+          setNewComplain(data.complain[0].content)
+        }
+      } catch (err) {
+        console.error('Failed to fetch review:', err)
+      }
+    }
+
     if (order.status === 'completed' && (!order.review || !order.rating)) {
       fetchReview()
+      fetchComplain()
     }
+
   }, [order])
 
   return (
@@ -171,15 +216,17 @@ export default function OrderDialog({
                 newRating={newRating}
                 onReviewChange={setNewComment}
                 onRatingChange={setNewRating}
+                isOwner={isOwner}
                 onSubmit={handleSubmitReview}
               />
             )}
 
             <ComplaintForm
-              existingComplaint={order.complaint}
-              newComplaint={newComplaint}
-              onComplaintChange={setNewComplaint}
-              onSubmit={handleSubmitComplaint}
+              existingComplaint={order.complain}
+              newComplaint={newComplain}
+              onComplaintChange={setNewComplain}
+              isOwner={isOwner}
+              onSubmit={handleSubmitComplain}
             />
           </>
         )}

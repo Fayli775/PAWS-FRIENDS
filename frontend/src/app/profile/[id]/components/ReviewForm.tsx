@@ -10,6 +10,7 @@ export default function ReviewForm({
   newRating,
   onReviewChange,
   onRatingChange,
+  isOwner,
   onSubmit,
 }: {
   existingReview: string
@@ -18,6 +19,7 @@ export default function ReviewForm({
   newRating: number | null
   onReviewChange: (value: string) => void
   onRatingChange: (value: number | null) => void
+  isOwner: boolean
   onSubmit: () => void
 }) {
   return (
@@ -51,7 +53,7 @@ export default function ReviewForm({
             variant="contained"
             color="primary"
             onClick={onSubmit}
-            disabled={!newReview.trim() || !newRating}
+            disabled={!isOwner || !newReview.trim() || !newRating}
           >
             Submit Review
           </Button>

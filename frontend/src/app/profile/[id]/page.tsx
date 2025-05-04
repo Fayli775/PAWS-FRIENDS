@@ -10,13 +10,15 @@ import Reviews from './components/Reviews'
 import Pets from './components/Pets'
 import ChangePassword from './components/ChangePassword'
 import Certifications from './components/Certifications'
+import Notice from './components/Notice'
+
 import Header from '@/components/Header'
 import OrdersPage from './components/OrdersPage'
 
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
-    'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications'
+    'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications' | 'Notice'
   >('Personal Info')
 
   const userStr = localStorage.getItem('user') 
@@ -41,6 +43,7 @@ export default function MyProfilePage() {
           {selectedTab === 'Reviews' && <Reviews />}
           {selectedTab === 'Security' && <ChangePassword />}
           {selectedTab === 'Certifications' && <Certifications />}
+          {selectedTab === 'Notice' && <Notice />}
         </Box>
       </Box>
     </Box>
