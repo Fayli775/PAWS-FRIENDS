@@ -51,7 +51,16 @@ const uploadAvatar = multer({
   },
 });
 
-const uploadPetPhoto = multer({ storage: petStorage });
+const uploadPetPhoto = multer({
+  storage: petStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 宠物头像也限制为10MB
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  },
+});
 
 // 导出中间件
 module.exports = { uploadAvatar, uploadPetPhoto };

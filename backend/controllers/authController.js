@@ -30,7 +30,15 @@ exports.register = async (req, res) => {
       avatar, //如果有头像
     });
 
-    res.status(201).json({ status: "success", userId });
+    res.status(201).json({
+      status: "success",
+      user: {
+        id: userId,
+        email,
+        user_name,
+        avatar: avatar ? `/images/uploads/avatars/${avatar}` : null,
+      },
+    });
   } catch (err) {
     console.error("Error in register:", err);
     res.status(500).json({ status: "error", message: "Internal server error" });
@@ -81,6 +89,7 @@ exports.login = async (req, res) => {
         id: user.id,
         email: user.email,
         user_name: user.user_name,
+        avatar: user.avatar ? `/images/uploads/avatars/${user.avatar}` : null,
       },
     });
   } catch (err) {
