@@ -5,12 +5,15 @@ const yup = require('yup');
 
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
-  console.log(`Fetching user with ID: ${id}`);
   try {
     const user = await userModel.getUserById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // 统一处理头像路径
+    user.avatar = user.avatar
+      ? `/images/uploads/avatars/${user.avatar}`
+      : null;
     res.json({ status: "success", user });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -83,8 +86,8 @@ exports.updateProfile = async (req, res) => {
     }
     // 如果上传了头像，处理头像路径
     if (req.file) {
-      const avatarPath = `/images/uploads/avatars/${req.file.filename}`;
-      validatedData.avatar = avatarPath; // 将头像路径添加到更新数据中
+      // 只存文件名
+      validatedData.avatar = req.file.filename;
     }
     // 4. 调用 model 更新
     await userModel.updateUserProfile(userId, validatedData);

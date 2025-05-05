@@ -12,7 +12,7 @@ router.get("/:id", userController.getUserById);
 router.put(
   "/me/updateProfile",
   authMiddleware,
-  uploadAvatar.single("profilePhoto"), // 处理头像上传
+  uploadAvatar.single("avatar"), // 处理头像上传
   userController.updateProfile
 );
 

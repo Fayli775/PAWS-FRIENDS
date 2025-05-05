@@ -11,7 +11,8 @@ import LocationSelect from "@/components/LocationSelect";
 import Link from "next/link";
 
 export default function RegisterPage() {
-  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null); //预览图
+  const [avatarFile, setAvatarFile] = useState<File | null>(null); // 上传用的文件
   const [location, setLocation] = useState<string>("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -33,12 +34,14 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/checkEmail?email=${value}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/checkEmail?email=${value}`
+      );
       if (!response.ok) {
         throw new Error("Failed to check email");
       }
       const data = await response.json();
-      setIsEmailValid(!data.exists); 
+      setIsEmailValid(data.isUnique);
     } catch (error) {
       console.error("Error checking email:", error);
       setIsEmailValid(false);
@@ -88,23 +91,29 @@ export default function RegisterPage() {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("user_name", username); 
+    formData.append("user_name", username);
     formData.append("bio", biography);
     formData.append("region", location);
-    if (avatar) {
-      formData.append("avatar", avatar); 
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
     }
 
     try {
       setIsSubmitting(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-        method: "POST",
-        body: formData, 
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to register user");
       }
+
+      const responseData = await response.json();
+      localStorage.setItem("user", JSON.stringify(responseData.user));
 
       alert("Registration successfully! Redirecting to Log in page…");
 
@@ -118,8 +127,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", backgroundColor:"#fef8f2" }}>
-      
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#fef8f2",
+      }}
+    >
       <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Register
@@ -196,7 +210,13 @@ export default function RegisterPage() {
             value={location}
             onChange={(e) => setLocation(e.target.value as string)}
           />
-          <AvatarUpload avatar={avatar} setAvatar={(file) => setAvatar(file)} />
+          <AvatarUpload
+            avatar={avatar}
+            setAvatar={(previewUrl, file) => {
+              setAvatar(previewUrl);
+              setAvatarFile(file ?? null);
+            }}
+          />{" "}
           <Button type="submit" fullWidth variant="contained" sx={{ mb: 2 }}>
             {isSubmitting ? "Registering..." : "Register"}
           </Button>

@@ -9,8 +9,8 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Avatar,
 } from "@mui/material";
-import AvatarUpload from "@/components/AvatarUpload";
 import LocationSelect from "@/components/LocationSelect";
 import axios from "axios";
 
@@ -32,35 +32,37 @@ export default function ProfileForm() {
   });
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [loading, setLoading] = useState(true); // 添加加载状态
+  const [loading, setLoading] = useState(true);
+
+  const MAX_AVATAR_SIZE = 10 * 1024 * 1024; // 10MB
 
   // 加载用户数据
   async function fetchUserData() {
     try {
       const token = localStorage.getItem("token");
       const userStr = localStorage.getItem("user");
-  
+
       if (!token) throw new Error("No token found in localStorage");
       if (!userStr) throw new Error("No user found in localStorage");
-  
+
       const user = JSON.parse(userStr);
       if (!user || !user.id) throw new Error("User id not found in localStorage user data");
-  
+
       const userId = user.id;
-  
+
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-  
+
       const avatarUrl = response.data.user.avatar
         ? response.data.user.avatar.startsWith("http")
           ? response.data.user.avatar
           : `${process.env.NEXT_PUBLIC_API_URL}${response.data.user.avatar}`
         : null;
-  
+
       setFormData({
         email: response.data.user.email || "",
         username: response.data.user.user_name || "",
@@ -68,7 +70,7 @@ export default function ProfileForm() {
         avatar: avatarUrl,
         location: response.data.user.region || "",
       });
-  
+
       setAvatarPreview(avatarUrl);
     } catch (error: any) {
       console.error("Error fetching user data:", error);
@@ -87,6 +89,20 @@ export default function ProfileForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value || "" }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  // 头像上传和预览
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > MAX_AVATAR_SIZE) {
+        alert("Avatar file is too large. Please select an image smaller than 10MB.");
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      setAvatarPreview(url); // 本地预览
+      setAvatarFile(file);   // 保存文件用于上传
+    }
   };
 
   // 验证表单
@@ -131,7 +147,7 @@ export default function ProfileForm() {
       formDataToSend.append("region", formData.location);
 
       if (avatarFile) {
-        formDataToSend.append("profilePhoto", avatarFile);
+        formDataToSend.append("avatar", avatarFile);
       }
 
       await axios.put(
@@ -185,18 +201,20 @@ export default function ProfileForm() {
         Personal Info
       </Typography>
 
-      {/* Avatar 上传 */}
+      {/* Avatar 显示和上传 */}
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
           Avatar
         </Typography>
-        <AvatarUpload
-          avatar={avatarPreview || formData.avatar}
-          setAvatar={(avatarUrl, file) => {
-            setAvatarPreview(avatarUrl);
-            setAvatarFile(file ?? null);
-          }}
+        <Avatar
+          alt="User Avatar"
+          src={avatarPreview || "/default-avatar.png"}
+          sx={{ width: 120, height: 120, mb: 2 }}
         />
+        <Button variant="contained" component="label" sx={{ mb: 2 }}>
+          Upload New Avatar
+          <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+        </Button>
       </Box>
 
       {/* Email 显示 */}
