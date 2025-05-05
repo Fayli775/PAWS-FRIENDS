@@ -83,26 +83,44 @@ const SearchPageContent = () => {
   return (
     <Box sx={{ backgroundColor: '#FFF9EB', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* 搜索栏 */}
-      <Box sx={{ py: 6, textAlign: 'center' }}>
-        <Typography variant="h3" fontWeight="bold" gutterBottom>
+      <Box  sx={{
+    py: { xs: 12, md: 16 },  // 上下 padding 加大
+    minHeight: '600px',      // 最小高度拉大
+    textAlign: 'center',
+    backgroundImage: 'url("/home_bg.png")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    color: '#2c3e50',
+  }}>
+         <Typography
+    variant="h2"
+    fontWeight="bold"
+    gutterBottom
+    sx={{ fontSize: { xs: '2.5rem', md: '4rem' } }}
+  >
           Find the Right Pet Sitter
         </Typography>
-        <Typography variant="h6" color="text.secondary">
+        <Typography
+    variant="h6"
+    color="text.secondary"
+    sx={{ fontSize: { xs: '1rem', md: '1.5rem' }, mb: 4 }}
+  >
           Search by keyword or region
         </Typography>
-        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
           <TextField
             label="Keyword"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            sx={{ width: 250 }}
+            sx={{ width: 250, backgroundColor: 'white', borderRadius: 1 }}
           />
           <TextField
             select
             label="Region"
             value={region}
             onChange={(e) => setRegion(e.target.value)}
-            sx={{ width: 250 }}
+            sx={{ width: 250, backgroundColor: 'white', borderRadius: 1 }}
           >
             <MenuItem value="">All</MenuItem>
             {regions.map((r) => (
@@ -111,7 +129,13 @@ const SearchPageContent = () => {
           </TextField>
           <Button
             variant="contained"
-            sx={{ backgroundColor: '#8e44ad', borderRadius: '20px' }}
+            sx={{
+              backgroundColor: '#8e44ad',
+              borderRadius: '20px',
+              px: 4,
+              height: '56px',
+              '&:hover': { backgroundColor: '#732d91' },
+            }}
             onClick={handleSearch}
           >
             Search
