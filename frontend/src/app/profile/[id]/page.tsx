@@ -11,25 +11,19 @@ import Pets from './components/Pets'
 import ChangePassword from './components/ChangePassword'
 import Certifications from './components/Certifications'
 import Notice from './components/Notice'
-import Header from '@/components/Header'
 import OrdersPage from './components/OrdersPage'
 import CircularProgress from '@mui/material/CircularProgress'
+import useAuth from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
     'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications' | 'Notice'
   >('Personal Info')
 
-  const [userId, setUserId] = useState<string | null>(null)
-
-  useEffect(() => {
-    // 只在客户端执行
-    const userStr = typeof window !== "undefined" ? localStorage.getItem('user') : null
-    const user = userStr ? JSON.parse(userStr) : null
-    setUserId(user ? user.id : null)
-  }, [])
-
-  if (!userId) {
+  const { user, loading } = useAuth(true) // requireAuth=true to protect this page
+ 
+  if (loading || !user) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
         <CircularProgress />
