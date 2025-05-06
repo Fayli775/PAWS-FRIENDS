@@ -31,12 +31,6 @@ const services: Service[] = [
     icon: '/dog-walking.png'
   },
   {
-    title: 'Boarding',
-    description: "Safe, cozy home for your pets while you're away",
-    price: 'From $25/hr',
-    icon: '/boarding.png'
-  },
-  {
     title: 'Grooming',
     description: 'Professional grooming to keep pets clean and pretty',
     price: 'From $25/hr',
@@ -103,7 +97,7 @@ const ServicesSection: React.FC = () => {
           Explore Trusted Pet Care: Walking, Grooming, Boarding & More
         </Typography>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={4} justifyContent="center">
           {services.map((service) => (
             <Grid size={{xs:12, sm:6, md:3}} key={service.title}>
               <ServiceCard elevation={2}>
