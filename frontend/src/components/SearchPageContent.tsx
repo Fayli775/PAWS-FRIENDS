@@ -53,10 +53,12 @@ const SearchPageContent = () => {
         query.set('limit', String(perPage));
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sitters/search?${query.toString()}`);
+    
         if (!res.ok) {
           throw new Error('Failed to fetch sitters');
         }
         const data = await res.json();
+        console.log('✅ API 返回的 sitter 数据:', data); // 👈 加在这里
         setSitters(data.sitters || []);
         setTotalPages(data.pagination?.total_pages || 1);
       } catch (error) {
@@ -174,11 +176,12 @@ const SearchPageContent = () => {
                     transition: '0.3s',
                     '&:hover': { boxShadow: 6 },
                   }}>
-                    <Avatar
-                      src={sitter.avatar}
-                      alt={sitter.user_name}
-                      sx={{ width: 80, height: 80, mb: 2 }}
-                    />
+                <Avatar
+                  src={sitter.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitter.avatar}` : '/avatar.jpg'}
+                  alt={sitter.user_name}
+                />
+
+
                     <Typography variant="h6" fontWeight="bold">{sitter.user_name}</Typography>
                     <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
                       <Rating value={sitter.average_rating || 0} precision={0.1} readOnly size="small" />
