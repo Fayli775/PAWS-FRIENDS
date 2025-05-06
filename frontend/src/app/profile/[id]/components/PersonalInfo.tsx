@@ -46,7 +46,8 @@ export default function ProfileForm() {
       if (!userStr) throw new Error("No user found in localStorage");
 
       const user = JSON.parse(userStr);
-      if (!user || !user.id) throw new Error("User id not found in localStorage user data");
+      if (!user || !user.id)
+        throw new Error("User id not found in localStorage user data");
 
       const userId = user.id;
 
@@ -58,9 +59,7 @@ export default function ProfileForm() {
       );
 
       const avatarUrl = response.data.user.avatar
-        ? response.data.user.avatar.startsWith("http")
-          ? response.data.user.avatar
-          : `${process.env.NEXT_PUBLIC_API_URL}${response.data.user.avatar}`
+        ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${response.data.user.avatar}`
         : null;
 
       setFormData({
@@ -96,12 +95,14 @@ export default function ProfileForm() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_AVATAR_SIZE) {
-        alert("Avatar file is too large. Please select an image smaller than 10MB.");
+        alert(
+          "Avatar file is too large. Please select an image smaller than 10MB."
+        );
         return;
       }
       const url = URL.createObjectURL(file);
       setAvatarPreview(url); // 本地预览
-      setAvatarFile(file);   // 保存文件用于上传
+      setAvatarFile(file); // 保存文件用于上传
     }
   };
 
@@ -210,10 +211,19 @@ export default function ProfileForm() {
           alt="User Avatar"
           src={avatarPreview || "/default-avatar.png"}
           sx={{ width: 120, height: 120, mb: 2 }}
+          onError={(e) => {
+            console.error("Avatar load error:", e);
+            console.log("Attempted avatar URL:", avatarPreview);
+          }}
         />
         <Button variant="contained" component="label" sx={{ mb: 2 }}>
           Upload New Avatar
-          <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={handleAvatarChange}
+          />
         </Button>
       </Box>
 
