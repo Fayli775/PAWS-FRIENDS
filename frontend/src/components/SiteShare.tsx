@@ -6,6 +6,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
+import Link from 'next/link';
 
 // Park interface
 interface Park {
@@ -55,7 +56,7 @@ const MapPlaceholder = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: '#e5f2f9',
-  backgroundImage: 'url("/map-background.png")',
+  backgroundImage: 'url("/site-sharing.png")',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   color: theme.palette.text.secondary,
@@ -149,50 +150,60 @@ const SiteShare: React.FC = () => {
           Find any dog-friendly place to walk and play with your pet.
         </Typography>
 
-        <Grid container spacing={0} sx={{ backgroundColor: 'white', boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)' }}>
-          <Grid size={{xs: 12, md: 8}}>
-            <MapContainer>
-              <MapPlaceholder>
-                {/* Map content would go here */}
-              </MapPlaceholder>
-            </MapContainer>
+        <Link href="/site-share" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Grid container spacing={0} sx={{ 
+            backgroundColor: 'white', 
+            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+            }
+          }}>
+            <Grid size={{xs: 12, md: 8}}>
+              <MapContainer>
+                <MapPlaceholder>
+                  {/* Map content would go here */}
+                </MapPlaceholder>
+              </MapContainer>
+            </Grid>
+            <Grid size={{xs: 12, md: 4}}>
+              <ParksContainer>
+                <ParksHeader>
+                <ParkInfoCard>
+                      <Box>
+                        <Typography variant="h6" component="h4" sx={{ fontWeight: 'bold', fontSize: '1.75rem', color: '#1a1a1a' }}>
+                          Dog-Friendly Parks in Auckland
+                        </Typography>
+                      </Box>
+                    </ParkInfoCard>
+                </ParksHeader>
+                
+                <ParksListContainer>
+                  {dogFriendlyParks.map((park) => (
+                    <ParkInfoCard key={park.id}>
+                      <Box>
+                        <Typography variant="h6" component="h4" sx={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#1a1a1a' }}>
+                          {park.name}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
+                          {park.activity}
+                        </Typography>
+                      </Box>
+                      <RatingContainer>
+                        <StarIcon />
+                        <Typography variant="body1" fontWeight="medium" sx={{ ml: 0.5, fontSize: '1.25rem', color: 'black' }}>
+                          {park.rating}
+                        </Typography>
+                      </RatingContainer>
+                    </ParkInfoCard>
+                  ))}
+                </ParksListContainer>
+              </ParksContainer>
+            </Grid>
           </Grid>
-          <Grid size={{xs: 12, md: 4}}>
-            <ParksContainer>
-              <ParksHeader>
-              <ParkInfoCard>
-                    <Box>
-                      <Typography variant="h6" component="h4" sx={{ fontWeight: 'bold', fontSize: '1.75rem', color: '#1a1a1a' }}>
-                        Dog-Friendly Parks in Auckland
-                      </Typography>
-                      
-                    </Box>
-                  </ParkInfoCard>
-              </ParksHeader>
-              
-              <ParksListContainer>
-                {dogFriendlyParks.map((park) => (
-                  <ParkInfoCard key={park.id}>
-                    <Box>
-                      <Typography variant="h6" component="h4" sx={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#1a1a1a' }}>
-                        {park.name}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem' }}>
-                        {park.activity}
-                      </Typography>
-                    </Box>
-                    <RatingContainer>
-                      <StarIcon />
-                      <Typography variant="body1" fontWeight="medium" sx={{ ml: 0.5, fontSize: '1.25rem', color: 'black' }}>
-                        {park.rating}
-                      </Typography>
-                    </RatingContainer>
-                  </ParkInfoCard>
-                ))}
-              </ParksListContainer>
-            </ParksContainer>
-          </Grid>
-        </Grid>
+        </Link>
       </Container>
     </Box>
   );

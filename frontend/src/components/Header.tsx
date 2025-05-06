@@ -11,7 +11,6 @@ import { IconButton, List, ListItemText, ListItem, Drawer } from '@mui/material'
 
 
 const navItems = [
-  { label: 'Our Services', path: '/services' },
   { label: 'Site Share', path: '/site-share' },
   { label: 'Events', path: '/events' },
   { label: 'Log in', path: '/login' },
