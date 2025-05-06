@@ -46,6 +46,13 @@ app.use("/api/certificate", certificateRoutes);
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
 app.use("/api/locations", locationRoutes); // Use location routes
 
+const cron = require("node-cron");
+const { sendBookingReminders } = require("./schedulers/bookingReminders.js");
+
+cron.schedule("* * * * *", async () => {
+  await sendBookingReminders();
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
@@ -56,4 +63,3 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-
