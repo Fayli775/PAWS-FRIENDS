@@ -57,10 +57,12 @@ const SearchPageContent = () => {
         query.set('limit', String(perPage));
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sitters/search?${query.toString()}`);
+    
         if (!res.ok) {
           throw new Error('Failed to fetch sitters');
         }
         const data = await res.json();
+        console.log('✅ API 返回的 sitter 数据:', data); // 👈 加在这里
         setSitters(data.sitters || []);
         setTotalPages(data.pagination?.total_pages || 1);
       } catch (error) {
@@ -166,6 +168,7 @@ const SearchPageContent = () => {
           </Box>
         ) : (
           <>
+
             <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center' }}>
               <Grid 
                 container 

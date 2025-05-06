@@ -39,6 +39,8 @@ app.use("/api/notice", noticeRoutes);
 const serviceRoutes = require("./routes/serviceRoutes");
 app.use("/api/services", serviceRoutes);
 
+const certificateRoutes = require("./routes/certificateRoutes");
+app.use("/api/certificate", certificateRoutes);
 
 // Add the new location routes
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
