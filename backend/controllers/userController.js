@@ -12,7 +12,7 @@ exports.getUserById = async (req, res) => {
     }
     // 统一处理头像路径
     user.avatar = user.avatar
-      ? `/images/uploads/avatars/${user.avatar}`
+      ? `${user.avatar}`
       : null;
     res.json({ status: "success", user });
   } catch (error) {
