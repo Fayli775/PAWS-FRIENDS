@@ -9,7 +9,7 @@ INSERT INTO user_info (
   'North Shore',
   'AliceCat',
   0,
-  '/images/uploads/avatars/user1-avatar',
+  '/images/uploads/avatars/user1_avatar.png',
   '0211234567',
   '0219876543'
 ),
@@ -20,7 +20,7 @@ INSERT INTO user_info (
   'West Auckland',
   'BobWoof',
   0,
-  '/images/uploads/avatars/user2-avatar',
+  '/images/uploads/avatars/user2_avatar.png',
   '0227654321',
   '0214567890'
 ),
@@ -31,7 +31,7 @@ INSERT INTO user_info (
   'Central Auckland',
   'CarolPaws',
   0,
-  '/images/uploads/avatars/user3-avatar',
+  '/images/uploads/avatars/user3_avatar.png',
   '0201112222',
   '0273334444'
 ),
@@ -42,7 +42,7 @@ INSERT INTO user_info (
   'East Auckland',
   'DaveTrain',
   0,
-  '/images/uploads/avatars/user4-avatar',
+  '/images/uploads/avatars/user4_avatar.png',
   '0275556666',
   '0208889999'
 );
