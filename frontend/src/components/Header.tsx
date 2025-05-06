@@ -8,59 +8,71 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton, List, ListItemText, ListItem, Drawer } from '@mui/material';
-
+import UserMenu from './UserMenu';
+import useAuth from '@/hooks/useAuth';
 
 const navItems = [
   { label: 'Site Share', path: '/site-share' },
   { label: 'Events', path: '/events' },
-  { label: 'Log in', path: '/login' },
-  { label: 'Register', path: '/register' },
 ];
-
 
 export default function Header() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const { authenticated } = useAuth();
+  
   const handleDrawerToggle = () => {
-    setMobileDrawerOpen((prev)=>!prev);
+    setMobileDrawerOpen((prev) => !prev);
   };
+  
   const mobileDrawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-  
-    <List>
-      {navItems.map((item) => (
-        <ListItem key={item.label} component={Link} href={item.path} sx={{ textAlign: 'center' }}>
-          <ListItemText primary={item.label} />
-        </ListItem>
-      ))}
-    </List>
+      <List>
+        {navItems.map((item) => (
+          <ListItem key={item.label} component={Link} href={item.path} sx={{ textAlign: 'center' }}>
+            <ListItemText primary={item.label} />
+          </ListItem>
+        ))}
+        {!authenticated && (
+          <>
+            <ListItem component={Link} href="/login" sx={{ textAlign: 'center' }}>
+              <ListItemText primary="Log in" />
+            </ListItem>
+            <ListItem component={Link} href="/register" sx={{ textAlign: 'center' }}>
+              <ListItemText primary="Register" />
+            </ListItem>
+          </>
+        )}
+      </List>
     </Box>
   );
 
   return (
     <>
-      <AppBar component="nav" position="sticky" color="transparent" elevation={0} sx={{  backgroundColor: '#fff8e9' }}>
+      <AppBar component="nav" position="sticky" color="transparent" elevation={0} sx={{ backgroundColor: '#fff8e9' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box component={Link} href="/" sx={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Paw's Friend Logo" style={{ width:'60px', height:'60px', marginRight: '10px' }} />
+            <img src="/logo.png" alt="Paw's Friend Logo" style={{ width: '60px', height: '60px', marginRight: '10px' }} />
             <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', fontFamily: 'var(--font-comic-neue)' }}>
               Paw's Friend
             </Typography>
           </Box>
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            {navItems.map((item) => (
-              <Button key={item.label} component={Link} href={item.path} color="inherit" sx={{ textTransform: 'none', fontWeight: 500, mx: {sm:0, md:1} }}>
-                <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
-                  {item.label}
-                </Typography>
-              </Button>
-            ))}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+              {navItems.map((item) => (
+                <Button key={item.label} component={Link} href={item.path} color="inherit" sx={{ textTransform: 'none', fontWeight: 500, mx: { sm: 0, md: 1 } }}>
+                  <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
+                    {item.label}
+                  </Typography>
+                </Button>
+              ))}
+            </Box>
+            <Box sx={{  ml: 2 }}>
+              <UserMenu />
+            </Box>
+            <IconButton sx={{ display: { xs: 'block', sm: 'none' } }} onClick={handleDrawerToggle}>
+              <MenuIcon />
+            </IconButton>
           </Box>
-          <IconButton  sx={{ display: { xs: 'block', sm: 'none' } }}>
-            <MenuIcon 
-              onClick={handleDrawerToggle}
-             
-            />
-          </IconButton>
         </Toolbar>
       </AppBar>
       <nav>
