@@ -212,8 +212,9 @@ const SearchPageContent = () => {
                       }}
                     >
                       <Avatar
-                        src={sitter.avatar}
+                        src={sitter.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitter.avatar}` : '/avatar.jpg'}
                         alt={sitter.user_name}
+      
                         sx={{ 
                           width: 80, 
                           height: 80, 
