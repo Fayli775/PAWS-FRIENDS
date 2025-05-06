@@ -63,57 +63,47 @@ export default function PetsPage() {
   useEffect(() => { fetchPets() }, [])
 
   const handleFormSubmit = async (petData: Pet) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const { user, token } = getAuthInfo()
-      const isEdit = !!editingPet?.id
+      const { user, token } = getAuthInfo();
+      const isEdit = !!editingPet?.id;
       const url = isEdit
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/pets/updatePet/${editingPet.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/pets/addNewPet`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/pets/addNewPet`;
 
-      const formData = new FormData()
-      formData.append('name', petData.name)
-      formData.append('type', petData.type)
-      if (petData.description) formData.append('description', petData.description)
-      if (petData.vet_contact_phone) formData.append('vet_contact_phone', petData.vet_contact_phone)
-      if (petData.emergency_contact_phone) formData.append('emergency_contact_phone', petData.emergency_contact_phone)
-      if (petData.allergies) formData.append('allergies', petData.allergies)
-      if (petData.medications) formData.append('medications', petData.medications)
-      if (petData.special_instructions) formData.append('special_instructions', petData.special_instructions)
-      if (selectedImageFile) formData.append('petPhoto', selectedImageFile)
-      if (!isEdit) formData.append('owner_id', user.id)
+      const formData = new FormData();
+      formData.append('name', petData.name);
+      formData.append('type', petData.type);
+      if (petData.description) formData.append('description', petData.description);
+      if (petData.vet_contact_phone) formData.append('vet_contact_phone', petData.vet_contact_phone);
+      if (petData.emergency_contact_phone) formData.append('emergency_contact_phone', petData.emergency_contact_phone);
+      if (petData.allergies) formData.append('allergies', petData.allergies);
+      if (petData.medications) formData.append('medications', petData.medications);
+      if (petData.special_instructions) formData.append('special_instructions', petData.special_instructions);
+      if (selectedImageFile) formData.append('petPhoto', selectedImageFile);
+      if (!isEdit) formData.append('owner_id', user.id);
 
       const response = await fetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
-      })
+      });
 
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.message)
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
 
-      const photoUrl = getFullPhotoUrl(result.photo || result.photo_url || petData.photo)
+      // 🚀 修改：保存成功后，直接重新拉宠物列表
+      await fetchPets();
 
-      const newPet: Pet = {
-        ...petData,
-        id: isEdit ? editingPet?.id : result.petId,
-        photo: photoUrl
-      }
-
-      setPets(prev =>
-        isEdit
-          ? prev.map(p => p.id === newPet.id ? newPet : p)
-          : [...prev, newPet]
-      )
-
-      setOpenForm(false)
+      setOpenForm(false);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setIsSubmitting(false)
-      setSelectedImageFile(null)
+      setIsSubmitting(false);
+      setSelectedImageFile(null);
     }
   }
+
 
   const handleDelete = async (petId: number) => {
     if (!confirm('Are you sure?')) return
