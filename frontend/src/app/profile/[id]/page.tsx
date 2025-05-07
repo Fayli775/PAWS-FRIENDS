@@ -23,14 +23,6 @@ export default function MyProfilePage() {
 
   const { user, loading } = useAuth(true) // requireAuth=true to protect this page
  
-  if (loading || !user) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
       <Box sx={{ display: 'flex', flex: 1 }}>
@@ -44,7 +36,7 @@ export default function MyProfilePage() {
 
         {/* Main Content */}
         <Box sx={{ flex: 1, padding: 4 }}>
-          {selectedTab === 'Personal Info' && <PersonalInfo userId={userId} />}
+          {selectedTab === 'Personal Info' && <PersonalInfo />}
           {selectedTab === 'Pets' && <Pets />}
           {selectedTab === 'Services' && <Services />}
           {selectedTab === 'Calendar' && <Calendar userId={userId}/>}

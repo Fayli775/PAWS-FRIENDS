@@ -15,7 +15,7 @@ import LocationSelect from "@/components/LocationSelect";
 import axios from "axios";
 import useAuth from "@/hooks/useAuth";
 
-export default function ProfileForm({userId}: {userId: string}) {
+export default function ProfileForm() {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -35,21 +35,21 @@ export default function ProfileForm({userId}: {userId: string}) {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { accessToken } = useAuth();
+  const { user, accessToken } = useAuth();
 
   const MAX_AVATAR_SIZE = 10 * 1024 * 1024; // 10MB
 
   // 加载用户数据
   async function fetchUserData() {
-    if (!accessToken || !userId) { // Check if token and userId are available
+    if (!accessToken || !user) { // Check if token and userId are available
       setLoading(false);
       return;
     }
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`,
         {
-          headers: { Authorization: `Bearer ${accessToken}` }, // Use the token
+          headers: { Authorization: `Bearer ${accessToken}` }, 
         }
       );
 
@@ -80,10 +80,10 @@ export default function ProfileForm({userId}: {userId: string}) {
   }
 
   useEffect(() => {
-    if (userId && accessToken) { // Fetch only when both are available
+    if (user && accessToken) { // Fetch only when both are available
       fetchUserData();
     }
-  }, [userId, accessToken]); // Add accessToken to dependency array
+  }, [user, accessToken]); // Add accessToken to dependency array
 
   // 处理输入变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
