@@ -1,4 +1,4 @@
-// routes/reviewRoutes.js
+// routes/noticeRoutes.js
 const express = require("express");
 const router = express.Router();
 const noticeController = require("../controllers/noticeController");
