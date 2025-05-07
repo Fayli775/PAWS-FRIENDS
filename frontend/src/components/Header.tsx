@@ -13,13 +13,19 @@ import { useRouter } from 'next/navigation';
 export default function Header() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   // Check login status whenever the component mounts or updates
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
       setIsLoggedIn(!!token);
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setUserId(user.id);
+      }
     };
 
     // Check immediately
@@ -41,6 +47,7 @@ export default function Header() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsLoggedIn(false);
+    setUserId(null);
     router.push('/');
   };
 
@@ -48,8 +55,11 @@ export default function Header() {
   const navItems = [
     { label: 'Site Share', path: '/site-share' },
     { label: 'Events', path: '/events' },
-    ...(isLoggedIn 
-      ? [{ label: 'Logout', onClick: handleLogout }]
+    ...(isLoggedIn && userId
+      ? [
+          { label: 'Profile', path: `/profile/${userId}` },
+          { label: 'Logout', onClick: handleLogout }
+        ]
       : [
           { label: 'Log in', path: '/login' },
           { label: 'Register', path: '/register' }
