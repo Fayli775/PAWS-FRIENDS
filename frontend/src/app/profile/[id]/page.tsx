@@ -20,8 +20,6 @@ export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
     'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications' | 'Notice'
   >('Personal Info')
-
-  const { user, loading } = useAuth(true) // requireAuth=true to protect this page
  
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
@@ -39,9 +37,9 @@ export default function MyProfilePage() {
           {selectedTab === 'Personal Info' && <PersonalInfo />}
           {selectedTab === 'Pets' && <Pets />}
           {selectedTab === 'Services' && <Services />}
-          {selectedTab === 'Calendar' && <Calendar userId={userId}/>}
-          {selectedTab === 'Orders' && <OrdersPage />}  {/* ✅ 加上新 Orders */}
-          {selectedTab === 'Reviews' && <Reviews sitterId={Number(userId)} />}
+          {selectedTab === 'Calendar' && <Calendar  />}
+          {selectedTab === 'Orders' && <OrdersPage />}
+          {selectedTab === 'Reviews' && <Reviews />}
           {selectedTab === 'Security' && <ChangePassword />}
           {selectedTab === 'Certifications' && <Certifications />}
           {selectedTab === 'Notice' && <Notice />}

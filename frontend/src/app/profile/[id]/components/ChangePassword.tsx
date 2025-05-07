@@ -10,8 +10,10 @@ import {
   Alert,
 } from '@mui/material'
 import axios from 'axios'
+import useAuth from '@/hooks/useAuth'
 
 export default function ChangePassword() {
+  const { user, accessToken } = useAuth(true)
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -32,15 +34,13 @@ export default function ChangePassword() {
       return
     }
 
+    if (!user || !accessToken) {
+      setErrorSnackbarOpen(true)
+      return
+    }
+
     try {
       setLoading(true)
-
-      const token = localStorage.getItem('token')
-      const userStr = localStorage.getItem('user')
-
-      if (!token || !userStr) throw new Error('No user session found.')
-
-      const user = JSON.parse(userStr)
 
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/updatePassword/${user.id}`,
@@ -50,7 +50,7 @@ export default function ChangePassword() {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       )
