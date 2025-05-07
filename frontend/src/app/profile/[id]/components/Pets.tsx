@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import useAuth from '@/hooks/useAuth'
 
 interface Pet {
   id?: number
@@ -24,6 +25,7 @@ interface Pet {
 }
 
 export default function PetsPage() {
+  const { user, accessToken } = useAuth(true)
   const [pets, setPets] = useState<Pet[]>([])
   const [openForm, setOpenForm] = useState(false)
   const [editingPet, setEditingPet] = useState<Pet | null>(null)
@@ -31,23 +33,17 @@ export default function PetsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const getAuthInfo = () => {
-    const userStr = localStorage.getItem('user')
-    const token = localStorage.getItem('token')
-    if (!userStr || !token) throw new Error('User not logged in')
-    return { user: JSON.parse(userStr), token }
-  }
-
   const getFullPhotoUrl = (photo?: string) => {
     if (!photo) return '/defaultAvatarDog.png'
     return photo.startsWith('http') ? photo : `${process.env.NEXT_PUBLIC_API_URL}${photo}`
   }
 
   const fetchPets = async () => {
+    if (!user || !accessToken) return
+    
     try {
-      const { user, token } = getAuthInfo()
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${user.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
       if (!response.ok) throw new Error('Failed to fetch pets')
       const data = await response.json()
@@ -60,12 +56,17 @@ export default function PetsPage() {
     }
   }
 
-  useEffect(() => { fetchPets() }, [])
+  useEffect(() => { 
+    if (user && accessToken) {
+      fetchPets() 
+    }
+  }, [user, accessToken])
 
   const handleFormSubmit = async (petData: Pet) => {
+    if (!user || !accessToken) return
+    
     setIsSubmitting(true);
     try {
-      const { user, token } = getAuthInfo();
       const isEdit = !!editingPet?.id;
       const url = isEdit
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/pets/updatePet/${editingPet.id}`
@@ -85,14 +86,13 @@ export default function PetsPage() {
 
       const response = await fetch(url, {
         method: isEdit ? 'PUT' : 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: formData
       });
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
 
-      // 🚀 修改：保存成功后，直接重新拉宠物列表
       await fetchPets();
 
       setOpenForm(false);
@@ -106,12 +106,13 @@ export default function PetsPage() {
 
 
   const handleDelete = async (petId: number) => {
+    if (!accessToken) return
     if (!confirm('Are you sure?')) return
+    
     try {
-      const { token } = getAuthInfo()
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/deletePet/${petId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
       setPets(prev => prev.filter(p => p.id !== petId))
     } catch (err: any) {
@@ -134,7 +135,7 @@ export default function PetsPage() {
 
       <Grid container spacing={3}>
         {pets.map(pet => (
-          <Grid item xs={12} sm={6} md={4} key={pet.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={pet.id}>
             <Card>
               <Stack direction="row" justifyContent="flex-end">
                 <IconButton onClick={() => {
