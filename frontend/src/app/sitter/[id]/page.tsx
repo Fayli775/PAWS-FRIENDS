@@ -49,9 +49,17 @@ export default function SitterPublicProfilePage({
         const userData = await userRes.json()
         const user = userData.user
 
+        // Debug log
+        console.log('User data:', user);
+
         setUserName(user.user_name || 'Sitter')
         setRegion(user.region || '')
-        setAvatar(user.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : '/avatar.jpg')
+        // 修正 avatar URL 的构建方式
+        setAvatar(
+          user.avatar 
+            ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${user.avatar}`
+            : '/avatar.jpg'
+        )
         setBio(user.bio || '')
 
         const petsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${sitterId}`)
@@ -97,7 +105,16 @@ export default function SitterPublicProfilePage({
           <Grid item xs={12} md={7}>
             {/* Header Section */}
             <Box display="flex" alignItems="center" gap={2}>
-              <Avatar src={avatar} sx={{ width: 80, height: 80 }} alt="sitter-avatar" />
+              <Avatar 
+                src={avatar} 
+                sx={{ width: 80, height: 80 }} 
+                alt="sitter-avatar"
+                onError={(e) => {
+                  console.error('Avatar load error:', e);
+                  console.log('Failed URL:', avatar);
+                  (e.target as HTMLImageElement).src = '/avatar.jpg';
+                }}
+              />
               <Box>
                 <Typography variant="h6" fontWeight="bold">{userName}</Typography>
                 <Typography variant="body2" color="text.secondary">{region}</Typography>

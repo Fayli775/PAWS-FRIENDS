@@ -39,10 +39,19 @@ app.use("/api/notice", noticeRoutes);
 const serviceRoutes = require("./routes/serviceRoutes");
 app.use("/api/services", serviceRoutes);
 
+const certificateRoutes = require("./routes/certificateRoutes");
+app.use("/api/certificate", certificateRoutes);
 
 // Add the new location routes
 const locationRoutes = require("./routes/locationRoutes"); // Import location routes
 app.use("/api/locations", locationRoutes); // Use location routes
+
+const cron = require("node-cron");
+const { sendBookingReminders } = require("./schedulers/bookingReminders.js");
+
+cron.schedule("* * * * *", async () => {
+  await sendBookingReminders();
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -54,4 +63,3 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-

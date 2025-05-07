@@ -5,6 +5,7 @@ const authMiddleware = require("../middleware/authMiddleware.js"); // authMiddle
 const userController = require("../controllers/userController.js"); // userAPI
 const { uploadAvatar } = require("../middleware/multer.js"); // 引入 multer 配置
 
+
 // ger user by id
 router.get("/:id", userController.getUserById);
 
@@ -22,6 +23,7 @@ router.put(
   authMiddleware,
   userController.updatePassword
 );
+
 
 // New route for searching sitters
 router.get('/sitters/search', userController.searchSitters); // No auth for general search? Or add authMiddleware if needed

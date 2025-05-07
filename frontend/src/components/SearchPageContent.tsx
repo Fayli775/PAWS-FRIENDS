@@ -19,6 +19,10 @@ import {
   Rating,
 } from '@mui/material';
 
+// Add constants for card dimensions
+const CARD_WIDTH = 240;  // Fixed width for all cards
+const CARD_HEIGHT = 260; // Fixed height for all cards
+
 interface PetSitter {
   id: number;
   user_name: string;
@@ -53,10 +57,12 @@ const SearchPageContent = () => {
         query.set('limit', String(perPage));
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/sitters/search?${query.toString()}`);
+    
         if (!res.ok) {
           throw new Error('Failed to fetch sitters');
         }
         const data = await res.json();
+        console.log('✅ API 返回的 sitter 数据:', data); // 👈 加在这里
         setSitters(data.sitters || []);
         setTotalPages(data.pagination?.total_pages || 1);
       } catch (error) {
@@ -78,6 +84,10 @@ const SearchPageContent = () => {
 
   const handlePageChange = (_: any, value: number) => {
     setPage(value);
+  };
+
+  const handleSitterClick = (sitterId: number) => {
+    router.push(`/sitter/${sitterId}`);
   };
 
   return (
@@ -158,44 +168,109 @@ const SearchPageContent = () => {
           </Box>
         ) : (
           <>
-            <Grid container spacing={4}>
-              {sitters.map((sitter) => (
-                <Grid item xs={12} sm={6} md={3} key={sitter.id}>
-                  <Card sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    padding: 2,
-                    borderRadius: '16px',
-                    backgroundColor: '#ffffff',
-                    boxShadow: 3,
-                    transition: '0.3s',
-                    '&:hover': { boxShadow: 6 },
-                  }}>
-                    <Avatar
-                      src={sitter.avatar}
-                      alt={sitter.user_name}
-                      sx={{ width: 80, height: 80, mb: 2 }}
-                    />
-                    <Typography variant="h6" fontWeight="bold">{sitter.user_name}</Typography>
-                    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
-                      <Rating value={sitter.average_rating || 0} precision={0.1} readOnly size="small" />
-                      <Typography variant="body2" color="text.secondary">
-                        ({sitter.review_count})
+
+            <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid 
+                container 
+                spacing={4} 
+                sx={{ 
+                  justifyContent: 'center',
+                  maxWidth: CARD_WIDTH * 5 + 32 * 4, // 5 cards + 4 gaps
+                  margin: '0 auto' 
+                }}
+              >
+                {sitters.map((sitter) => (
+                  <Grid 
+                    item 
+                    key={sitter.id}
+                    sx={{ 
+                      width: CARD_WIDTH,
+                      maxWidth: CARD_WIDTH,
+                      flexBasis: 'auto'
+                    }}
+                  >
+                    <Card 
+                      onClick={() => handleSitterClick(sitter.id)}
+                      sx={{
+                        width: CARD_WIDTH,
+                        height: CARD_HEIGHT,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        padding: 2,
+                        borderRadius: '16px',
+                        backgroundColor: '#ffffff',
+                        boxShadow: 3,
+                        transition: '0.3s',
+                        cursor: 'pointer',
+                        '&:hover': { 
+                          boxShadow: 6,
+                          transform: 'translateY(-4px)'
+                        },
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Avatar
+                        src={sitter.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitter.avatar}` : '/avatar.jpg'}
+                        alt={sitter.user_name}
+      
+                        sx={{ 
+                          width: 80, 
+                          height: 80, 
+                          mb: 2,
+                          flexShrink: 0 // Prevent avatar from shrinking
+                        }}
+                      />
+                      <Typography 
+                        variant="h6" 
+                        fontWeight="bold"
+                        sx={{
+                          mb: 1,
+                          // Limit to 2 lines
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
+                        {sitter.user_name}
                       </Typography>
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary" mt={1}>
-                      📍 {sitter.region}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mt={1}>
-                      {sitter.bio}
-                    </Typography>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                      <Stack 
+                        direction="row" 
+                        alignItems="center" 
+                        spacing={0.5} 
+                        sx={{ mt: 'auto', mb: 1 }}
+                      >
+                        <Rating value={sitter.average_rating || 0} precision={0.1} readOnly size="small" />
+                        <Typography variant="body2" color="text.secondary">
+                          ({sitter.review_count})
+                        </Typography>
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary">
+                        📍 {sitter.region}
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{
+                          mt: 1,
+                          // Limit bio to 3 lines
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
+                        {sitter.bio}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
 
             <Box mt={6} display="flex" justifyContent="center">
               <Pagination
