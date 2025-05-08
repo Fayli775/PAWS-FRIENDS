@@ -16,55 +16,52 @@ interface Event {
   title: string;
   description: string;
   image: string;
+  url?: string;
 }
 
 const mockEvents: Event[] = [
   {
     id: 1,
-    month: 'APRIL',
+    month: 'May',
     day: '15',
-    title: 'Pet Fair',
-    description: 'Enjoy a variety of pet-related exhibitors and products',
-    image: '/event-pet-fair.png', // These images should be placed in the public folder
+    title: 'Dogs on Campus',
+    description: 'Drop in, pat a pup, and enjoy a moment of calm away from study.',
+    image: '/dogs_on_campus.avif',
+    url: 'https://www.eventbrite.com/e/dogs-on-campus-by-faculty-of-business-tickets-1353024595989?aff=ebdssbdestsearch&keep_tld=1',
   },
   {
     id: 2,
-    month: 'APRIL',
-    day: '20',
-    title: 'Dog Walk Meetup',
-    description: 'Meet up with fellow dog lovers for a group walk',
-    image: '/event-dog-walk.png',
+    month: 'May',
+    day: '18',
+    title: 'Browns Bay Dog Day Out',
+    description: 'Get your four-legged furry friends prepped for a great day out in Browns Bay at this dog-centric event that\'s returning by popular demand!',
+    image: '/Dog Day Out.avif',
+    url: 'https://www.eventbrite.com/e/browns-bay-dog-day-out-tickets-1301693914539?aff=ebdssbdestsearch&keep_tld=1',
   },
   {
     id: 3,
-    month: 'APRIL',
+    month: 'July',
+    day: '1',
+    title: 'K9 Heaven',
+    description: 'Welcome to K9 Heaven, where dogs and their humans can enjoy a day filled with fun activities, treats, and lots of tail-wagging moments!',
+    image: '/K9_heaven.avif',
+    url:'https://www.eventbrite.com/e/k9-heaven-tickets-1329355109919?aff=ebdssbdestsearch',
+  },
+  {
+    id: 4,
+    month: 'June',
     day: '28',
     title: 'Cat Lovers Seminar',
     description: 'Learn and discuss cat care with experts and enthusiasts',
     image: '/event-pet-lover-seminar.png',
   },
+  
   {
-    id: 4,
-    month: 'MAY',
-    day: '4',
-    title: 'Outdoor Playdate',
-    description: 'Spend a fun day outdoors with your furry friend',
-    image: '/event-outdoor-play.png',
-  },
-  {
-    id: 5,
+    id: 8,
     month: 'June',
     day: '4',
     title: 'Dog Training Workshop',
     description: 'Learn how to train your dog with the latest techniques',
-    image: '/event-outdoor-play.png',
-  },
-  {
-    id: 6,
-    month: 'July',
-    day: '14',
-    title: 'Pet Food Expo',
-    description: 'Spend a fun day outdoors with your furry friend',
     image: '/event-outdoor-play.png',
   },
 ];
@@ -85,7 +82,7 @@ const EventCard = styled(Box)(({ theme }) => ({
   flex: '0 0 auto',
   width: '100%',
   maxWidth: '280px',
-  marginRight: theme.spacing(2),
+  marginRight: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
   overflow: 'hidden',
   boxShadow: theme.shadows[2],
@@ -143,7 +140,7 @@ const Indicator = styled(Box, {
 }));
 
 const EventsCarousel: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollIndex, setScrollIndex] = useState(0);
   const theme = useTheme();
   
   // Responsive breakpoints
@@ -151,33 +148,27 @@ const EventsCarousel: React.FC = () => {
   const isSmScreen = useMediaQuery(theme.breakpoints.only('sm'));
   const isMdScreen = useMediaQuery(theme.breakpoints.only('md'));
   
-  // Set events per slide based on screen size
-  const eventsPerSlide = isXsScreen ? 1 : isSmScreen ? 2 : isMdScreen ? 3 : 4;
-  
-  const totalSlides = Math.ceil(mockEvents.length / eventsPerSlide);
-  
+  // Set number of visible cards based on screen size
+  const visibleCards = isXsScreen ? 1 : isSmScreen ? 2 : isMdScreen ? 3 : 4;
+  const cardWidth = 280;
+  const cardGap = 8;
+  const maxScrollIndex = Math.max(0, mockEvents.length - visibleCards);
+
   const handlePrev = () => {
-    setActiveIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : totalSlides - 1));
+    setScrollIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : maxScrollIndex));
   };
 
   const handleNext = () => {
-    setActiveIndex((prevIndex) => (prevIndex < totalSlides - 1 ? prevIndex + 1 : 0));
+    setScrollIndex((prevIndex) => (prevIndex < maxScrollIndex ? prevIndex + 1 : 0));
   };
 
   const handleIndicatorClick = (index: number) => {
-    setActiveIndex(index);
+    setScrollIndex(index);
   };
-
-  // Group events into slides
-  const slides = [];
-  for (let i = 0; i < totalSlides; i++) {
-    slides.push(
-      mockEvents.slice(i * eventsPerSlide, (i + 1) * eventsPerSlide)
-    );
-  }
   
   return (
     <Box
+      id="events-section" // 添加 id
       component="section"
       sx={{
         py: 6,
@@ -220,67 +211,66 @@ const EventsCarousel: React.FC = () => {
           
           <CarouselTrack
             sx={{
-              transform: `translateX(-${activeIndex * 100}%)`,
+              transform: `translateX(-${scrollIndex * (cardWidth + cardGap)}px)`,
               display: 'flex',
               flexWrap: 'nowrap',
               width: '100%',
+              gap: 1,
             }}
           >
-            {slides.map((slide, slideIndex) => (
-              <Box 
-                key={slideIndex}
+            {mockEvents.map((event) => (
+              <EventCard
+                key={event.id}
+                onClick={() => {
+                  if (event.url) {
+                    window.open(event.url, '_blank');
+                  }
+                }}
                 sx={{
-                  display: 'flex',
-                  gap: 2,
-                  flexShrink: 0,
-                  width: '100%'
+                  cursor: event.url ? 'pointer' : 'default',
                 }}
               >
-                {slide.map((event) => (
-                  <EventCard key={event.id}>
-                    <EventImage src={event.image} alt={event.title} />
-                    <EventInfo>
-                      <DateBox>
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          sx={{ 
-                            color: 'primary.main',
-                            display: 'block',
-                            fontWeight: 'medium',
-                          }}
-                        >
-                          {event.month}
-                        </Typography>
-                        <Typography
-                          variant="h3"
-                          component="span"
-                          sx={{ 
-                            color: 'primary.main',
-                            fontWeight: 'bold',
-                            lineHeight: 1,
-                          }}
-                        >
-                          {event.day}
-                        </Typography>
-                      </DateBox>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{
-                          fontWeight: 'bold',
-                          mb: 1,
-                        }}
-                      >
-                        {event.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {event.description}
-                      </Typography>
-                    </EventInfo>
-                  </EventCard>
-                ))}
-              </Box>
+                <EventImage src={event.image} alt={event.title} />
+                <EventInfo>
+                  <DateBox>
+                    <Typography
+                      variant="h6"
+                      component="span"
+                      sx={{ 
+                        color: 'primary.main',
+                        display: 'block',
+                        fontWeight: 'medium',
+                      }}
+                    >
+                      {event.month}
+                    </Typography>
+                    <Typography
+                      variant="h3"
+                      component="span"
+                      sx={{ 
+                        color: 'primary.main',
+                        fontWeight: 'bold',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {event.day}
+                    </Typography>
+                  </DateBox>
+                  <Typography
+                    variant="h6"
+                    component="h3"
+                    sx={{
+                      fontWeight: 'bold',
+                      mb: 1,
+                    }}
+                  >
+                    {event.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {event.description}
+                  </Typography>
+                </EventInfo>
+              </EventCard>
             ))}
           </CarouselTrack>
           
@@ -294,10 +284,10 @@ const EventsCarousel: React.FC = () => {
         </CarouselContainer>
         
         <Indicators>
-          {Array.from({ length: totalSlides }).map((_, index) => (
+          {Array.from({ length: maxScrollIndex + 1 }).map((_, index) => (
             <Indicator
               key={index}
-              active={index === activeIndex}
+              active={index === scrollIndex}
               onClick={() => handleIndicatorClick(index)}
             />
           ))}
