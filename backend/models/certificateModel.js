@@ -1,4 +1,4 @@
-// models/reviewModel.js
+// models/certificateModel.js
 const db = require("../config/db");
 const { toUTCDateTime } = require("../utils/time");
 

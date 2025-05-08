@@ -4,81 +4,53 @@ import React, { useEffect, useState } from 'react'
 import { Box, Typography, Chip } from '@mui/material'
 import axios from 'axios'
 
-// 定义认证状态接口
 interface CertificationStatus {
-  nzIdVerified: boolean
-  petRegistrationCertified: boolean
-  nzqaCertified: boolean
-  petFirstAidCertified: boolean
+  nzVerified: boolean
 }
 
 export default function CertificationsDisplay({ sitterId }: { sitterId: number }) {
   const [certifications, setCertifications] = useState<CertificationStatus | null>(null)
 
-/*
-useEffect(() => {
-    const fetchCertifications = async () => {
+  useEffect(() => {
+    const fetchCertificationStatus = async (sitterId: number) => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${sitterId}/certifications`
-        )
-        setCertifications(response.data)
-      } catch (error) {
-        console.error('Failed to fetch certifications:', error)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/certificate/public/${sitterId}`)
+    
+        console.log('📡 公共 GET 证书状态:', res.status)
+    
+        if (!res.ok) {
+          const errResult = await res.json()
+          console.error('❌ 获取公共证书失败:', errResult)
+          throw new Error(errResult.message || 'Failed to fetch public certificates')
+        }
+    
+        const data = await res.json()
+        console.log('✅ 返回的公共证书数据:', data)
+    
+        // 如果有证书，说明是已认证用户
+        const isVerified = Array.isArray(data) && data.length > 0
+        setCertifications({ nzVerified: isVerified })
+      } catch (err: any) {
+        console.error('🔥 公共 fetch error:', err)
+        setCertifications({ nzVerified: false }) // 默认为未认证
       }
     }
-    fetchCertifications()
-  }, [sitterId])
-*/
-    useEffect(() => {
-        // 临时Mock，假装拿到了认证数据
-        setCertifications({
-        nzIdVerified: true,
-        petRegistrationCertified: false,
-        nzqaCertified: true,
-        petFirstAidCertified: true,
-        })
-    }, [])
-    
 
-  if (!certifications) {
-    return null
-  }
+    fetchCertificationStatus(sitterId)
+  }, [sitterId])
+
+  if (!certifications) return null
 
   return (
     <Box mt={2}>
-      <Typography variant="subtitle2" fontWeight={600} mb={1}>
-        Verified Certifications
-      </Typography>
       <Box display="flex" flexWrap="wrap" gap={1}>
-        {/* NZ-ID */}
         <Chip
-          label={certifications.nzIdVerified ? "NZ-ID Verified" : "NZ-ID Not Verified"}
-          color={certifications.nzIdVerified ? "success" : "default"}
-          variant={certifications.nzIdVerified ? "filled" : "outlined"}
-        />
-
-        {/* Pet Registration */}
-        <Chip
-          label={certifications.petRegistrationCertified ? "Pet Registration Certified" : "Pet Registration Not Certified"}
-          color={certifications.petRegistrationCertified ? "success" : "default"}
-          variant={certifications.petRegistrationCertified ? "filled" : "outlined"}
-        />
-
-        {/* NZQA Certified */}
-        <Chip
-          label={certifications.nzqaCertified ? "NZQA Certified" : "NZQA Not Certified"}
-          color={certifications.nzqaCertified ? "success" : "default"}
-          variant={certifications.nzqaCertified ? "filled" : "outlined"}
-        />
-
-        {/* Pet First Aid */}
-        <Chip
-          label={certifications.petFirstAidCertified ? "Pet First Aid Certified" : "Pet First Aid Not Certified"}
-          color={certifications.petFirstAidCertified ? "success" : "default"}
-          variant={certifications.petFirstAidCertified ? "filled" : "outlined"}
+          label={certifications.nzVerified ? "NZ Verified" : "NZ Not Verified"}
+          color={certifications.nzVerified ? "success" : "default"}
+          variant={certifications.nzVerified ? "filled" : "outlined"}
         />
       </Box>
     </Box>
   )
 }
+

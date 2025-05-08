@@ -16,6 +16,7 @@ import {
 import Image from 'next/image'
 import Calendar from '@/app/profile/[id]/components/Calendar'
 import CertificationsDisplay from './components/CertificationsDisplay'
+import ReviewSummary from './components/ReviewSummary'
 import BookingCard from './components/BookingCard'
 
 type Pet = {
@@ -118,6 +119,7 @@ export default function SitterPublicProfilePage({
               <Box>
                 <Typography variant="h6" fontWeight="bold">{userName}</Typography>
                 <Typography variant="body2" color="text.secondary">{region}</Typography>
+                <ReviewSummary sitterId={Number(sitterId)} />
                 <CertificationsDisplay sitterId={Number(sitterId)} />
               </Box>
             </Box>
