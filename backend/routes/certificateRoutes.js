@@ -1,4 +1,4 @@
-// routes/rcertificateroutes.js
+// routes/certificateroutes.js
 const express = require("express");
 const router = express.Router();
 const certificateController = require("../controllers/certificateController");
