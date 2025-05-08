@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import AvatarUpload from "@/components/AvatarUpload";
 import { Pet } from './PetCard';
+import useAuth from '@/hooks/useAuth';
 
 interface PetFormProps {
   initialData?: Pet | null;
@@ -23,6 +24,7 @@ interface PetFormProps {
 }
 
 export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps) {
+  const { accessToken } = useAuth();
   const [pet, setPet] = useState<Pet>({
     name: '',
     type: 'Dog',
@@ -53,8 +55,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
   const handleAvatarUpload = async (imageData: string, file: File) => {
     setIsUploading(true);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authentication required');
+      if (!accessToken) throw new Error('Authentication required');
 
       const formData = new FormData();
       formData.append('photo', file);
@@ -64,7 +65,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: formData,
         }
