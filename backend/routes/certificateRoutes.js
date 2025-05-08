@@ -1,4 +1,4 @@
-// routes/reviewRoutes.js
+// routes/certificateroutes.js
 const express = require("express");
 const router = express.Router();
 const certificateController = require("../controllers/certificateController");
@@ -35,4 +35,8 @@ router.delete(
     authMiddleware, // 确保用户已登录
     certificateController.deleteCertificate
 );
+
+// 👇 公开接口，不需要登录 token
+router.get("/public/:userId", certificateController.getUploadedCertificatesPublic);
+
 module.exports = router;

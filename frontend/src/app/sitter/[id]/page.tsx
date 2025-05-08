@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, use } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Container,
@@ -16,6 +16,7 @@ import {
 import Image from 'next/image'
 import Calendar from '@/app/profile/[id]/components/Calendar'
 import CertificationsDisplay from './components/CertificationsDisplay'
+import ReviewSummary from './components/ReviewSummary'
 import BookingCard from './components/BookingCard'
 import useAuth from '@/hooks/useAuth'
 
@@ -31,6 +32,7 @@ export default function SitterPublicProfilePage({
   params: { id: string }
 }) {
   const sitterId = params.id
+  const { user, accessToken } = useAuth()
 
   const [sitterPets, setSitterPets] = useState<Pet[]>([])
   const [ownerPets, setOwnerPets] = useState<Pet[]>([])
@@ -115,6 +117,7 @@ export default function SitterPublicProfilePage({
               <Box>
                 <Typography variant="h6" fontWeight="bold">{userName}</Typography>
                 <Typography variant="body2" color="text.secondary">{region}</Typography>
+                <ReviewSummary sitterId={Number(sitterId)} />
                 <CertificationsDisplay sitterId={Number(sitterId)} />
               </Box>
             </Box>
@@ -171,7 +174,7 @@ export default function SitterPublicProfilePage({
           </Grid>
 
           {/* Booking Section */}
-          <Grid item xs={12} md={5}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
           </Grid>
         </Grid>

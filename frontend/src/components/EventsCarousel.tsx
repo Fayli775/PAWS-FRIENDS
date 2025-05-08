@@ -126,7 +126,13 @@ const Indicators = styled(Box)(({ theme }) => ({
   margin: theme.spacing(2, 0),
 }));
 
-const Indicator = styled(Box)<{ active?: boolean }>(({ theme, active }) => ({
+interface IndicatorProps {
+  active?: boolean;
+}
+
+const Indicator = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'active'
+})<IndicatorProps>(({ theme, active }) => ({
   width: 12,
   height: 12,
   borderRadius: '50%',
@@ -301,4 +307,4 @@ const EventsCarousel: React.FC = () => {
   );
 };
 
-export default EventsCarousel; 
+export default EventsCarousel;

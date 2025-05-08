@@ -56,25 +56,32 @@ export default function Reviews() {
       {reviews.length === 0 ? (
         <Typography>No reviews yet.</Typography>
       ) : (
-        reviews.map((review) => (
-          <Card key={review.id} variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between">
-                <Typography fontWeight={600}>{review.pet_type}</Typography>
-                <Typography fontWeight={600}>{review.service_type}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </Typography>
-              </Box>
+        <Box>
+          {reviews.map((review) => (
+            <Card 
+              key={`review-${review.id}-${review.created_at}`} 
+              variant="outlined" 
+              sx={{ mb: 2 }}
+            >
+              <CardContent>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography fontWeight={600}>{review.pet_type}</Typography>
+                    <Typography fontWeight={600}>{review.service_type}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </Typography>
+                  </Box>
 
-              <Rating key={review.id} value={review.rating} readOnly size="small" sx={{ my: 1 }} />
-              <Divider />
-              <Typography variant="body2" mt={1}>
-                {review.comment}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))
+                <Rating key={review.id} value={review.rating} readOnly size="small" sx={{ my: 1 }} />
+                <Divider />
+                <Typography variant="body2" mt={1}>
+                  {review.comment}
+                </Typography>
+              </CardContent>
+            </Card>
+            ))
+          }
+      </Box>
       )}
     </Box>
   )

@@ -4,6 +4,8 @@ const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
 
+
+
 // Function to get uploaded certificates
 exports.getUploadedCertificates = async (req, res) => {
     console.log('💡 当前认证用户信息:', req.user); // <-- 加上这行
@@ -75,3 +77,18 @@ exports.getUploadedCertificates = async (req, res) => {
       res.status(500).json({ message: "Server error", error: err.message });
     }
   };
+
+  // 公开接口：获取某个 userId 的证书列表（不需要 req.user）
+exports.getUploadedCertificatesPublic = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const certificates = await certificateRepository.getCertificatesByUserId(userId);
+
+    res.status(200).json(certificates);
+  } catch (err) {
+    console.error("Error fetching public certificates:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
