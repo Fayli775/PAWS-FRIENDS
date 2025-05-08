@@ -54,7 +54,7 @@ export default function Header() {
   // Define navigation items based on login status
   const navItems = [
     { label: 'Site Share', path: '/site-share' },
-    { label: 'Events', path: '/events' },
+    { label: 'Events', path: '/#events-section' }, // 修改为锚点链接
     ...(isLoggedIn && userId
       ? [
           { label: 'Profile', path: `/profile/${userId}` },
@@ -135,4 +135,4 @@ export default function Header() {
       </nav>
     </>
   );
-} 
+}
