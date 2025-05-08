@@ -115,6 +115,15 @@ export default function Certifications() {
       <Typography variant="h5" fontWeight={600}>
         Upload Certifications
       </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: -2 }}>
+      Please upload any type of NZ-ID or proof:
+      <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
+        <li>Local pet registration certificate</li>
+        <li>Pet-business verification (business premises proof and NZBN registration details)</li>
+        <li>Sitter accreditation (NZQA-certified courses)</li>
+        <li>Local pet skills registration (pet first-aid certificates, professional references)</li>
+      </ul>
+    </Typography>
 
       <AvatarUpload
         avatar={previewUrl}
