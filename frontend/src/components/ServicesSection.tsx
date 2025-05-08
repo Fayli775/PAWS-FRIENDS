@@ -66,6 +66,7 @@ const IconWrapper = styled(Box)(({ theme }) => ({
 const ServicesSection: React.FC = () => {
   return (
     <Box
+      id="services-section" 
       component="section"
       sx={{
         py: 8,
@@ -139,4 +140,4 @@ const ServicesSection: React.FC = () => {
   );
 };
 
-export default ServicesSection; 
+export default ServicesSection;
