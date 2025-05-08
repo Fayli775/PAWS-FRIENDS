@@ -26,17 +26,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} ${comicNeue.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} ${comicNeue.variable}`} suppressHydrationWarning>
         <StoreProvider>
-            <ThemeRegistry>
-              <MockWrapper>
-                <Header />
-                {children}
-                <Footer />
-                <ToastContainer position="top-right" autoClose={4000} />
-              </MockWrapper>
-            </ThemeRegistry>
+          <ThemeRegistry>
+            <MockWrapper>
+              <Header />
+              {children}
+              <Footer />
+              <ToastContainer 
+                position="top-right" 
+                autoClose={4000}
+                containerId="notifications"
+              />
+            </MockWrapper>
+          </ThemeRegistry>
         </StoreProvider>
       </body>
     </html>
