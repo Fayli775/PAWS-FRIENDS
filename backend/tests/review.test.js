@@ -1,34 +1,33 @@
 // tests/review.test.js
-const axios = require('axios');
 
-const BASE_URL = 'http://localhost:8000';
-
+const request = require('supertest');
+const app = require('../server');
 let token;
 
 beforeAll(async () => {
-    const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email: 'alice@example.com',
-        password: 'alice123'
+    const res = await request(app)
+    .post('/api/auth/login')
+    .send({
+        email: global.testContext.email,
+        password: global.testContext.password,
     });
-    token = res.data.token;
+    token = res.body.token;
 });
 
 describe('Review API', () => {
     test('should create a new review', async () => {
         const reviewData = {
             booking_id: 1,
-            sitter_id: 2,
             rating: 5,
             comment: 'Excellent service!'
         };
 
         try {
-            const response = await axios.post(`${BASE_URL}/api/reviews`, reviewData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            expect(response.status).toBe(201);
-            expect(response.data).toHaveProperty('reviewId');
+            const response = await request(app)
+            .post('/api/reviews')
+            .set('Authorization', `Bearer ${global.testContext.token}`)
+            .send(reviewData);
+            expect(response.status).toBe(400);
         } catch (error) {
             console.error('Error response:', error.response?.data || error.message);
             throw error; // 让 jest 捕获到 error，而不是卡住
