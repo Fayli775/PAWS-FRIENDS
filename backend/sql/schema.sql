@@ -1,6 +1,7 @@
 -- sql/init.sql
 
 USE pet_service_app;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- Drop tables in reverse order of dependency
 DROP TABLE IF EXISTS location_reviews;
@@ -12,6 +13,8 @@ DROP TABLE IF EXISTS booking;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS booking_review;
 DROP TABLE IF EXISTS user_info;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE user_info (
   id BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'User ID, primary key',

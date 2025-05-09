@@ -50,3 +50,46 @@ beforeAll(async () => {
     expect(loginRes.statusCode).toBe(200);
     global.testContext.token = loginRes.body.token;
 });
+
+const pool = require('../config/db');
+
+afterAll(async () => {
+    const dbName = process.env.DB_NAME;
+    if (dbName === 'paws_friends_test') {
+        console.log('🧹 Cleaning up test database...');
+        const connection = await pool.getConnection();
+
+        const tables = [
+            "user_languages",
+            "user_certificates",
+            "sitter_services",
+            "service_pet_types",
+            "service_languages",
+            "services",
+            "notice_info",
+            "location_reviews",
+            "booking_complain",
+            "booking_review",
+            "booking_status_log",
+            "booking",
+            "availability",
+            "pet_info",
+            "locations",
+            "user_info"
+        ];
+
+        await connection.query(`SET FOREIGN_KEY_CHECKS = 0`);
+        for (const table of tables) {
+            await connection.query(`TRUNCATE TABLE \`${table}\``); // 注意加反引号，防止关键字冲突
+        }
+        await connection.query(`SET FOREIGN_KEY_CHECKS = 1`);
+
+        connection.release();
+        console.log('Test database cleanup complete.');
+    } else {
+        console.warn('Skipping test cleanup: Not connected to test DB');
+    }
+
+    await pool.end();
+});
+

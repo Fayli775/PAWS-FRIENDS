@@ -1,3 +1,5 @@
+require("./loadEnv");
+
 const express = require("express");
 const cors = require("cors"); // Import cors package
 const path = require("path"); // Add path module
