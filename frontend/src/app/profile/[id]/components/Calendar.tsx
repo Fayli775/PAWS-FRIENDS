@@ -12,6 +12,7 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material'
+import useAuth from '@/hooks/useAuth'
 
 interface CalendarProps {
   readOnly?: boolean
@@ -55,13 +56,14 @@ const publicHolidays = [
   { date: '2025-01-02', name: "Day after New Year's Day" },
   { date: '2025-02-06', name: 'Waitangi Day' },
   { date: '2025-04-25', name: 'Anzac Day' },
-  { date: '2025-06-02', name: 'King’s Birthday' },
+  { date: '2025-06-02', name: "King's Birthday" },
   { date: '2025-10-27', name: 'Labour Day' },
   { date: '2025-12-25', name: 'Christmas Day' },
   { date: '2025-12-26', name: 'Boxing Day' },
 ]
 
-export default function Calendar({ readOnly = false, userId }: CalendarProps) {
+export default function Calendar({ readOnly = false }: CalendarProps) {
+  const { user, accessToken } = useAuth(true)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
 
@@ -103,13 +105,12 @@ export default function Calendar({ readOnly = false, userId }: CalendarProps) {
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
-        const token = localStorage.getItem('token')
-        if (!token) return
+        if (!accessToken) return
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${userId}?t=${Date.now()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${user?.id}?t=${Date.now()}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
           }
         )
 
@@ -125,7 +126,7 @@ export default function Calendar({ readOnly = false, userId }: CalendarProps) {
     }
 
     fetchAvailability()
-  }, [userId])
+  }, [user?.id, accessToken])
 
   const handleToggle = (d: string, slot: string) => {
     if (readOnly) return
@@ -141,13 +142,13 @@ export default function Calendar({ readOnly = false, userId }: CalendarProps) {
     if (readOnly) return
 
     try {
-      const token = localStorage.getItem('token')
+      if (!accessToken) return
       const array = selectedToAvailabilityArray(selected)
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/availability`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(array),

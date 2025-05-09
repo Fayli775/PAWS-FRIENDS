@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import AvatarUpload from "@/components/AvatarUpload";
 import LocationSelect from "@/components/LocationSelect";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [avatar, setAvatar] = useState<string | null>(null); //预览图
@@ -23,6 +24,7 @@ export default function RegisterPage() {
   const [isPasswordMatch, setIsPasswordMatch] = useState(false);
   const [biography, setBiography] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   // check if email is unique
   const handleEmailChange = async (value: string) => {
@@ -113,11 +115,9 @@ export default function RegisterPage() {
       }
 
       const responseData = await response.json();
-      localStorage.setItem("user", JSON.stringify(responseData.user));
-
-      alert("Registration successfully! Redirecting to Log in page…");
-
-      window.location.href = "/login";
+      
+      alert("Registration successful! Redirecting to Log in page…");
+      router.push("/login");
     } catch (error) {
       console.error("Error during registration:", error);
       alert("Registration failed. Please try again.");

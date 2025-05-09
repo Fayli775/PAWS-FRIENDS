@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
+import useAuth from '@/hooks/useAuth'
 
 interface Notice {
   id: number
@@ -12,19 +13,21 @@ interface Notice {
 }
 
 export default function Notices() {
+  const { accessToken } = useAuth(true)
   const [notices, setNotices] = useState<Notice[]>([])
 
   useEffect(() => {
     const fetchNotices = async () => {
-      const token = localStorage.getItem('token')
+      if (!accessToken) return
+      
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notice/my`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
       const data = await res.json()
       if (data.status === 'success') setNotices(data.notices)
     }
     fetchNotices()
-  }, [])
+  }, [accessToken])
 
   return (
     <Box>
@@ -41,11 +44,12 @@ export default function Notices() {
         onClick={async () => {
           if (n.read_tag === 0) {
             try {
-              const token = localStorage.getItem('token')
+              if (!accessToken) return
+              
               await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notice/${n.id}/read`, {
                 method: 'PUT',
                 headers: {
-                  Authorization: `Bearer ${token}`,
+                  Authorization: `Bearer ${accessToken}`,
                 },
               })
               // 更新本地状态

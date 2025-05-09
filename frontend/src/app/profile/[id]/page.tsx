@@ -11,32 +11,16 @@ import Pets from './components/Pets'
 import ChangePassword from './components/ChangePassword'
 import Certifications from './components/Certifications'
 import Notice from './components/Notice'
-import Header from '@/components/Header'
 import OrdersPage from './components/OrdersPage'
 import CircularProgress from '@mui/material/CircularProgress'
+import useAuth from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 export default function MyProfilePage() {
   const [selectedTab, setSelectedTab] = useState<
     'Personal Info' | 'Calendar' | 'Services' | 'Reviews' | 'Pets' | 'Orders' | 'Security' | 'Certifications' | 'Notice'
   >('Personal Info')
-
-  const [userId, setUserId] = useState<string | null>(null)
-
-  useEffect(() => {
-    // 只在客户端执行
-    const userStr = typeof window !== "undefined" ? localStorage.getItem('user') : null
-    const user = userStr ? JSON.parse(userStr) : null
-    setUserId(user ? user.id : null)
-  }, [])
-
-  if (!userId) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
-
+ 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
       <Box sx={{ display: 'flex', flex: 1 }}>
@@ -50,12 +34,12 @@ export default function MyProfilePage() {
 
         {/* Main Content */}
         <Box sx={{ flex: 1, padding: 4 }}>
-          {selectedTab === 'Personal Info' && <PersonalInfo userId={userId} />}
+          {selectedTab === 'Personal Info' && <PersonalInfo />}
           {selectedTab === 'Pets' && <Pets />}
           {selectedTab === 'Services' && <Services />}
-          {selectedTab === 'Calendar' && <Calendar userId={userId}/>}
-          {selectedTab === 'Orders' && <OrdersPage />}  {/* ✅ 加上新 Orders */}
-          {selectedTab === 'Reviews' && <Reviews sitterId={Number(userId)} />}
+          {selectedTab === 'Calendar' && <Calendar  />}
+          {selectedTab === 'Orders' && <OrdersPage />}
+          {selectedTab === 'Reviews' && <Reviews />}
           {selectedTab === 'Security' && <ChangePassword />}
           {selectedTab === 'Certifications' && <Certifications />}
           {selectedTab === 'Notice' && <Notice />}

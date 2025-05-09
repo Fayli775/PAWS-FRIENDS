@@ -6,6 +6,7 @@ import StoreProvider from "@/store/StoreProvider"
 import MockWrapper from "@/components/MockWrapper"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import AuthProvider from "@/contexts/AuthProvider"
 
 // ✅ 通知功能相关 import
 import { ToastContainer } from "react-toastify"
@@ -29,18 +30,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${comicNeue.variable}`} suppressHydrationWarning>
         <StoreProvider>
-          <ThemeRegistry>
-            <MockWrapper>
-              <Header />
-              {children}
-              <Footer />
-              <ToastContainer 
-                position="top-right" 
-                autoClose={4000}
-                containerId="notifications"
-              />
-            </MockWrapper>
-          </ThemeRegistry>
+          <AuthProvider>
+            <ThemeRegistry>
+              <MockWrapper>
+                <Header />
+                {children}
+                <Footer />
+                <ToastContainer position="top-right" autoClose={4000} />
+              </MockWrapper>
+            </ThemeRegistry>
+          </AuthProvider>
         </StoreProvider>
       </body>
     </html>

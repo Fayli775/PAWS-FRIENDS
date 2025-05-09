@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material'
 import axios from 'axios'
 import OrderDialog from './OrderDialog'
+import useAuth from '@/hooks/useAuth'
 
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
@@ -29,18 +30,16 @@ function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed
 export default function ReceivedBookings() {
   const [orders, setOrders] = useState<any[]>([])
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
+  const { user, accessToken } = useAuth()
 
   useEffect(() => {
     const fetchBookings = async () => {
-      const token = localStorage.getItem('token')
-      const userStr = localStorage.getItem('user')
-      const user = userStr ? JSON.parse(userStr) : null
-      if (!token || !user?.id) return
+      if (!accessToken || !user?.id) return
 
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/sitter/${user.id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${accessToken}` } }
         )
         const data = res.data.bookings.map((b: any) => ({
           id: b.id,
@@ -62,19 +61,19 @@ export default function ReceivedBookings() {
     }
 
     fetchBookings()
-  }, [])
+  }, [user, accessToken])
 
   const handleCloseDialog = () => {
     setSelectedOrder(null)
   }
 
   const handleUpdateOrder = (updatedFields: any) => {
-    setOrders((prev) =>
+    setOrders((prev: any[]) =>
       prev.map((order) =>
         order.id === selectedOrder.id ? { ...order, ...updatedFields } : order
       )
     )
-    setSelectedOrder((prev) => (prev ? { ...prev, ...updatedFields } : prev))
+    setSelectedOrder((prev: any | null) => (prev ? { ...prev, ...updatedFields } : prev))
   }
 
   const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')

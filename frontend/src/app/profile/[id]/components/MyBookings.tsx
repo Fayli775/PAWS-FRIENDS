@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material'
 import OrderDialog from './OrderDialog'
 import axios from 'axios'
+import useAuth from '@/hooks/useAuth'
 
 // 状态颜色映射
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
@@ -27,19 +28,17 @@ function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed
 export default function MyBookings() {
   const [orders, setOrders] = useState<any[]>([])
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
+  const { user, accessToken } = useAuth()
 
   useEffect(() => {
     const fetchMyBookings = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const userStr = localStorage.getItem('user')
-        const currentUser = userStr ? JSON.parse(userStr) : null
-        if (!currentUser?.id) return
+        if (!accessToken || !user?.id) return
 
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/user/${currentUser.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/user/${user.id}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
           }
         )
 
@@ -63,25 +62,24 @@ export default function MyBookings() {
     }
 
     fetchMyBookings()
-  }, [])
+  }, [user, accessToken])
 
   const handleCloseDialog = () => {
     setSelectedOrder(null)
   }
 
   const handleUpdateOrder = (updatedFields: any) => {
-    setOrders((prev) =>
-      prev.map((order) =>
+    setOrders((prev: any[]) =>
+      prev.map((order: any) =>
         order.id === selectedOrder?.id ? { ...order, ...updatedFields } : order
       )
     )
-    setSelectedOrder((prev) => (prev ? { ...prev, ...updatedFields } : prev))
+    setSelectedOrder((prev: any) => (prev ? { ...prev, ...updatedFields } : prev))
   }
   
   const updateBookingStatus = async (status: string, note?: string) => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
+      if (!accessToken) {
         alert('You need to login first.')
         return
       }
@@ -89,7 +87,7 @@ export default function MyBookings() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${selectedOrder?.id}/status`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status, note: note || '' }),

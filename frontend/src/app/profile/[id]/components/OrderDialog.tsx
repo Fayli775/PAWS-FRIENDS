@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import ReviewForm from './ReviewForm'
 import ComplaintForm from './ComplaintForm'
+import useAuth from '@/hooks/useAuth'
 
 // 计算时间状态
 function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
@@ -45,14 +46,14 @@ export default function OrderDialog({
   const [newComment, setNewComment] = useState('')
   const [newRating, setNewRating] = useState<number | null>(null)
   const [newComplain, setNewComplain] = useState('')
+  const { user, accessToken } = useAuth()
 
   const timeStatus = getTimeStatus(order.bookingTime)
   console.log('Time Status:', timeStatus)
   console.log('Order:', order)
   console.log('Role:', role)
 
-  const user = localStorage.getItem("user")
-  const userId = user ? JSON.parse(user).id : null
+  const userId = user?.id || null
   console.log('User ID:', userId)
   console.log('Order Owner ID:', order.owner_id)
   const isOwner = userId === order.owner_id
@@ -64,7 +65,8 @@ export default function OrderDialog({
   const handleSubmitReview = async () => {
     if (newComment.trim() && newRating) {
       try {
-        const token = localStorage.getItem("token")
+        if (!accessToken) return
+        
         const payload = {
           booking_id: order.id,
           comment: newComment,
@@ -75,7 +77,7 @@ export default function OrderDialog({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(payload),
         })
@@ -94,7 +96,8 @@ export default function OrderDialog({
   const handleSubmitComplain = async () => {
     if (newComplain.trim()) {
       try {
-        const token = localStorage.getItem("token")
+        if (!accessToken) return
+        
         const payload = {
           booking_id: order.id,
           content: newComplain,
@@ -104,7 +107,7 @@ export default function OrderDialog({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(payload),
         })
@@ -119,8 +122,6 @@ export default function OrderDialog({
       }
     }
   }
-
-
 
   useEffect(() => {
     

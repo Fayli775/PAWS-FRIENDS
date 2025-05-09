@@ -15,6 +15,7 @@ import {
   FormLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import useAuth from "@/hooks/useAuth";
 
 const availableLanguages = [
   "English",
@@ -54,6 +55,7 @@ const IconWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export default function Services() {
+  const { user, accessToken } = useAuth(true);
   const [availableServices, setAvailableServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [initialSelectedServices, setInitialSelectedServices] = useState([]);
@@ -66,19 +68,19 @@ export default function Services() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user || !accessToken) return;
+      
       try {
-        const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-
         // 服务类型
         const serviceRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
         const serviceData = await serviceRes.json();
-        const serviceIds = serviceData.map((s) => s.service_id);
+        console.log("serviceData", serviceData);
+        const serviceIds = serviceData?.map((s) => s.service_id);
         setSelectedServices(serviceIds);
         setInitialSelectedServices(serviceIds);
 
@@ -86,7 +88,7 @@ export default function Services() {
         const langRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
         const langData = await langRes.json();
@@ -103,7 +105,7 @@ export default function Services() {
     };
 
     fetchData();
-  }, []);
+  }, [user, accessToken]);
 
   const toggleService = (id) => {
     setSelectedServices((prev) =>
@@ -120,10 +122,9 @@ export default function Services() {
   };
 
   const handleSaveServices = async () => {
+    if (!user || !accessToken) return;
+    
     try {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
       const payload = selectedServices.map((id) => ({ service_id: id }));
 
       await fetch(
@@ -131,7 +132,7 @@ export default function Services() {
         {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
@@ -148,15 +149,14 @@ export default function Services() {
   };
 
   const handleResetServices = async () => {
+    if (!user || !accessToken) return;
+    
     try {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
       await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
 
@@ -171,14 +171,13 @@ export default function Services() {
   };
 
   const handleSaveLanguages = async () => {
+    if (!user || !accessToken) return;
+    
     try {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ languages: selectedLanguages }),
@@ -194,13 +193,12 @@ export default function Services() {
   };
 
   const handleResetLanguages = async () => {
+    if (!user || !accessToken) return;
+    
     try {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       setSelectedLanguages([]);
@@ -256,7 +254,7 @@ export default function Services() {
 
       <Grid container spacing={2}>
         {availableServices.map((service) => (
-          <Grid item xs={12} sm={6} md={3} key={service.id} style={{ display: "flex" }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={service.id} style={{ display: "flex" }}>
             <ServiceCard elevation={2}>
               <IconWrapper>
                 <img src={getServiceIcon(service.name)} alt={service.name} />

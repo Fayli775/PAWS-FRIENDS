@@ -12,12 +12,14 @@ import {
   TextField,
 } from '@mui/material'
 import axios from 'axios'
+import useAuth from '@/hooks/useAuth'
 
 export default function BookingCard({ sitterId, ownerPets }: { sitterId: number, ownerPets: any[] }) {
   const [pets, setPets] = useState<any[]>([])
   const [services, setServices] = useState<any[]>([])
   const [languages, setLanguages] = useState<string[]>([])
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
+  const { user, accessToken } = useAuth()
 
   const [selectedPetId, setSelectedPetId] = useState<number | null>(null)
   const [selectedService, setSelectedService] = useState<number | null>(null)
@@ -27,19 +29,18 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token")
-      if (!token) return
+      if (!accessToken) return
 
       try {
         const petRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/pets/get/my`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${accessToken}` } }
         )
         setPets(Array.isArray(petRes.data) ? petRes.data : petRes.data.pets || [])
 
         const slotRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${sitterId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${accessToken}` } }
         )
         const slots = (slotRes.data.availability || []).map((s: any) => {
           const abbr = s.weekday.slice(0, 3)
@@ -67,7 +68,7 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
       }
     }
     fetchData()
-  }, [sitterId])
+  }, [sitterId, accessToken])
 
   const handleBooking = async () => {
     if (!selectedPetId || !selectedService || !selectedSlot) {
@@ -76,11 +77,8 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
     }
 
     try {
-      const token = localStorage.getItem("token")
-      const userStr = localStorage.getItem("user")
-      if (!token || !userStr) return
+      if (!accessToken || !user?.id) return
 
-      const user = JSON.parse(userStr)
       const selectedPet = pets.find(p => p.id === selectedPetId)
       const selectedServiceObj = services.find(s => s.service_id === selectedService)
       const [abbr, timeRange] = selectedSlot.split(' ')
@@ -112,7 +110,7 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         }

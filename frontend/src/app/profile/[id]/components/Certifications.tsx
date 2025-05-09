@@ -7,8 +7,10 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AvatarUpload from '@/components/AvatarUpload'
+import useAuth from '@/hooks/useAuth'
 
 export default function Certifications() {
+  const { accessToken } = useAuth(true)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
@@ -16,17 +18,15 @@ export default function Certifications() {
   const [error, setError] = useState<string | null>(null)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const getAuthToken = () => localStorage.getItem('token')
 
   const fetchUploadedFiles = async () => {
-    try {
-      const token = getAuthToken()
-      console.log('📦 当前 Token:', token)
+    if (!accessToken) return
 
-      if (!token) throw new Error('No token found.')
+    try {
+      console.log('📦 当前 Token:', accessToken)
 
       const res = await fetch(`${API_URL}/api/certificate/certificates`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
 
       console.log('📡 GET 请求状态:', res.status)
@@ -47,22 +47,20 @@ export default function Certifications() {
 
   useEffect(() => {
     fetchUploadedFiles()
-  }, [])
+  }, [accessToken])
 
   const handleUpload = async () => {
-    if (!selectedFile) return
+    if (!selectedFile || !accessToken) return
+    
     try {
-      const token = getAuthToken()
-      console.log('📤 上传前 Token:', token)
-
-      if (!token) throw new Error('No token found.')
+      console.log('📤 上传前 Token:', accessToken)
 
       const formData = new FormData()
       formData.append('certification', selectedFile)
 
       const res = await fetch(`${API_URL}/api/certificate/uploadCertificate`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: formData
       })
 
@@ -86,17 +84,18 @@ export default function Certifications() {
   }
 
   const handleDelete = async (filePath: string) => {
+    if (!accessToken) return
+    
     const filename = filePath.split('/').pop()
     if (!filename) return
     if (!confirm('Are you sure you want to delete this file?')) return
 
     try {
-      const token = getAuthToken()
       console.log('🗑️ 删除证书:', filename)
 
       const res = await fetch(`${API_URL}/api/certificate/deleteCertificate/${filename}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
 
       console.log('🗑️ 删除响应状态:', res.status)
@@ -167,9 +166,6 @@ export default function Certifications() {
           </Grid>
         </>
       )}
-
-
-
 
       <Snackbar open={!!message} autoHideDuration={6000} onClose={() => setMessage(null)}>
         <Alert severity="success" onClose={() => setMessage(null)}>{message}</Alert>

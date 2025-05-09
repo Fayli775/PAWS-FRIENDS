@@ -6,52 +6,45 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError("");
+    
+    if (!email || !password) {
+      setError("Email and password are required");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
 
-      if (!response.ok) {
-        throw new Error("Invalid email or password");
+      if (result?.error) {
+        setError("Invalid email or password");
+        return;
       }
 
-      const data = await response.json();
-
-      // 存储 JWT 到 localStorage
-      localStorage.setItem("token", data.token);
-
-      // 确保 user 对象存在且结构正确
-      if (!data.user || !data.user.id) {
-        throw new Error("User data not found in response");
-      }
-
-      // 正确保存用户信息（id, email, user_name等）到 localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      alert("Login successful!");
-      console.log("User data:", data.user);
-
-      // 跳转到用户的 Profile 页面
-      window.location.href = `/profile/${data.user.id}`;
+      // Success - redirect to home or a protected page
+      router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Error during login:", error);
-      alert("Login failed. Please check your email and password.");
+      setError("Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -73,6 +66,11 @@ export default function LoginPage() {
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Log In
         </Typography>
+        {error && (
+          <Typography color="error" align="center" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
         <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit}>
           <TextField
             margin="normal"
@@ -103,7 +101,7 @@ export default function LoginPage() {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={isSubmitting} // 禁用按钮防止重复提交
+            disabled={isSubmitting}
           >
             {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>

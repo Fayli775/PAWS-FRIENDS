@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import LocationSelect from "@/components/LocationSelect";
 import axios from "axios";
+import useAuth from "@/hooks/useAuth";
 
 export default function ProfileForm() {
   const [formData, setFormData] = useState({
@@ -34,27 +35,21 @@ export default function ProfileForm() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { user, accessToken } = useAuth();
+
   const MAX_AVATAR_SIZE = 10 * 1024 * 1024; // 10MB
 
   // 加载用户数据
   async function fetchUserData() {
+    if (!accessToken || !user) { // Check if token and userId are available
+      setLoading(false);
+      return;
+    }
     try {
-      const token = localStorage.getItem("token");
-      const userStr = localStorage.getItem("user");
-
-      if (!token) throw new Error("No token found in localStorage");
-      if (!userStr) throw new Error("No user found in localStorage");
-
-      const user = JSON.parse(userStr);
-      if (!user || !user.id)
-        throw new Error("User id not found in localStorage user data");
-
-      const userId = user.id;
-
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` }, 
         }
       );
 
@@ -73,15 +68,22 @@ export default function ProfileForm() {
       setAvatarPreview(avatarUrl);
     } catch (error: any) {
       console.error("Error fetching user data:", error);
-      alert(`Failed to load user data: ${error.message || error}`);
+      if (error.response && error.response.status === 401) {
+        alert("Authentication failed. Please log in again.");
+        // Consider redirecting to login page: router.push('/login');
+      } else {
+        alert(`Failed to load user data: ${error.message || error}`);
+      }
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (user && accessToken) { // Fetch only when both are available
+      fetchUserData();
+    }
+  }, [user, accessToken]); // Add accessToken to dependency array
 
   // 处理输入变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,21 +129,6 @@ export default function ProfileForm() {
     if (!validate()) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const userStr = localStorage.getItem("user");
-
-      if (!token) {
-        throw new Error("No token found in localStorage");
-      }
-      if (!userStr) {
-        throw new Error("No user found in localStorage");
-      }
-
-      const user = JSON.parse(userStr);
-      if (!user || !user.id) {
-        throw new Error("User id not found in localStorage user data");
-      }
-
       const formDataToSend = new FormData();
       formDataToSend.append("user_name", formData.username);
       formDataToSend.append("bio", formData.bio);
@@ -156,7 +143,7 @@ export default function ProfileForm() {
         formDataToSend,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -271,7 +258,6 @@ export default function ProfileForm() {
       <Box display="flex" gap={2}>
         <Button
           variant="contained"
-          sx={{ backgroundColor: "#A78BFA", textTransform: "none" }}
           onClick={handleSave}
         >
           Save

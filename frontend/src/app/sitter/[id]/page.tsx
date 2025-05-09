@@ -18,6 +18,7 @@ import Calendar from '@/app/profile/[id]/components/Calendar'
 import CertificationsDisplay from './components/CertificationsDisplay'
 import ReviewSummary from './components/ReviewSummary'
 import BookingCard from './components/BookingCard'
+import useAuth from '@/hooks/useAuth'
 
 type Pet = {
   id: number
@@ -31,6 +32,7 @@ export default function SitterPublicProfilePage({
   params: { id: string }
 }) {
   const sitterId = params.id
+  const { user, accessToken } = useAuth()
 
   const [sitterPets, setSitterPets] = useState<Pet[]>([])
   const [ownerPets, setOwnerPets] = useState<Pet[]>([])
@@ -44,24 +46,22 @@ export default function SitterPublicProfilePage({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token')
-
         const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${sitterId}`)
         const userData = await userRes.json()
-        const user = userData.user
+        const sitterUser = userData.user
 
         // Debug log
-        console.log('User data:', user);
+        console.log('User data:', sitterUser);
 
-        setUserName(user.user_name || 'Sitter')
-        setRegion(user.region || '')
+        setUserName(sitterUser.user_name || 'Sitter')
+        setRegion(sitterUser.region || '')
         // 修正 avatar URL 的构建方式
         setAvatar(
-          user.avatar 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${user.avatar}`
+          sitterUser.avatar 
+            ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitterUser.avatar}`
             : '/avatar.jpg'
         )
-        setBio(user.bio || '')
+        setBio(sitterUser.bio || '')
 
         const petsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${sitterId}`)
         const petsData = await petsRes.json()
@@ -71,11 +71,9 @@ export default function SitterPublicProfilePage({
         const servicesData = await servicesRes.json()
         setServices(servicesData.map((s: any) => s.name))
 
-        const userStr = localStorage.getItem('user')
-        const currentUser = userStr ? JSON.parse(userStr) : null
-        if (currentUser?.id) {
-          const myPetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${currentUser.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
+        if (user?.id) {
+          const myPetsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${user.id}`, {
+            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
           })
           const myPetsData = await myPetsRes.json()
           setOwnerPets(myPetsData || [])
@@ -89,7 +87,7 @@ export default function SitterPublicProfilePage({
     }
 
     fetchData()
-  }, [sitterId])
+  }, [sitterId, user, accessToken])
 
   if (isLoading) {
     return (
@@ -103,7 +101,7 @@ export default function SitterPublicProfilePage({
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Container component="main" maxWidth="lg" sx={{ flex: 1, mt: 4, mb: 4 }}>
         <Grid container spacing={4}>
-          <Grid item xs={12} md={7}>
+          <Grid size={{ xs: 12, md: 7 }}>
             {/* Header Section */}
             <Box display="flex" alignItems="center" gap={2}>
               <Avatar 
@@ -176,7 +174,7 @@ export default function SitterPublicProfilePage({
           </Grid>
 
           {/* Booking Section */}
-          <Grid item xs={12} md={5}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
           </Grid>
         </Grid>
