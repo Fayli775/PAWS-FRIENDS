@@ -81,7 +81,7 @@ const CarouselTrack = styled(Box)(({ theme }) => ({
 const EventCard = styled(Box)(({ theme }) => ({
   flex: '0 0 auto',
   width: '100%',
-  maxWidth: '280px',
+  maxWidth: '270px',
   marginRight: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
   overflow: 'hidden',
@@ -168,7 +168,7 @@ const EventsCarousel: React.FC = () => {
   
   return (
     <Box
-      id="events-section" // 添加 id
+      id="events-section" // 确保有这个 id
       component="section"
       sx={{
         py: 6,
@@ -215,7 +215,7 @@ const EventsCarousel: React.FC = () => {
               display: 'flex',
               flexWrap: 'nowrap',
               width: '100%',
-              gap: 1,
+              gap: 2,
             }}
           >
             {mockEvents.map((event) => (

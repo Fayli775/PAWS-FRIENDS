@@ -149,7 +149,7 @@ export default function SupportPage() {
             list={partners.grooming}
           />
         </Box>
-        <Box gridRow={1}>
+        <Box gridRow={2}>
           <PartnerSection
             title="🏠 Pet Boarding Services"
             list={partners.boarding}
