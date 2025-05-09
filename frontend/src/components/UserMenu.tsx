@@ -95,7 +95,7 @@ export default function UserMenu() {
           <Typography>My Profile</Typography>
         </MenuItem>
         <MenuItem onClick={() => {
-          router.push('/notifications');
+          router.push(`/profile/${user?.id}/notice`);
           handleClose();
         }}>
           <Typography>Notifications</Typography>
