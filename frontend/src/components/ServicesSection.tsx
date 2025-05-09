@@ -35,6 +35,12 @@ const services: Service[] = [
     description: 'Professional grooming to keep pets clean and pretty',
     price: 'From $25/hr',
     icon: '/grooming.png'
+  },
+  {
+    title: 'Training',
+    description: 'Professional training to help your pet learn good behavior',
+    price: 'From $25/hr',
+    icon: '/boarding.png'
   }
 ];
 
@@ -95,7 +101,7 @@ const ServicesSection: React.FC = () => {
           color="text.secondary"
           sx={{ mb: 6 }}
         >
-          Explore Trusted Pet Care: Walking, Grooming, Boarding & More
+          Explore Trusted Pet Care: In-Home Feeding, Walking, Grooming, Training & More
         </Typography>
 
         <Grid container spacing={4} justifyContent="center">
