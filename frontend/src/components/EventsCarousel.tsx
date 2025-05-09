@@ -168,7 +168,7 @@ const EventsCarousel: React.FC = () => {
   
   return (
     <Box
-      id="events-section" // 添加 id
+      id="events-section" // 确保有这个 id
       component="section"
       sx={{
         py: 6,
