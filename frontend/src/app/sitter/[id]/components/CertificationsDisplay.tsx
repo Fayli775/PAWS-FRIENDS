@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { Box, Typography, Chip } from '@mui/material'
-import axios from 'axios'
+import { useEffect, useState } from 'react'
+import { Box, Chip } from '@mui/material'
 
 interface CertificationStatus {
   nzVerified: boolean
@@ -16,23 +15,21 @@ export default function CertificationsDisplay({ sitterId }: { sitterId: number }
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/certificate/public/${sitterId}`)
     
-        console.log('📡 公共 GET 证书状态:', res.status)
+        console.log('Public GET certification status:', res.status)
     
         if (!res.ok) {
           const errResult = await res.json()
-          console.error('❌ 获取公共证书失败:', errResult)
+          console.error('Failed to fetch public certifications:', errResult)
           throw new Error(errResult.message || 'Failed to fetch public certificates')
         }
     
         const data = await res.json()
-        console.log('✅ 返回的公共证书数据:', data)
-    
-        // 如果有证书，说明是已认证用户
+        // If certificates exist, user is considered verified
         const isVerified = Array.isArray(data) && data.length > 0
         setCertifications({ nzVerified: isVerified })
       } catch (err: any) {
-        console.error('🔥 公共 fetch error:', err)
-        setCertifications({ nzVerified: false }) // 默认为未认证
+        console.error('Public fetch error:', err)
+        setCertifications({ nzVerified: false }) // Default to not verified
       }
     }
 
@@ -53,4 +50,3 @@ export default function CertificationsDisplay({ sitterId }: { sitterId: number }
     </Box>
   )
 }
-

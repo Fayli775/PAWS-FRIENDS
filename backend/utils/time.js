@@ -1,20 +1,19 @@
-// utils/time.js
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 dayjs.extend(utc);
 
-// ⏰ 转为 UTC 的完整日期时间（YYYY-MM-DD HH:mm:ss）
+// Convert to full UTC datetime string (format: YYYY-MM-DD HH:mm:ss)
 exports.toUTCDateTime = (input = new Date()) => {
     return dayjs(input).utc().format("YYYY-MM-DD HH:mm:ss");
 };
 
-// 🕐 转为 UTC 的时间字符串（HH:mm:ss）——用于 availability
+// Convert to UTC time string only (HH:mm:ss) — used for availability
 exports.toUTCTimeOnly = (input) => {
     const fakeDateTime = `2000-01-01T${input}`;
     return dayjs(fakeDateTime).utc().format("HH:mm:ss");
 };
 
-// 🗓️ 用于将前端传入的 weekday + time_slot 拼成完整 UTC 起止时间
+//Build full UTC start and end times from frontend-provided weekday + time_slot
 exports.parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
     const weekdayMap = {
         Sun: 0, Mon: 1, Tue: 2, Wed: 3,

@@ -7,5 +7,5 @@ const envPath = path.join(__dirname, envFile);
 
 dotenv.config({ path: envPath });
 
-console.log("🌱 loadEnv: NODE_ENV =", process.env.NODE_ENV);//test没问题后需要删除
-console.log("🔥 loadEnv: DB_NAME =", process.env.DB_NAME);//test没问题后需要删除
+console.log("loadEnv: NODE_ENV =", process.env.NODE_ENV);
+console.log("loadEnv: DB_NAME =", process.env.DB_NAME);

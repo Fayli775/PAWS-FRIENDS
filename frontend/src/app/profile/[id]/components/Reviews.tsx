@@ -36,10 +36,10 @@ export default function Reviews() {
         if (data.status === 'success') {
           setReviews(data.reviews)
         } else {
-          console.error('❌ Failed to load reviews:', data.message)
+          console.error('Failed to load reviews:', data.message)
         }
       } catch (err) {
-        console.error('❌ API error:', err)
+        console.error('API error:', err)
       }
     }
 

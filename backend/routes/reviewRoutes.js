@@ -1,16 +1,15 @@
-// routes/reviewRoutes.js
 const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviewController");
 const authMiddleware = require("../middleware/authMiddleware");
 
-// 提交订单评价
+// Submit a review for the booking
 router.post("/", authMiddleware, reviewController.addReview);
 
-// 查看 sitter 的所有评价
+// Get all reviews for the sitter
 router.get("/sitter/:sitterId", reviewController.getReviewsBySitter);
 
-// 查看 booking 的所有评价
+// Get all reviews for the booking
 router.get("/booking/:bookingId", reviewController.getReviewsByBooking);
 
 module.exports = router;

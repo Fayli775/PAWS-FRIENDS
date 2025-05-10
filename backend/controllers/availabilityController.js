@@ -1,4 +1,3 @@
-// controllers/availabilityController.js
 const Availability = require("../models/availabilityModel");
 
 exports.setAvailability = async (req, res) => {
@@ -24,7 +23,7 @@ exports.getAvailabilityByUser = async (req, res) => {
     }
 };
 
-// ✅ 新增：DELETE 可用时间
+// DELETE available time slot
 exports.deleteAvailabilityByUser = async (req, res) => {
     const { userId } = req.params;
 

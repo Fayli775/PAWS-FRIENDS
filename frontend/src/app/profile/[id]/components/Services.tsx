@@ -71,7 +71,7 @@ export default function Services() {
       if (!user || !accessToken) return;
       
       try {
-        // 服务类型
+        // service type
         const serviceRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
           {
@@ -84,7 +84,7 @@ export default function Services() {
         setSelectedServices(serviceIds);
         setInitialSelectedServices(serviceIds);
 
-        // 语言
+        // languange
         const langRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
           {
@@ -95,12 +95,12 @@ export default function Services() {
         setSelectedLanguages(langData.languages || []);
         setInitialSelectedLanguages(langData.languages || []);
 
-        // 所有服务（用于显示）
+        //all servies
         const allRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
         const allData = await allRes.json();
         setAvailableServices(allData.services || []);
       } catch (err) {
-        console.error("加载失败:", err);
+        console.error("upload failed:", err);
       }
     };
 
@@ -144,7 +144,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyService(false);
     } catch (err) {
-      console.error("服务保存失败:", err);
+      console.error("failed to save the service:", err);
     }
   };
 
@@ -166,7 +166,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyService(false);
     } catch (err) {
-      console.error("服务重置失败:", err);
+      console.error("reset service failed:", err);
     }
   };
 
@@ -188,7 +188,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyLanguage(false);
     } catch (err) {
-      console.error("语言保存失败:", err);
+      console.error("language save failed:", err);
     }
   };
 
@@ -207,7 +207,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyLanguage(false);
     } catch (err) {
-      console.error("语言重置失败:", err);
+      console.error("language reset failed:", err);
     }
   };
 
