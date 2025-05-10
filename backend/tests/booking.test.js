@@ -1,35 +1,39 @@
 // tests/booking.test.js
-const axios = require('axios');
+const request = require('supertest');
+const app = require('../server');
 
-const BASE_URL = 'http://localhost:8000';
 
 let token;
 
 beforeAll(async () => {
-    const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email: 'alice@example.com',
-        password: 'alice123'
+    const res = await request(app)
+    .post('/api/auth/login')
+    .send({
+        email: global.testContext.email,
+        password: global.testContext.password,
     });
-    token = res.data.token;
+    token = res.body.token;
 });
 
 describe('Booking API', () => {
     test('should create a new booking', async () => {
         const bookingData = {
-            pet_id: 1,
-            sitter_id: 2,
-            start_time: '2025-05-01 08:00:00',
-            end_time: '2025-05-01 10:00:00',
-            special_requirements: 'Needs extra care'
+            'owner_id':5,
+            'sitter_id':1,
+            'pet_type':'dog',
+            'pet_id': 7,
+            'service_type':'Dog Walking',
+            'weekday': 'Sun',        // ⬅ 前端传入的 weekday（例如 "Mon"）
+            'time_slot': '09:00-10:00',    // ⬅ 前端传入的时间段（例如 "09:00–10:00"）
+            'language': 'English'
         };
 
         try {
-            const response = await axios.post(`${BASE_URL}/api/bookings`, bookingData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            expect(response.status).toBe(201);
-            expect(response.data).toHaveProperty('bookingId');
+            const response = await request(app)
+                .post('/api/bookings/')
+                .set('Authorization', `Bearer ${global.testContext.token}`)
+                .send(bookingData);
+            expect(response.statusCode).toBe(201);
         } catch (error) {
             console.error('Error response:', error.response?.data || error.message);
             throw error;
