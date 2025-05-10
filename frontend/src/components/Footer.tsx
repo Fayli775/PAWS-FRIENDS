@@ -57,13 +57,34 @@ const Footer = () => {
             </Typography>
           </Box>
           <Box sx={{ display: "flex", ml: "auto" }}>
-            <IconButton aria-label="Facebook" sx={{ color: "#3b5998" }}>
+            <IconButton
+              aria-label="Facebook"
+              component="a"
+              href="https://www.facebook.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ color: "#3b5998", zIndex: 100 }}
+            >
               <FacebookIcon />
             </IconButton>
-            <IconButton aria-label="Instagram" sx={{ color: "#c32aa3" }}>
+            <IconButton
+              aria-label="Instagram"
+              component="a"
+              href="https://www.instagram.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ color: "#c32aa3" }}
+            >
               <InstagramIcon />
             </IconButton>
-            <IconButton aria-label="YouTube" sx={{ color: "#ff0000" }}>
+            <IconButton
+              aria-label="YouTube"
+              component="a"
+              href="https://www.youtube.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ color: "#ff0000" }}
+            >
               <YouTubeIcon />
             </IconButton>
           </Box>
