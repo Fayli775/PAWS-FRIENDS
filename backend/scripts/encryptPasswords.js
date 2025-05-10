@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const users = [
   {
     email: "alice@example.com",
-    passwd: "alice124",
+    passwd: "alice123",
     bio: "Loves cats and long walks.",
     region: "North Shore",
     nick_name: "AliceCat",
@@ -50,21 +50,14 @@ const users = [
 async function encryptPasswords() {
   for (let i = 0; i < users.length; i++) {
     const user = users[i];
-    // 使用 bcrypt 加密密码
     const hashedPassword = await bcrypt.hash(user.passwd, 10);
-    // 将加密后的密码替换
     user.passwd = hashedPassword;
-
-    console.log(`User ${user.email}: Password has been hashed.`);
   }
 
-  // 打印更新后的数据，以便你可以将其添加到你的 seed.sql 文件中
-  console.log("\nUpdated Users Data:\n");
   users.forEach((user) => {
     console.log(
       `(${user.email}, '${user.passwd}', '${user.bio}', '${user.region}', '${user.nick_name}', ${user.status}, '${user.logo}', '${user.phone_number}', '${user.emergency_contact}')`
     );
   });
 }
-
 encryptPasswords();

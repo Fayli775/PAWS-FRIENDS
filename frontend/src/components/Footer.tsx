@@ -111,7 +111,7 @@ const Footer = () => {
               </Link>
               <Link href="#services-section" passHref>
                 {" "}
-                {/* 添加锚点链接 */}
+                {/* Add internal anchor link */}
                 <Typography component="span" sx={{ cursor: "pointer" }}>
                   Services
                 </Typography>

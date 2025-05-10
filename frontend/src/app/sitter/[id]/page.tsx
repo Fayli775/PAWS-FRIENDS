@@ -55,7 +55,7 @@ export default function SitterPublicProfilePage({
 
         setUserName(sitterUser.user_name || 'Sitter')
         setRegion(sitterUser.region || '')
-        // 修正 avatar URL 的构建方式
+        // Fix avatar URL construction
         setAvatar(
           sitterUser.avatar 
             ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitterUser.avatar}`
@@ -80,7 +80,7 @@ export default function SitterPublicProfilePage({
         }
 
       } catch (err) {
-        console.error('❌ Failed to load sitter data', err)
+        console.error('Failed to load sitter data', err)
       } finally {
         setIsLoading(false)
       }

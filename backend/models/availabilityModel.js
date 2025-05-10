@@ -1,17 +1,13 @@
-// models/availabilityModel.js
 const db = require("../config/db");
-// const { toUTCTimeOnly } = require("../utils/time"); ❌ 不再需要
-
 exports.setAvailability = async (user_id, slots) => {
-  // 先删除该用户旧的可预约时间
+  // Delete existing available time slots for the user
   await db.query("DELETE FROM availability WHERE user_id = ?", [user_id]);
-
-  // 直接存储用户选择的本地时间（不再转 UTC）
-  const values = slots.map(slot => [
+  // Store the user-selected local time directly (no longer converting to UTC)
+  const values = slots.map((slot) => [
     user_id,
     slot.weekday,
-    slot.start_time,  // ✅ 不转换
-    slot.end_time     // ✅ 不转换
+    slot.start_time,
+    slot.end_time,
   ]);
 
   await db.query(
@@ -30,8 +26,8 @@ exports.getAvailabilityByUser = async (user_id) => {
   );
   return rows;
 };
-//
-// 删除用户的可预约时间
+
+// Delete the user's available time slots
 exports.deleteAvailabilityByUser = async (user_id) => {
   await db.query("DELETE FROM availability WHERE user_id = ?", [user_id]);
 };

@@ -1,4 +1,3 @@
-// controllers/noticeController.js
 const noticeRepository = require("../models/noticeModel");
 const db = require("../config/db");
 

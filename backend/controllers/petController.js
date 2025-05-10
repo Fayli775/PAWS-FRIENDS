@@ -1,17 +1,13 @@
-//controller/petController.js
 const path = require("path");
-//const fs = require("fs");
 const PetModel = require("../models/petModel");
 exports.getPetInfo = async (req, res) => {
   const petId = req.params.petId;
-
   try {
     const pet = await PetModel.getPetById(petId);
 
     if (!pet) {
       return res.status(404).json({ message: "Pet not found" });
     }
-
     res.json(pet);
   } catch (error) {
     console.error("Error getting pet info:", error);
@@ -20,8 +16,8 @@ exports.getPetInfo = async (req, res) => {
 };
 
 exports.getPetsByOwnerId = async (req, res) => {
+  // Get ownerId from the authenticated user's request data
   const ownerId = req.params.ownerId;
-
   try {
     const pets = await PetModel.getPetsByOwnerId(ownerId);
 
@@ -37,7 +33,7 @@ exports.getPetsByOwnerId = async (req, res) => {
 };
 
 exports.getMyPets = async (req, res) => {
-  const ownerId = req.user.id; // 从请求的用户信息中获取 ownerId
+  const ownerId = req.user.id;
   try {
     const pets = await PetModel.getPetsByOwnerId(ownerId);
 
@@ -53,7 +49,6 @@ exports.getMyPets = async (req, res) => {
 };
 
 //add a new pet
-
 exports.addNewPet = async (req, res) => {
   try {
     const {
@@ -82,26 +77,23 @@ exports.addNewPet = async (req, res) => {
 
     let photo_url = null;
     if (req.file) {
-      // 提取上传的文件相对路径
       photo_url = path
         .join("/images/uploads/pets", req.file.filename)
         .replace(/\\/g, "/");
     }
-
-    // 创建宠物数据对象
     const petData = {
       owner_id,
       type,
       name,
-      description: description || null, // 默认为 null
-      photo_url: photo_url || null, // 默认为 null
-      vet_contact_name: vet_contact_name || null, // 默认为 null
-      vet_contact_phone: vet_contact_phone || null, // 默认为 null
-      emergency_contact_name: emergency_contact_name || null, // 默认为 null
-      emergency_contact_phone: emergency_contact_phone || null, // 默认为 null
-      allergies: allergies || null, // 默认为 null
-      medications: medications || null, // 默认为 null
-      special_instructions: special_instructions || null, // 默认为 null
+      description: description || null,
+      photo_url: photo_url || null,
+      vet_contact_name: vet_contact_name || null,
+      vet_contact_phone: vet_contact_phone || null,
+      emergency_contact_name: emergency_contact_name || null,
+      emergency_contact_phone: emergency_contact_phone || null,
+      allergies: allergies || null,
+      medications: medications || null,
+      special_instructions: special_instructions || null,
     };
 
     const petId = await PetModel.addNewPet(petData);
@@ -114,12 +106,10 @@ exports.addNewPet = async (req, res) => {
 };
 
 // Update pet information
-
 exports.updatePet = async (req, res) => {
   try {
-    const petId = req.params.petId; // 从请求参数中获取 petId
+    const petId = req.params.petId;
     const owner_id = req.user?.id;
-
     const {
       name,
       type,
@@ -132,21 +122,19 @@ exports.updatePet = async (req, res) => {
       medications,
       special_instructions,
     } = req.body;
-
-    // 验证宠物是否存在
+    // Validate whether the pet exists
     const existingPet = await PetModel.getPetById(petId);
     if (!existingPet) {
       return res.status(404).json({ message: "Pet not found" });
     }
-
-    // 验证当前用户是否是宠物的所有者
+    // Check if the current user owns the pet
     if (existingPet.owner_id !== owner_id) {
       return res
         .status(403)
         .json({ message: "Unauthorized to update this pet" });
     }
 
-    // 构建更新数据对象
+    // Build the update data object
     const updatedPetData = {
       name: name ?? existingPet.name,
       type: type ?? existingPet.type,
@@ -179,19 +167,20 @@ exports.updatePet = async (req, res) => {
 
 // Delete pet by ID
 exports.deletePetById = async (req, res) => {
-  const petId = req.params.petId; // 从路由参数中获取 petId
+  const petId = req.params.petId;
 
   try {
-    // 调用模型方法删除宠物
     const result = await PetModel.deletePetById(petId);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Pet not found" });
     }
-
-    res.status(200).json({ status: "success", message: "Pet deleted successfully" });
+    res
+      .status(200)
+      .json({ status: "success", message: "Pet deleted successfully" });
   } catch (err) {
     console.error("Error deleting pet:", err);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 };

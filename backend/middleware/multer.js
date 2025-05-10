@@ -1,17 +1,16 @@
-//middleware/multer.js
-
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-// 定义上传目录路径
+// Define the upload directory paths
 const avatarDir = path.join(__dirname, "../public/images/uploads/avatars");
 const petDir = path.join(__dirname, "../public/images/uploads/pets");
 const certificate_dir = path.join(
   __dirname,
   "../public/images/uploads/certificates"
 );
-// 检查并创建上传目录（如果不存在的话）
+
+// Check and create the upload directory if it doesn't exist
 const createDirIfNotExists = (dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true }); // { recursive: true } 会创建嵌套目录
@@ -19,37 +18,38 @@ const createDirIfNotExists = (dir) => {
   }
 };
 
-// 创建必要的目录
+// Create necessary directories
 createDirIfNotExists(avatarDir);
 createDirIfNotExists(petDir);
 createDirIfNotExists(certificate_dir);
 
-// multer 配置
+// multer
 const createStorage = (subDir) =>
   multer.diskStorage({
     destination: (req, file, cb) => {
-      // 根据传入的目录参数，决定存储的文件夹路径
       cb(null, path.join(__dirname, `../public/images/uploads/${subDir}`));
     },
     filename: (req, file, cb) => {
       const fileExtension = path.extname(file.originalname);
-      const filename = `${Date.now()}${fileExtension}`; // 使用时间戳生成唯一文件名
+      const filename = `${Date.now()}${fileExtension}`;
       cb(null, filename);
     },
   });
 
-// 使用通用的 createStorage 方法生成不同的 storage 配置
-const avatarStorage = createStorage("avatars"); // 用户头像存储
-const petStorage = createStorage("pets"); // 宠物头像存储
-const certificateStorage = createStorage("certificates"); // 证书存储
+// User avatar storage
+const avatarStorage = createStorage("avatars");
+// Pet avatar storage
+const petStorage = createStorage("pets");
+// Certificate storage
+const certificateStorage = createStorage("certificates");
 
-// 创建 multer 实例
+// Create multer instance
 const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 限制文件大小为10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image files are allowed!")); // 错误处理
+      return cb(new Error("Only image files are allowed!"));
     }
     cb(null, true);
   },
@@ -57,7 +57,7 @@ const uploadAvatar = multer({
 
 const uploadPetPhoto = multer({
   storage: petStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 宠物头像也限制为10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image files are allowed!"));
@@ -68,7 +68,7 @@ const uploadPetPhoto = multer({
 
 const uploadCertificate = multer({
   storage: certificateStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 限制文件大小为 10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
     if (!allowedTypes.includes(file.mimetype)) {
@@ -81,5 +81,4 @@ const uploadCertificate = multer({
   },
 });
 
-// 导出中间件
 module.exports = { uploadAvatar, uploadPetPhoto, uploadCertificate };

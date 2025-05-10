@@ -2,7 +2,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-// 确保根目录和用户、宠物目录存在
+
 const rootDir = "public/images/";
 const usersDir = "public/images/users/";
 const petsDir = "public/images/pets/";
@@ -19,9 +19,8 @@ const ensureDirectoriesExist = () => {
   }
 };
 
-ensureDirectoriesExist(); // 初始化时确保目录存在
+ensureDirectoriesExist();
 
-// 可选：限制只允许图片类型
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif/;
   const extName = allowedTypes.test(
@@ -34,24 +33,21 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Only image files are allowed"));
 };
 
-// 存储设定，动态指定存储路径
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // 动态选择文件夹：根据是否是用户头像或宠物照片来决定目录
-    const isUserPhoto = req.body.type === "user"; // 假设请求体中传入type字段来区分
-    const destination = isUserPhoto ? usersDir : petsDir; // 用户头像存放在 users 文件夹，宠物照片存放在 pets 文件夹
-    cb(null, destination); // 设置存储的目录
+    const isUserPhoto = req.body.type === "user";
+    const destination = isUserPhoto ? usersDir : petsDir;
+    cb(null, destination);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // 文件名使用当前时间戳
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-// 设置上传配置
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 限制文件大小最大2MB
+  limits: { fileSize: 2 * 1024 * 1024 },
 });
 
 module.exports = upload;

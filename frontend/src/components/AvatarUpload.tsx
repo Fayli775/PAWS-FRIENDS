@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Avatar from "@mui/material/Avatar";
 
 import Box from "@mui/material/Box"; 
@@ -27,7 +27,8 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 2 }}>
       <Avatar
         alt="User Avatar"
-        src={avatar || "/defaultAvatarDog.png"} // 显示预览或默认头像
+        src={avatar || "/defaultAvatarDog.png"} // Display preview or default avatar
+
         sx={{ width: 150, height: 150 }}
       />
       <input

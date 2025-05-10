@@ -5,7 +5,6 @@ const authMiddleware = require("../middleware/authMiddleware.js"); // authMiddle
 const userController = require("../controllers/userController.js"); // userAPI
 const { uploadAvatar } = require("../middleware/multer.js"); // 引入 multer 配置
 
-
 // ger user by id
 router.get("/:id", userController.getUserById);
 
@@ -13,7 +12,7 @@ router.get("/:id", userController.getUserById);
 router.put(
   "/me/updateProfile",
   authMiddleware,
-  uploadAvatar.single("avatar"), // 处理头像上传
+  uploadAvatar.single("avatar"),
   userController.updateProfile
 );
 
@@ -24,11 +23,10 @@ router.put(
   userController.updatePassword
 );
 
-
 // New route for searching sitters
-router.get('/sitters/search', userController.searchSitters); // No auth for general search? Or add authMiddleware if needed
+router.get("/sitters/search", userController.searchSitters);
 
-// New route for language 
+// New route for language
 router.get("/:id/languages", userController.getUserLanguages);
 router.post("/:id/languages", userController.addUserLanguages);
 router.delete("/:id/languages", userController.deleteUserLanguages);

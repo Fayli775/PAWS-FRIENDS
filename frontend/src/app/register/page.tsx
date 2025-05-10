@@ -89,7 +89,7 @@ export default function RegisterPage() {
       return;
     }
 
-    // 创建 FormData 对象
+    // creat FormData object
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
