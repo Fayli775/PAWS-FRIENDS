@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Container } from '@mui/material';
@@ -38,20 +36,22 @@ const faqs = [
 
 export default function FAQsPage() {
   return (
-    <Container maxWidth="md" sx={{ mt: 6, mb: 10 }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Frequently Asked Questions
-      </Typography>
-      {faqs.map((faq, index) => (
-        <Accordion key={index} sx={{ mb: 2 }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight="bold">{faq.question}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>{faq.answer}</Typography>
-          </AccordionDetails>
-        </Accordion>
-      ))}
-    </Container>
+    <Box sx={{ backgroundColor: '#fef8f2' }}>
+      <Container maxWidth="md" sx={{ pt: 6, pb: 10 }}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          Frequently Asked Questions
+        </Typography>
+        {faqs.map((faq, index) => (
+          <Accordion key={index} sx={{ mb: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography fontWeight="bold">{faq.question}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>{faq.answer}</Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </Container>
+    </Box>
   );
 }
