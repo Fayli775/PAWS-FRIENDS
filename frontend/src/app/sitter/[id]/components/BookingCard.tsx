@@ -131,7 +131,6 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>Make a Booking</Typography>
 
         <TextField
           select fullWidth margin="normal"
