@@ -10,6 +10,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import useAuth from '@/hooks/useAuth'
+import { imageBaseUrl } from '@/const'
 
 interface Pet {
   id?: number
@@ -33,11 +34,6 @@ export default function PetsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const getFullPhotoUrl = (photo?: string) => {
-    if (!photo) return '/defaultAvatarDog.png'
-    return photo.startsWith('http') ? photo : `${process.env.NEXT_PUBLIC_API_URL}${photo}`
-  }
-
   const fetchPets = async () => {
     if (!user || !accessToken) return
     
@@ -49,7 +45,7 @@ export default function PetsPage() {
       const data = await response.json()
       setPets(data.map((pet: any) => ({
         ...pet,
-        photo: getFullPhotoUrl(pet.photo || pet.photo_url)
+        photo: `${imageBaseUrl}${pet.photo_url}`
       })))
     } catch (err: any) {
       setError(err.message)

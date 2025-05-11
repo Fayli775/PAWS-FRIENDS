@@ -83,9 +83,7 @@ exports.addNewPet = async (req, res) => {
     let photo_url = null;
     if (req.file) {
       // 提取上传的文件相对路径
-      photo_url = path
-        .join("/images/uploads/pets", req.file.filename)
-        .replace(/\\/g, "/");
+      photo_url = req.fileUrlToStore
     }
 
     // 创建宠物数据对象
@@ -152,7 +150,7 @@ exports.updatePet = async (req, res) => {
       type: type ?? existingPet.type,
       description: description ?? existingPet.description ?? null,
       photo_url: req.file
-        ? `/images/uploads/pets/${req.file.filename}`
+        ? `${req.fileUrlToStore}`
         : existingPet.photo_url ?? null,
       vet_contact_name:
         vet_contact_name ?? existingPet.vet_contact_name ?? null,
