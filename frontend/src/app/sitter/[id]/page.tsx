@@ -89,8 +89,8 @@ export default function SitterPublicProfilePage({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Container component="main" maxWidth="lg" sx={{ flex: 1, mt:2, mb: 4 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
+      <Container component="main" maxWidth="lg" sx={{ flex: 1, mt:2, mb: 4, ml:4}}>
         <Grid
           container
           spacing={4}
@@ -123,9 +123,8 @@ export default function SitterPublicProfilePage({
           </Grid>
 
           {/* second column: booking card */}
-          <Grid item sx={{ gridRow: '1 / 5', gridColumn: '2 / 3' }}>
+          <Grid item sx={{ gridRow: '1 / 5', gridColumn: '2 / 3', mr:8}}>
             <Box mb={1}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>Book a Service</Typography>
               <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
             </Box>
           </Grid>
