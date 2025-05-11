@@ -8,6 +8,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import AvatarUpload from '@/components/AvatarUpload'
 import useAuth from '@/hooks/useAuth'
+import { imageBaseUrl } from '@/const'
 
 export default function Certifications() {
   const { accessToken } = useAuth(true)
@@ -145,10 +146,10 @@ export default function Certifications() {
           <Typography variant="h6">Uploaded Certifications</Typography>
           <Grid container spacing={2}>
             {uploadedFiles.map((file, idx) => (
-              <Grid item key={idx}>
+              <Grid key={idx}>
                 <Stack alignItems="center" spacing={1}>
                   <Avatar
-                    src={`${API_URL}/images/uploads/certificates/${file.certificate_name}`}
+                    src={`${imageBaseUrl}${file.certificate_name}`}
                     sx={{ width: 80, height: 80 }}
                     imgProps={{ onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png') }}
                   />

@@ -4,6 +4,7 @@ const router = express.Router();
 const certificateController = require("../controllers/certificateController");
 const authMiddleware = require("../middleware/authMiddleware");
 const { uploadCertificate } = require("../middleware/multer");
+const { uploadImage } = require("../middleware/imageUploadMiddleware");
 
 router.post(
     "/uploadCertificate",
@@ -13,6 +14,7 @@ router.post(
     },
     authMiddleware,
     uploadCertificate.single("certification"),
+    uploadImage("certificates"),
     (req, res, next) => {
       console.log("✅ multer 成功执行，文件名：", req.file?.filename);
       next();

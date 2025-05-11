@@ -59,7 +59,7 @@ exports.getUploadedCertificates = async (req, res) => {
       }
   
       // 获取上传文件的路径
-      const certificateName = req.file.filename;
+      const certificateName = req.fileUrlToStore; //req.file.filename;
       console.log('🧾 上传的文件名：', req.file.filename);
       console.log('📂 文件保存的路径：', req.file.path);
   
