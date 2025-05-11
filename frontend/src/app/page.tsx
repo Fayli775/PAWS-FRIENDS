@@ -1,13 +1,10 @@
 'use client'; // Needed for useState, useEffect, etc.
-import React, { useState } from 'react';
+import EventsCarousel from '@/components/EventsCarousel';
 import SearchSection from '@/components/SearchPageContent';
 import ServicesSection from '@/components/ServicesSection';
-import EventsCarousel from '@/components/EventsCarousel';
 import SiteShare from '@/components/SiteShare';
 import { Box, Stack } from '@mui/material';
-import Header from '@/components/Header'; // Import the header
-import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
+import { Suspense } from 'react';
 
 
 export default function Home() {
@@ -15,7 +12,9 @@ export default function Home() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Stack useFlexGap direction="column" spacing={{lg:4, sm:2}}>
-      <SearchSection />
+      <Suspense fallback={<div>Loading search filters...</div>}> {/* You can customize this fallback */}
+          <SearchSection />
+        </Suspense>
       
         <ServicesSection />
 
