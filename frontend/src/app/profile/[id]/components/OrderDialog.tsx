@@ -51,13 +51,7 @@ export default function OrderDialog({
   const { user, accessToken } = useAuth();
 
   const timeStatus = getTimeStatus(order.bookingTime);
-  console.log("Time Status:", timeStatus);
-  console.log("Order:", order);
-  console.log("Role:", role);
-
   const userId = user?.id || null;
-  console.log("User ID:", userId);
-  console.log("Order Owner ID:", order.owner_id);
   const isOwner = userId === order.owner_id;
 
   const handleConfirm = () => onUpdate("confirmed");

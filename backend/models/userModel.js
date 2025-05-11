@@ -212,4 +212,20 @@ exports.deleteCertificate = async (userId, certificateName) => {
 };
 
 
+exports.getSitterEmail = async (owner_id) => {
+  try {
+    const [rows] = await db.query('SELECT email FROM user_info WHERE id = ?', [owner_id]);
+    
+    if (rows.length === 0) {
+      return null;  
+    }
+    return rows[0].email;  
+  } catch (err) {
+    console.error("Error fetching sitter email:", err);
+    throw err;
+  }
+};
+
+
+
 
