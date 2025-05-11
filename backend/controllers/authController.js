@@ -18,7 +18,8 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const avatar = req.file ? req.file.filename : null;  // req.file 是 multer 上传的文件
+    // const avatar = req.file ? req.file.filename : null;  // req.file 是 multer 上传的文件
+    const avatar = req.fileUrlToStore ? req.fileUrlToStore : null;
 
 
     const userId = await auth.createUser({

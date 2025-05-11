@@ -20,7 +20,6 @@ const updateAvatar = async (req, res, next) => {
           contentType: file.mimetype,
         });
         req.fileUrlToStore = blob.url; // Store the full Vercel Blob URL
-        req.publicAccessUrl = blob.url;
       }else{
         const PUBLIC_STATIC_ROOT_DIR = path.join(__dirname, '../public');
         const file = req.file; // File path is in req.file.path
