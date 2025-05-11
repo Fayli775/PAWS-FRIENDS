@@ -6,7 +6,8 @@ const { IS_PRODUCTION } = require("../config/const");
 const uploadImage = (imageType)=> async (req, res, next) => {
     console.log('hit updateAvatar middleware')
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded.' });
+      return next();
+      //return res.status(400).json({ message: 'No file uploaded.' });
     }
     
     try {
