@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (file: File) => Promise<void>;
+  setAvatar: (url: string, file: File) => void;
 }
 
 export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
@@ -15,7 +15,8 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     if (file) {
       const fileType = file.type;
       if (fileType === "image/jpeg" || fileType === "image/png") {
-        setAvatar(file); // Update preview and file
+        const url = URL.createObjectURL(file);
+        setAvatar(url, file); // Update preview and file
       } else {
         alert("Only JPG, JPEG, and PNG files are allowed.");
       }
