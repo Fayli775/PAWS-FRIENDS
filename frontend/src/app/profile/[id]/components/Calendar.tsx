@@ -164,7 +164,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
 
       if (!res.ok) throw new Error('Failed to save availability')
 
-      // Update Snackbar message and state on success
+      // Update Snackbar message 
       setSnackbarMessage('Availability saved successfully!')
       setSnackbarSeverity('success')
       setOpenSnackbar(true)
