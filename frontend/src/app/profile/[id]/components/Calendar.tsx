@@ -11,6 +11,8 @@ import {
   Button,
   Typography,
   CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material'
 import useAuth from '@/hooks/useAuth'
 
@@ -67,6 +69,11 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
   const { user, accessToken } = useAuth(true)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
+
+  // Snackbar state management
+  const [openSnackbar, setOpenSnackbar] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success')
 
   const normalizeTime = (t: string) => t.slice(0, 5)
 
@@ -156,9 +163,16 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
       })
 
       if (!res.ok) throw new Error('Failed to save availability')
-      alert('Availability saved successfully!')
+
+      // Update Snackbar message 
+      setSnackbarMessage('Availability saved successfully!')
+      setSnackbarSeverity('success')
+      setOpenSnackbar(true)
     } catch (err) {
-      alert('Failed to save calendar. Please try again.')
+      // Update Snackbar message and state on error
+      setSnackbarMessage('Failed to save calendar. Please try again.')
+      setSnackbarSeverity('error')
+      setOpenSnackbar(true)
       console.error('Error saving availability:', err)
     }
   }
@@ -179,11 +193,11 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
   return (
     <Box>
       {!hideHeader && (
-        <Typography variant="h5" align="left" gutterBottom sx={{ ml: 4, md: 4 }}>
+        <Typography variant="h5" align="left" gutterBottom sx={{ ml: 4, md: 4, fontFamily: 'Roboto', fontWeight: 500 }}>
           <strong>Choose your available time slots</strong>
         </Typography>
       )}
-      <Table size="small" sx={{ marginTop: 1, marginLeft:4, width:'70%' }}>
+      <Table size="small" sx={{ marginTop: 1, marginLeft: 4, width: '70%' }}>
         <TableHead>
           <TableRow>
             <TableCell />
@@ -208,6 +222,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
                       backgroundColor: selected[key] ? '#A78BFA' : '#F3F4F6',
                       borderRadius: 1,
                       userSelect: 'none',
+                      fontFamily: 'Roboto',  // Making the font more consistent
                     }}
                   >
                     {selected[key] ? '✔️' : ''}
@@ -220,7 +235,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
       </Table>
 
       <Box mt={1} ml={4}>
-        <Typography gutterBottom>
+        <Typography gutterBottom sx={{ fontFamily: 'Roboto', fontWeight: 400 }}>
           Upcoming Public Holidays
         </Typography>
         <Box>
@@ -228,7 +243,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
             const holidayDate = new Date(holiday.date)
             const weekday = weekdays[holidayDate.getDay() - 1] || 'Sun'
             return (
-              <Typography key={holiday.date} variant="body2">
+              <Typography key={holiday.date} variant="body2" sx={{ fontFamily: 'Roboto', fontWeight: 400 }}>
                 {holiday.date} ({weekday}): {holiday.name}
               </Typography>
             )
@@ -242,6 +257,18 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
           <Button variant="outlined" onClick={clearAll}>Clear</Button>
         </Box>
       )}
+
+      {/* Snackbar Component */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
