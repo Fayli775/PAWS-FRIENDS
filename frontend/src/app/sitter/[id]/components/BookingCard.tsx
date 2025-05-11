@@ -140,11 +140,9 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
   }
 
   return (
-    <>
+    <Box>
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Make a Booking</Typography>
-
           <TextField
             select fullWidth margin="normal"
             label="Select Pet"
@@ -215,6 +213,6 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
           {snackbarMsg}
         </MuiAlert>
       </Snackbar>
-    </>
+    </Box>
   )
 }

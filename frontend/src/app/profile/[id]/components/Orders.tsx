@@ -167,7 +167,7 @@ export default function Orders() {
         <Tab value="receivedBookings" label="Received Bookings" />
       </Tabs>
 
-      <Stack spacing={2}>
+      <Stack spacing={2}}>
         {orders.map((order) => (
           <Card
             key={order.id}

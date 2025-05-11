@@ -17,6 +17,7 @@ import useAuth from '@/hooks/useAuth'
 interface CalendarProps {
   readOnly?: boolean
   userId?: string
+  hideHeader?: boolean
 }
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -62,7 +63,7 @@ const publicHolidays = [
   { date: '2025-12-26', name: 'Boxing Day' },
 ]
 
-export default function Calendar({ readOnly = false }: CalendarProps) {
+export default function Calendar({ readOnly = false, hideHeader = false }: CalendarProps) {
   const { user, accessToken } = useAuth(true)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
@@ -177,11 +178,12 @@ export default function Calendar({ readOnly = false }: CalendarProps) {
 
   return (
     <Box>
-      <Typography variant="h6" align="center" gutterBottom>
-        <strong>Choose your available time slots</strong>
-      </Typography>
-
-      <Table size="small" sx={{ marginTop: 3 }}>
+      {!hideHeader && (
+        <Typography variant="h5" align="left" gutterBottom sx={{ ml: 4, md: 4 }}>
+          <strong>Choose your available time slots</strong>
+        </Typography>
+      )}
+      <Table size="small" sx={{ marginTop: 1, marginLeft:4, width:'60%' }}>
         <TableHead>
           <TableRow>
             <TableCell />
@@ -217,8 +219,8 @@ export default function Calendar({ readOnly = false }: CalendarProps) {
         </TableBody>
       </Table>
 
-      <Box mt={4}>
-        <Typography variant="h6" gutterBottom>
+      <Box mt={1} ml={4}>
+        <Typography gutterBottom>
           Upcoming Public Holidays
         </Typography>
         <Box>
@@ -227,7 +229,7 @@ export default function Calendar({ readOnly = false }: CalendarProps) {
             const weekday = weekdays[holidayDate.getDay() - 1] || 'Sun'
             return (
               <Typography key={holiday.date} variant="body2">
-                <strong>{holiday.date} ({weekday}):</strong> {holiday.name}
+                {holiday.date} ({weekday}): {holiday.name}
               </Typography>
             )
           })}
@@ -235,7 +237,7 @@ export default function Calendar({ readOnly = false }: CalendarProps) {
       </Box>
 
       {!readOnly && (
-        <Box mt={2} display="flex" gap={2}>
+        <Box mt={2} ml={4} display="flex" gap={2}>
           <Button variant="contained" onClick={saveAll}>Save</Button>
           <Button variant="outlined" onClick={clearAll}>Clear</Button>
         </Box>
