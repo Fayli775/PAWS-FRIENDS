@@ -1,32 +1,29 @@
-// backend/routes/serviceRoutes.js
 const express = require("express");
 const router = express.Router();
 const serviceController = require("../controllers/serviceController");
 
-// ⚠️ 暂时注释掉，避免 MODULE_NOT_FOUND 报错
-// const authMiddleware = require("../middleware/auth");
-
-// 获取所有服务（前端使用）
+// Get all services (used by frontend)
 router.get("/", serviceController.getAllServices);
 
-// 获取服务详情（含关联数据）
+// Get service details (including related data)
 router.get("/:id/details", serviceController.getServiceDetails);
 
-// 添加服务支持的宠物类型（开发阶段不启用权限）
+// Add supported pet types to a service (authorization disabled during development)
 router.post("/:id/pet-types", serviceController.addPetType);
 
-// 添加服务支持的语言
+// Add supported languages to a service
 router.post("/:id/languages", serviceController.addLanguage);
-// 删除语言
+
+// Delete languages from a service
 router.delete("/:id/languages", serviceController.deleteLanguages);
 
-// 获取某照看者的服务列表
+// Get list of services provided by a specific sitter
 router.get("/sitters/:sitterId/services", serviceController.getSitterServices);
 
-// 更新照看者的服务列表
+// Update the list of services provided by a sitter
 router.put("/sitters/:sitterId/services", serviceController.updateSitterServices);
-// 删除照看者的服务列表
-router.delete("/sitters/:sitterId/services", serviceController.deleteSitterServices);
 
+// Delete the list of services provided by a sitter
+router.delete("/sitters/:sitterId/services", serviceController.deleteSitterServices);
 
 module.exports = router;

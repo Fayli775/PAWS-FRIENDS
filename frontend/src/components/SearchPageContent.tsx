@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Box,
@@ -8,20 +8,18 @@ import {
   Typography,
   Grid,
   Card,
-  CardContent,
   Avatar,
   Button,
   Pagination,
   TextField,
   MenuItem,
   Stack,
-  Chip,
   Rating,
 } from '@mui/material';
 
 // Add constants for card dimensions
-const CARD_WIDTH = 240;  // Fixed width for all cards
-const CARD_HEIGHT = 260; // Fixed height for all cards
+const CARD_WIDTH = 240;  
+const CARD_HEIGHT = 260; 
 
 interface PetSitter {
   id: number;
@@ -42,7 +40,7 @@ const SearchPageContent = () => {
   const [sitters, setSitters] = useState<PetSitter[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const perPage = 8; // 每页 8 个
+  const perPage = 8; 
 
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
   const [region, setRegion] = useState(params.get('region') || '');
@@ -62,7 +60,6 @@ const SearchPageContent = () => {
           throw new Error('Failed to fetch sitters');
         }
         const data = await res.json();
-        console.log('✅ API 返回的 sitter 数据:', data); // 👈 加在这里
         setSitters(data.sitters || []);
         setTotalPages(data.pagination?.total_pages || 1);
       } catch (error) {
@@ -71,7 +68,7 @@ const SearchPageContent = () => {
     };
 
     fetchSitters();
-  }, [page, params]); // 注意：params 变化重新拉数据
+  }, [page, params]); 
 
   const handleSearch = () => {
     const query = new URLSearchParams();
@@ -79,7 +76,7 @@ const SearchPageContent = () => {
     if (region) query.set('region', region);
 
     router.push(`/search?${query.toString()}`);
-    setPage(1); // 搜索后回到第一页
+    setPage(1); 
   };
 
   const handlePageChange = (_: any, value: number) => {
@@ -92,10 +89,9 @@ const SearchPageContent = () => {
 
   return (
     <Box sx={{ backgroundColor: '#FFF9EB', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* 搜索栏 */}
       <Box  sx={{
-    py: { xs: 12, md: 16 },  // 上下 padding 加大
-    minHeight: '600px',      // 最小高度拉大
+    py: { xs: 12, md: 16 },  
+    minHeight: '600px',      
     textAlign: 'center',
     backgroundImage: 'url("/home_bg.png")',
     backgroundSize: 'cover',
@@ -153,7 +149,7 @@ const SearchPageContent = () => {
         </Box>
       </Box>
 
-      {/* 搜索结果 */}
+      {/* search result */}
       <Container sx={{ flexGrow: 1 }}>
         <Typography variant="h5" fontWeight="bold" mb={3}>
           Found {sitters.length} sitters

@@ -34,7 +34,7 @@ CREATE TABLE user_info (
   KEY idx_user_name (user_name) COMMENT 'Index on nickname'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='User info table';
 
--- 预约信息表
+
 CREATE TABLE IF NOT EXISTS booking (
   id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Booking ID',
   owner_id BIGINT NOT NULL COMMENT 'ID of the pet owner',
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS booking (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 订单状态记录表
+
 CREATE TABLE IF NOT EXISTS booking_status_log (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   booking_id BIGINT NOT NULL COMMENT 'Related booking ID',
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS booking_status_log (
 );
 
 
--- 服务者可预约时间表
+
 CREATE TABLE IF NOT EXISTS availability (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS availability (
   FOREIGN KEY (user_id) REFERENCES user_info(id) ON DELETE CASCADE
 );
 
--- 订单评价表：每个订单一次评价，1-5 星 + 评论
+
 CREATE TABLE IF NOT EXISTS booking_review (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   booking_id BIGINT NOT NULL,

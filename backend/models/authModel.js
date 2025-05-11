@@ -1,6 +1,4 @@
-//authController.js
 const db = require("../config/db.js");
-
 exports.findUserByEmail = async (email) => {
   const [rows] = await db.query(
     "SELECT * FROM user_info WHERE LOWER(email) = LOWER(?)",

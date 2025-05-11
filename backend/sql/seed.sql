@@ -9,7 +9,7 @@ INSERT INTO user_info (
   'North Shore',
   'AliceCat',
   0,
-  '/images/uploads/avatars/user1_avatar.png',
+  'user1_avatar.png',
   '0211234567',
   '0219876543'
 ),
@@ -20,7 +20,7 @@ INSERT INTO user_info (
   'West Auckland',
   'BobWoof',
   0,
-  '/images/uploads/avatars/user2_avatar.png',
+  'user2_avatar.png',
   '0227654321',
   '0214567890'
 ),
@@ -31,7 +31,7 @@ INSERT INTO user_info (
   'Central Auckland',
   'CarolPaws',
   0,
-  '/images/uploads/avatars/user3_avatar.png',
+  'user3_avatar.png',
   '0201112222',
   '0273334444'
 ),
@@ -42,7 +42,7 @@ INSERT INTO user_info (
   'East Auckland',
   'DaveTrain',
   0,
-  '/images/uploads/avatars/user4_avatar.png',
+  'user4_avatar.png',
   '0275556666',
   '0208889999'
 );
@@ -151,4 +151,3 @@ INSERT INTO location_reviews (location_id, user_id, rating, comment, created_at)
 (14, 3, 4, 'Great for a quiet walk with your dog.', '2023-05-30 14:10:00'),
 (15, 2, 5, 'Unique park with farm animals. My dog loves watching the sheep!', '2023-08-18 11:15:00'),
 (15, 4, 4, 'Educational and fun for both pets and owners.', '2023-12-10 16:40:00');
-

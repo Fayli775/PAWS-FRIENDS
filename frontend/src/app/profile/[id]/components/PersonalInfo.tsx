@@ -37,9 +37,9 @@ export default function ProfileForm() {
 
   const { user, accessToken } = useAuth();
 
-  const MAX_AVATAR_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_AVATAR_SIZE = 10 * 1024 * 1024; 
 
-  // 加载用户数据
+  // amount user data
   async function fetchUserData() {
     if (!accessToken || !user) { // Check if token and userId are available
       setLoading(false);
@@ -85,14 +85,14 @@ export default function ProfileForm() {
     }
   }, [user, accessToken]); // Add accessToken to dependency array
 
-  // 处理输入变化
+  // handle change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value || "" }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // 头像上传和预览
+  // avatar upload and review
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -103,12 +103,12 @@ export default function ProfileForm() {
         return;
       }
       const url = URL.createObjectURL(file);
-      setAvatarPreview(url); // 本地预览
-      setAvatarFile(file); // 保存文件用于上传
+      setAvatarPreview(url); 
+      setAvatarFile(file);
     }
   };
 
-  // 验证表单
+ // Validate form
   const validate = () => {
     const newErrors: any = {};
 
@@ -124,7 +124,7 @@ export default function ProfileForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 保存数据
+  // save the data
   const handleSave = async () => {
     if (!validate()) return;
 
@@ -189,7 +189,7 @@ export default function ProfileForm() {
         Personal Info
       </Typography>
 
-      {/* Avatar 显示和上传 */}
+      {/* Avatar review and upload */}
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
           Avatar
@@ -214,7 +214,7 @@ export default function ProfileForm() {
         </Button>
       </Box>
 
-      {/* Email 显示 */}
+      {/* Email review */}
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
           Email:
@@ -265,7 +265,7 @@ export default function ProfileForm() {
         <Button onClick={handleCancel}>Cancel</Button>
       </Box>
 
-      {/* Snackbar 提示 */}
+      {/* Snackbar */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}

@@ -1,14 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-// We will create this reducer soon
-// import rootReducer from './rootSlice';
-
 export const makeStore = () => {
   return configureStore({
     reducer: {
       dummy: (state = {}) => state,
     },
-     // Add reducers here later, e.g.:
-    // root: rootReducer,
+
   });
 };
 

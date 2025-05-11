@@ -51,7 +51,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
     setPet(prev => ({ ...prev, [name]: value }));
   };
 
-  // 使用 UploadAvatar 的回调处理图片上传
+  // Handle image upload using the UploadAvatar callback
   const handleAvatarUpload = async (imageData: string, file: File) => {
     setIsUploading(true);
     try {
@@ -82,7 +82,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
       }));
     } catch (err) {
       console.error('Upload error:', err);
-      throw err; // 抛出错误让 UploadAvatar 组件处理
+      throw err; 
     } finally {
       setIsUploading(false);
     }

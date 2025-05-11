@@ -71,7 +71,7 @@ export default function SitterPublicProfilePage({
         }
 
       } catch (err) {
-        console.error('❌ Failed to load sitter data', err)
+        console.error('Failed to load sitter data', err)
       } finally {
         setIsLoading(false)
       }

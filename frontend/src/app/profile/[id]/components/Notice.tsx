@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useEffect, useState } from 'react'
 import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import useAuth from '@/hooks/useAuth'
@@ -54,7 +53,7 @@ export default function Notices() {
                   Authorization: `Bearer ${accessToken}`,
                 },
               })
-              // 更新本地状态
+          // Update local state
               setNotices((prev) =>
                 prev.map((item) =>
                   item.id === n.id ? { ...item, read_tag: 1 } : item

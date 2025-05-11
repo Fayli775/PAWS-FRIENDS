@@ -1,5 +1,4 @@
-const pool = require('../config/db');
-
+const pool = require("../config/db");
 const locationModel = {
   /**
    * Fetches all locations from the database with their reviews.
@@ -23,25 +22,21 @@ const locationModel = {
       GROUP BY l.id
       ORDER BY l.created_at DESC
     `;
-    
+
     try {
       const [rows] = await pool.query(sql);
       // Convert latitude/longitude from string to numbers and parse reviews JSON
-      return rows.map(row => ({
+      return rows.map((row) => ({
         ...row,
         latitude: parseFloat(row.latitude),
         longitude: parseFloat(row.longitude),
-        reviews: row.reviews ? JSON.parse(`[${row.reviews}]`) : []
+        reviews: row.reviews ? JSON.parse(`[${row.reviews}]`) : [],
       }));
     } catch (error) {
-      console.error('Error fetching locations from DB:', error);
+      console.error("Error fetching locations from DB:", error);
       throw error;
     }
   },
-
-  // --- Future functions could go here ---
-  // e.g., getLocationById, addLocation, addLocationReview, getLocationReviewsForLocation etc.
-
 };
 
-module.exports = locationModel; 
+module.exports = locationModel;

@@ -7,9 +7,10 @@ import {
   CardContent,
   Typography,
   MenuItem,
-  Select,
   Button,
   TextField,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material'
 import axios from 'axios'
 import useAuth from '@/hooks/useAuth'
@@ -26,6 +27,16 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
   const [selectedSlot, setSelectedSlot] = useState<string>('')
   const [selectedLanguage, setSelectedLanguage] = useState<string>('')
 
+  // Snackbar 状态
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMsg, setSnackbarMsg] = useState('')
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning'>('success')
+
+  const showSnackbar = (msg: string, severity: 'success' | 'error' | 'warning') => {
+    setSnackbarMsg(msg)
+    setSnackbarSeverity(severity)
+    setSnackbarOpen(true)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +55,7 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         )
         const slots = (slotRes.data.availability || []).map((s: any) => {
           const abbr = s.weekday.slice(0, 3)
-          return `${abbr} ${s.start_time.slice(0,5)}–${s.end_time.slice(0,5)}`
+          return `${abbr} ${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`
         })
         setAvailableSlots(slots)
 
@@ -60,10 +71,11 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
 
       } catch (err: any) {
         if (axios.isAxiosError(err) && err.response?.status === 401) {
-          alert("Session expired. Please log in again.")
-          window.location.href = "/login"
+          showSnackbar("Your session has expired. Please log in again to continue.", 'warning')
+          setTimeout(() => window.location.href = '/login', 2000)
         } else {
-          console.error("🐾 Failed to load booking info", err)
+          console.error("Failed to load booking info", err)
+          showSnackbar("Failed to load booking information. Please try again later.", 'error')
         }
       }
     }
@@ -72,7 +84,7 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
 
   const handleBooking = async () => {
     if (!selectedPetId || !selectedService || !selectedSlot) {
-      alert("Please fill in all fields before booking.")
+      showSnackbar("Please complete all required fields before submitting your booking.", 'warning')
       return
     }
 
@@ -92,9 +104,8 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         Saturday: 'Sat',
         Sunday: 'Sun',
       }
-      
+
       const weekdayAbbr = weekdayAbbrMap[abbr] || 'Mon'
-      
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
@@ -116,76 +127,92 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         }
       )
 
-      alert("Booking successful!")
+      showSnackbar("Your booking has been successfully submitted. Thank you!", 'success')
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
-        alert("Session expired. Please log in again.")
-        window.location.href = "/login"
+        showSnackbar("Your session has expired. Please log in again to continue.", 'warning')
+        setTimeout(() => window.location.href = '/login', 2000)
       } else {
-        alert("Booking failed. Please try again later.")
         console.error("Booking error:", err)
+        showSnackbar("We were unable to process your booking at this time. Please try again later.", 'error')
       }
     }
   }
 
   return (
-    <Card>
-      <CardContent>
+    <Box>
+      <Card>
+        <CardContent>
+          <TextField
+            select fullWidth margin="normal"
+            label="Select Pet"
+            value={selectedPetId ?? ''}
+            onChange={(e) => setSelectedPetId(Number(e.target.value))}
+          >
+            {pets.map(pet => (
+              <MenuItem key={pet.id} value={pet.id}>{pet.name}</MenuItem>
+            ))}
+          </TextField>
 
-        <TextField
-          select fullWidth margin="normal"
-          label="Select Pet"
-          value={selectedPetId ?? ''}
-          onChange={(e) => setSelectedPetId(Number(e.target.value))}
+          <TextField
+            select fullWidth margin="normal"
+            label="Select Service"
+            value={selectedService ?? ''}
+            onChange={(e) => setSelectedService(Number(e.target.value))}
+          >
+            {services.map(svc => (
+              <MenuItem key={svc.service_id} value={svc.service_id}>
+                {svc.name} {svc.custom_price !== null ? `($${svc.custom_price})` : '(N/A)'}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select fullWidth margin="normal"
+            label="Select Time Slot"
+            value={selectedSlot}
+            onChange={(e) => setSelectedSlot(e.target.value)}
+          >
+            {availableSlots.map(slot => (
+              <MenuItem key={slot} value={slot}>{slot}</MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select fullWidth margin="normal"
+            label="Preferred Language"
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+          >
+            {languages.map(lang => (
+              <MenuItem key={lang} value={lang}>{lang}</MenuItem>
+            ))}
+          </TextField>
+
+          <Box mt={2}>
+            <Button variant="contained" fullWidth onClick={handleBooking}>
+              Submit Booking
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
         >
-          {pets.map(pet => (
-            <MenuItem key={pet.id} value={pet.id}>{pet.name}</MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          select fullWidth margin="normal"
-          label="Select Service"
-          value={selectedService ?? ''}
-          onChange={(e) => setSelectedService(Number(e.target.value))}
-        >
-          {services.map(svc => (
-            <MenuItem key={svc.service_id} value={svc.service_id}>
-              {svc.name} {svc.custom_price !== null ? `($${svc.custom_price})` : '(N/A)'}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          select fullWidth margin="normal"
-          label="Select Time Slot"
-          value={selectedSlot}
-          onChange={(e) => setSelectedSlot(e.target.value)}
-        >
-          {availableSlots.map(slot => (
-            <MenuItem key={slot} value={slot}>{slot}</MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          select fullWidth margin="normal"
-          label="Preferred Language"
-          value={selectedLanguage}
-          onChange={(e) => setSelectedLanguage(e.target.value)}
-        >
-          {languages.map(lang => (
-            <MenuItem key={lang} value={lang}>{lang}</MenuItem>
-          ))}
-        </TextField>
-
-
-
-        <Box mt={2}>
-          <Button variant="contained" fullWidth onClick={handleBooking}>
-            Submit Booking
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+          {snackbarMsg}
+        </MuiAlert>
+      </Snackbar>
+    </Box>
   )
 }

@@ -15,21 +15,20 @@ exports.addCertificate = async (userId, certificateName) => {
       console.error("Error adding certificate to database:", err);
       throw err;
     }
-  };
-  
-  
+  }; 
   // userModel.js
   exports.getCertificatesByUserId = async (userId) => {
     const query = 'SELECT certificate_name FROM user_certificates WHERE user_id = ?';
     try {
       const [results] = await db.query(query, [userId]);
-      return results; // 返回证书名称数组
+      return results; 
     } catch (err) {
       console.error('Error fetching certificates:', err);
       throw err;
     }
   };
-  // 删除用户证书
+  
+ // Delete user certificate
   exports.deleteCertificate = async (userId, certificateName) => {
     const query = 'DELETE FROM user_certificates WHERE user_id = ? AND certificate_name = ?';
     try {
