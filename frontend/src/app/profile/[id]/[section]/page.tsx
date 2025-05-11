@@ -1,5 +1,3 @@
-'use client';
-
 import { notFound } from 'next/navigation';
 import React from 'react';
 import Calendar from '../components/Calendar';
@@ -25,16 +23,11 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   'notice': Notice,
 };
 
-interface ProfileSectionPageProps {
-  params: {
-    id: string;
-    section: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
 
-export default function ProfileSectionPage({ params }:ProfileSectionPageProps) {
-  const SectionComponent = sectionComponents[params.section];
+
+export default async function ProfileSectionPage({ params }: {params:Promise<{id:string, section:string}>}) {
+  const { section } = await params;
+  const SectionComponent = sectionComponents[section];
 
   if (SectionComponent) {
     return <SectionComponent />;
