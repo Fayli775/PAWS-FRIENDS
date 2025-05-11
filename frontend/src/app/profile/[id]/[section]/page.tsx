@@ -26,7 +26,11 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
 };
 
 interface ProfileSectionPageProps {
-  params: { id: string; section: string };
+  params: {
+    id: string;
+    section: string;
+  };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default function ProfileSectionPage({ params }:ProfileSectionPageProps) {
