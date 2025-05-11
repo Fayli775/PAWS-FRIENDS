@@ -79,7 +79,6 @@ export default function Services() {
           }
         );
         const serviceData = await serviceRes.json();
-        console.log("serviceData", serviceData);
         const serviceIds = serviceData?.map((s) => s.service_id);
         setSelectedServices(serviceIds);
         setInitialSelectedServices(serviceIds);

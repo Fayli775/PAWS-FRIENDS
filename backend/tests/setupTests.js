@@ -56,7 +56,6 @@ const pool = require('../config/db');
 afterAll(async () => {
     const dbName = process.env.DB_NAME;
     if (dbName === 'paws_friends_test') {
-        console.log('🧹 Cleaning up test database...');
         const connection = await pool.getConnection();
 
         const tables = [
