@@ -176,11 +176,11 @@ export default function SitterPublicProfilePage({
 
           {/* fourth row：My Availability */}
           <Grid item sx={{ gridRow: '4 / 5', gridColumn: '1 / 2' }}>
-            <Box sx={{ maxWidth: '70%' }}>
+            <Box>
               <Typography variant="subtitle1" fontWeight={600} mb={0}>
                 My Availability
               </Typography>
-              <Box sx={{ mx: 0 }}> {/* 确保 Calendar 没有多余的 margin-top */}
+              <Box ml={-4}> 
                 <Calendar readOnly userId={sitterId} hideHeader={true} />
               </Box>
             </Box>

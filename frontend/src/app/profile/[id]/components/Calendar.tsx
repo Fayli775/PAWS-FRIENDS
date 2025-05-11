@@ -183,7 +183,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
           <strong>Choose your available time slots</strong>
         </Typography>
       )}
-      <Table size="small" sx={{ marginTop: 1, marginLeft:4, width:'60%' }}>
+      <Table size="small" sx={{ marginTop: 1, marginLeft:4, width:'70%' }}>
         <TableHead>
           <TableRow>
             <TableCell />
