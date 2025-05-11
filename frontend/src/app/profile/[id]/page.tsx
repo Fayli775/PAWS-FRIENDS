@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
-export default function ProfileBasePage({ params }: { params: { id: string } }) {
+export default async function ProfileBasePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   // Redirect to the "personal-info" section by default.
-  redirect(`/profile/${params.id}/personal-info`);
+  redirect(`/profile/${id}/personal-info`);
 }
