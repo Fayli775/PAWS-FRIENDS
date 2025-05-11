@@ -220,10 +220,10 @@ export default function Services() {
 
   return (
     <Box>
-      <Box mb={5} maxWidth="lg" mx="auto" px={{ xs: 2, md: 4 }}>
-        <FormLabel component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
+      <Box mb={5} maxWidth="lg" px={{ xs: 2, md: 4 }}>
+        <Typography variant="h5" component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
           Languages You Support
-        </FormLabel>
+        </Typography>
         <FormGroup row sx={{ gap: 2 }}>
           {availableLanguages.map((lang) => (
             <FormControlLabel
@@ -248,14 +248,30 @@ export default function Services() {
         </Box>
       </Box>
 
-      <Typography variant="h5" fontWeight={600} mb={2} textAlign="center">
+      <Typography variant="h5" fontWeight={600} mb={2} textAlign="flex-start" ml={4}>
         Services You Provide
       </Typography>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} ml={4}>
         {availableServices.map((service) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={service.id} style={{ display: "flex" }}>
-            <ServiceCard elevation={2}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={3}
+            key={service.id}
+            sx={{
+              display: "flex",
+              justifyContent: "center", // 确保卡片居中
+            }}
+          >
+            <ServiceCard
+              elevation={2}
+              sx={{
+                width: "300px", // 确保卡片宽度占满父容器
+                maxWidth: 250, // 设置最大宽度，确保等宽
+              }}
+            >
               <IconWrapper>
                 <img src={getServiceIcon(service.name)} alt={service.name} />
               </IconWrapper>
@@ -287,7 +303,7 @@ export default function Services() {
         ))}
       </Grid>
 
-      <Box mt={4} display="flex" gap={2} justifyContent="center">
+      <Box mt={4} ml={4} display="flex" gap={2} justifyContent="flex-start">
         <Button variant="contained" disabled={!dirtyService} onClick={handleSaveServices}>
           Save Services
         </Button>

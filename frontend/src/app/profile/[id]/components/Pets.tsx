@@ -121,29 +121,51 @@ export default function PetsPage() {
   }
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">My Pets</Typography>
+    <Box >
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} ml={4} mr={2}>
+        <Typography variant="h5" fontWeight="bold">My Pets</Typography>
         <Button variant="contained" onClick={() => {
           setEditingPet({ name: '', type: 'Dog' })
           setSelectedImageFile(null)
           setOpenForm(true)
-        }}>
+        }} >
           Add Pet
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        {pets.map(pet => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={pet.id}>
-            <Card>
+      <Grid container spacing={3} ml={4}>
+        {pets.map((pet) => (
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            key={pet.id}
+            sx={{
+              display: "flex",
+              justifyContent: "center", // 确保卡片居中
+              width: '200px'
+            }}
+          >
+            <Card
+              sx={{
+                width: "100%", // 确保卡片宽度占满父容器
+                maxWidth: 200, // 设置最大宽度，减小卡片宽度
+              }}
+            >
               <Stack direction="row" justifyContent="flex-end">
-                <IconButton onClick={() => {
-                  setEditingPet(pet)
-                  setSelectedImageFile(null)
-                  setOpenForm(true)
-                }}><EditIcon /></IconButton>
-                <IconButton onClick={() => handleDelete(pet.id!)}><DeleteIcon /></IconButton>
+                <IconButton
+                  onClick={() => {
+                    setEditingPet(pet);
+                    setSelectedImageFile(null);
+                    setOpenForm(true);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton onClick={() => handleDelete(pet.id!)}>
+                  <DeleteIcon />
+                </IconButton>
               </Stack>
               <CardContent>
                 <Avatar
@@ -153,7 +175,9 @@ export default function PetsPage() {
                   imgProps={{ onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png') }}
                 />
                 <Typography align="center">{pet.name}</Typography>
-                <Typography align="center" variant="body2">{pet.type}</Typography>
+                <Typography align="center" variant="body2">
+                  {pet.type}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>

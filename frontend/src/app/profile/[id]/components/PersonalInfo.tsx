@@ -177,13 +177,13 @@ export default function ProfileForm() {
   }
 
   return (
-    <Box
+    <Box 
       display="flex"
       flexDirection="column"
       gap={3}
       maxWidth={500}
       justifyContent={"center"}
-      margin="auto"
+      ml={4}
     >
       <Typography variant="h5" fontWeight={600}>
         Personal Info

@@ -66,7 +66,7 @@ export default function ChangePassword() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" maxWidth={400} gap={2} mx="auto">
+    <Box display="flex" flexDirection="column" maxWidth={400} gap={2} ml={4}>
       <Typography variant="h5" fontWeight={600}>
         Change Password
       </Typography>

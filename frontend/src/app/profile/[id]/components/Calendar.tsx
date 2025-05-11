@@ -179,11 +179,11 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
   return (
     <Box>
       {!hideHeader && (
-        <Typography variant="h6" align="center" gutterBottom>
+        <Typography variant="h5" align="left" gutterBottom sx={{ ml: 4, md: 4 }}>
           <strong>Choose your available time slots</strong>
         </Typography>
       )}
-      <Table size="small" sx={{ marginTop: 1 }}>
+      <Table size="small" sx={{ marginTop: 1, marginLeft:4, width:'60%' }}>
         <TableHead>
           <TableRow>
             <TableCell />
@@ -219,7 +219,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
         </TableBody>
       </Table>
 
-      <Box mt={1} ml={2}>
+      <Box mt={1} ml={4}>
         <Typography gutterBottom>
           Upcoming Public Holidays
         </Typography>
@@ -237,7 +237,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
       </Box>
 
       {!readOnly && (
-        <Box mt={2} display="flex" gap={2}>
+        <Box mt={2} ml={4} display="flex" gap={2}>
           <Button variant="contained" onClick={saveAll}>Save</Button>
           <Button variant="outlined" onClick={clearAll}>Clear</Button>
         </Box>

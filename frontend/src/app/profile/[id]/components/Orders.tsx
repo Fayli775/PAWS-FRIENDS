@@ -158,16 +158,16 @@ export default function Orders() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={600} mb={3}>
+      <Typography variant="h5" fontWeight={600} mb={3} ml={4}>
         My Orders
       </Typography>
 
-      <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 3 }}>
+      <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mb: 3, ml:4 }}>
         <Tab value="myBookings" label="My Bookings" />
         <Tab value="receivedBookings" label="Received Bookings" />
       </Tabs>
 
-      <Stack spacing={2}>
+      <Stack spacing={2} ml={4}>
         {orders.map((order) => (
           <Card
             key={order.id}

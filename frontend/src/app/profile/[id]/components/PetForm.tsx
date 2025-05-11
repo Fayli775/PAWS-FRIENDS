@@ -102,7 +102,6 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
       <DialogTitle>{initialData ? 'Edit Pet' : 'Add New Pet'}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 2 }}>
-          {/* 使用 UploadAvatar 组件替换原来的头像上传逻辑 */}
           <Grid item xs={12} textAlign="center">
             <AvatarUpload
               initialImage={pet.photo || (pet.type === 'Cat' ? '/defaultAvatarCat.png' : '/defaultAvatarDog.png')}
