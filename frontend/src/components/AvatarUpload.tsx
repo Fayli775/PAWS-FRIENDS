@@ -7,9 +7,10 @@ import { Button } from "@mui/material";
 interface AvatarUploadProps {
   avatar: string | null;
   setAvatar: (avatar: string | null, file?: File) => void;
+  buttonText?: string; 
 }
 
-export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
+export default function AvatarUpload({ avatar, setAvatar, buttonText = "Upload Avatar" }: AvatarUploadProps) {
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -28,7 +29,6 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
       <Avatar
         alt="User Avatar"
         src={avatar || "/defaultAvatarDog.png"} // Display preview or default avatar
-
         sx={{ width: 150, height: 150 }}
       />
       <input
@@ -40,7 +40,7 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
       />
       <label htmlFor="upload-avatar">
         <Button variant="contained" component="span">
-          Upload Avatar
+          {buttonText}
         </Button>
       </label>
     </Box>

@@ -139,6 +139,7 @@ export default function Certifications() {
           setPreviewUrl(url);
           if (file) setSelectedFile(file);
         }}
+        buttonText="Upload Certification" // 自定义按钮文本
       />
 
       <Button
@@ -147,7 +148,7 @@ export default function Certifications() {
         sx={{ backgroundColor: "#A78BFA" }}
         disabled={!selectedFile}
       >
-        Upload
+        Save
       </Button>
 
       {uploadedFiles.length > 0 && (
