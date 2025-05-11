@@ -1,24 +1,23 @@
 'use client'
+import { useParams } from 'next/navigation';
 
-import React, { useEffect, useState } from 'react'
+import Calendar from '@/app/profile/[id]/components/Calendar';
+import useAuth from '@/hooks/useAuth';
 import {
+  Avatar,
   Box,
+  CircularProgress,
   Container,
   Grid,
-  Typography,
-  Avatar,
-  Stack,
-  Chip,
   List,
   ListItem,
-  CircularProgress,
-} from '@mui/material'
-import Image from 'next/image'
-import Calendar from '@/app/profile/[id]/components/Calendar'
-import CertificationsDisplay from './components/CertificationsDisplay'
-import ReviewSummary from './components/ReviewSummary'
-import BookingCard from './components/BookingCard'
-import useAuth from '@/hooks/useAuth'
+  Typography
+} from '@mui/material';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import BookingCard from './components/BookingCard';
+import CertificationsDisplay from './components/CertificationsDisplay';
+import ReviewSummary from './components/ReviewSummary';
 
 type Pet = {
   id: number
@@ -26,11 +25,9 @@ type Pet = {
   photo_url?: string
 }
 
-export default function SitterPublicProfilePage({
-  params,
-}: {
-  params: { id: string }
-}) {
+export default function SitterPublicProfilePage() {
+
+  const params = useParams();
   const sitterId = params.id
   const { user, accessToken } = useAuth()
 
@@ -169,7 +166,7 @@ export default function SitterPublicProfilePage({
             {/* Availability */}
             <Box mt={4}>
               <Typography variant="subtitle1" fontWeight={600} mb={1}>My Availability</Typography>
-              <Calendar readOnly userId={sitterId} />
+              <Calendar readOnly />
             </Box>
           </Grid>
 
