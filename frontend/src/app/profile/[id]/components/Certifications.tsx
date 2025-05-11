@@ -110,7 +110,7 @@ export default function Certifications() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" maxWidth={600} gap={3} mx="auto">
+    <Box display="flex" flexDirection="column" maxWidth={600} gap={3} ml={4}>
       <Typography variant="h5" fontWeight={600}>
         Upload Certifications
       </Typography>
