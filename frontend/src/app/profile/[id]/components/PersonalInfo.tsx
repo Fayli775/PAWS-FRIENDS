@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Avatar,
 } from "@mui/material";
+import { imageBaseUrl } from "@/const";
 import LocationSelect from "@/components/LocationSelect";
 import axios from "axios";
 import useAuth from "@/hooks/useAuth";
@@ -54,7 +55,7 @@ export default function ProfileForm() {
       );
 
       const avatarUrl = response.data.user.avatar
-        ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${response.data.user.avatar}`
+        ? `${imageBaseUrl}${response.data.user.avatar}`
         : null;
 
       setFormData({
