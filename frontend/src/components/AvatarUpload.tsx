@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
+import React from "react";
 
-import Box from "@mui/material/Box"; 
 import { Button } from "@mui/material";
+import Box from "@mui/material/Box";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (avatar: string | null, file?: File) => void;
+  setAvatar: (file: File) => Promise<void>;
 }
 
 export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
@@ -15,8 +15,7 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     if (file) {
       const fileType = file.type;
       if (fileType === "image/jpeg" || fileType === "image/png") {
-        const url = URL.createObjectURL(file);
-        setAvatar(url, file); // Update preview and file
+        setAvatar(file); // Update preview and file
       } else {
         alert("Only JPG, JPEG, and PNG files are allowed.");
       }

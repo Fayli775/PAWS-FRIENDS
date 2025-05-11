@@ -1,16 +1,16 @@
 'use client';
 
+import { notFound } from 'next/navigation';
 import React from 'react';
-import PersonalInfo from '../components/PersonalInfo';
 import Calendar from '../components/Calendar';
-import Services from '../components/Services';
-import Reviews from '../components/Reviews';
-import Pets from '../components/Pets';
-import ChangePassword from '../components/ChangePassword';
 import Certifications from '../components/Certifications';
+import ChangePassword from '../components/ChangePassword';
 import Notice from '../components/Notice';
 import OrdersPage from '../components/OrdersPage';
-import { notFound } from 'next/navigation';
+import PersonalInfo from '../components/PersonalInfo';
+import Pets from '../components/Pets';
+import Reviews from '../components/Reviews';
+import Services from '../components/Services';
 
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
@@ -25,7 +25,11 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   'notice': Notice,
 };
 
-export default function ProfileSectionPage({ params }: { params: { id: string, section: string } }) {
+interface ProfileSectionPageProps {
+  params: { id: string; section: string };
+}
+
+export default function ProfileSectionPage({ params }:ProfileSectionPageProps) {
   const SectionComponent = sectionComponents[params.section];
 
   if (SectionComponent) {
