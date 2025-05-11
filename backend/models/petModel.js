@@ -1,7 +1,6 @@
 const db = require("../config/db.js");
 
 exports.getPetById = async (petId) => {
-  console.log("petId in getPetById:", petId);
   if (!petId) {
     throw new Error("Invalid petId");
   }

@@ -99,8 +99,6 @@ exports.searchSitters = async (req, res) => {
     // Extract and potentially sanitize/validate search parameters
     const filters = req.query;
 
-    console.log('Searching sitters with filters:', filters);
-
     // Call the model function to perform the search
     // The model function now returns an object { sitters: [...], pagination: {...} }
     const searchResult = await userModel.searchSitters(filters);

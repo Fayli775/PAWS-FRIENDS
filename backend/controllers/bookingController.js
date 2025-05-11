@@ -1,6 +1,7 @@
 const Booking = require("../models/bookingModel");
 const Notice = require("../models/noticeModel");
 const { parseFrontendTimeSlot } = require("../utils/time");
+const {getSitterEmail} = require ("../models/userModel.js");
 // Create new booking
 exports.createBooking = async (req, res) => {
   try {
@@ -14,7 +15,6 @@ exports.createBooking = async (req, res) => {
       time_slot,
       language,
     } = req.body;
-
     //  Construct standard UTC start and end times
     const { start_time, end_time } = parseFrontendTimeSlot(weekday, time_slot);
 
@@ -29,16 +29,20 @@ exports.createBooking = async (req, res) => {
       end_time,
       language,
     };
+   // get owner's email
+    const owner_email = await getSitterEmail(owner_id);  // 使用 getSitterEmail 获取邮箱
 
+    if (!owner_email) {
+      return res.status(404).json({ status: "error", message: "Sitter email not found" });
+    }
     const bookingId = await Booking.createBooking(bookingData);
     Notice.createNotice(
       sitter_id,
       "new booking",
-      "You have received a new booking. Please check your bookings."
+      `You have received a new booking. Please check your bookings. You can contact the owner at: ${owner_email}.`
     );
     res.status(201).json({ status: "success", bookingId });
   } catch (err) {
-    console.error("Error creating booking:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 };

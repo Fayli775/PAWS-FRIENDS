@@ -14,9 +14,6 @@ export default function CertificationsDisplay({ sitterId }: { sitterId: number }
     const fetchCertificationStatus = async (sitterId: number) => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/certificate/public/${sitterId}`)
-    
-        console.log('Public GET certification status:', res.status)
-    
         if (!res.ok) {
           const errResult = await res.json()
           console.error('Failed to fetch public certifications:', errResult)

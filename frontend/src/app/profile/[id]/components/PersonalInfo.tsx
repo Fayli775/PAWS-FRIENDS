@@ -200,7 +200,6 @@ export default function ProfileForm() {
           sx={{ width: 120, height: 120, mb: 2 }}
           onError={(e) => {
             console.error("Avatar load error:", e);
-            console.log("Attempted avatar URL:", avatarPreview);
           }}
         />
         <Button variant="contained" component="label" sx={{ mb: 2 }}>
