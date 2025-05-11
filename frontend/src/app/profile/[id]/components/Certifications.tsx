@@ -139,7 +139,7 @@ export default function Certifications() {
           setPreviewUrl(url);
           if (file) setSelectedFile(file);
         }}
-        buttonText="Upload Certification" // 自定义按钮文本
+        buttonText="Upload Certification" 
       />
 
       <Button
