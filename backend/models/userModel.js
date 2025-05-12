@@ -64,6 +64,7 @@ exports.updateUserProfile = async (id, data) => {
   }
 };
 
+
 exports.searchSitters = async (filters) => {
   // Destructure filters, providing defaults for pagination
   const { keyword, region, page = 1, limit = 10 } = filters; 
@@ -85,16 +86,19 @@ exports.searchSitters = async (filters) => {
       AVG(br.rating) as average_rating,
       COUNT(DISTINCT br.id) as review_count
     FROM user_info u
-    LEFT JOIN booking_review br ON u.id = br.sitter_id -- Join with reviews table
-    -- WHERE clause will be added dynamically
+    LEFT JOIN booking_review br ON u.id = br.sitter_id
+    LEFT JOIN sitter_services ss ON u.id = ss.sitter_id 
+    LEFT JOIN availability a ON u.id = a.user_id
+    LEFT JOIN services s ON ss.service_id = s.id
   `;
   const whereClauses = [];
   const queryParams = [];
 
+
   // Keyword search (in username and bio)
   if (keyword) {
-    whereClauses.push('(u.user_name LIKE ? OR u.bio LIKE ?)');
-    queryParams.push(`%${keyword}%`, `%${keyword}%`);
+    whereClauses.push('(u.user_name LIKE ? OR u.bio LIKE ? OR s.name LIKE ?)');
+    queryParams.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
   }
 
   // Region filter (exact match on the region column)
@@ -105,10 +109,10 @@ exports.searchSitters = async (filters) => {
   
   // TODO: Add filtering for pet_type and service_type once the schema supports storing sitter preferences for these.
   // Currently, pet_type and service_type are only recorded per booking, not per sitter profile.
-
+  query += 'WHERE ss.sitter_id IS NOT NULL AND a.user_id IS NOT NULL';
   // Add WHERE clauses if any exist
   if (whereClauses.length > 0) {
-    query += ' WHERE ' + whereClauses.join(' AND ');
+    query += ' AND ' + whereClauses.join(' AND ');
   }
 
   // Group by user to calculate aggregates
@@ -125,17 +129,18 @@ exports.searchSitters = async (filters) => {
 
   // Also need a query to count total matching sitters for pagination metadata
   let countQuery = `
-    SELECT COUNT(*) as total_count
-    FROM (
-        SELECT u.id
-        FROM user_info u
+    SELECT count(DISTINCT u.id)
+      FROM user_info u
+      LEFT JOIN sitter_services ss ON u.id = ss.sitter_id
+      LEFT JOIN availability a ON u.id = a.user_id
+      LEFT JOIN services s ON ss.service_id = s.id
   `;
+  countQuery += 'WHERE ss.sitter_id IS NOT NULL AND a.user_id IS NOT NULL';
+
    // Add WHERE clauses to count query as well
    if (whereClauses.length > 0) {
-    countQuery += ' WHERE ' + whereClauses.join(' AND ');
+    countQuery += ' AND ' + whereClauses.join(' AND ');
   }
-  // Close the subquery for counting
-  countQuery += ' GROUP BY u.id ) AS filtered_users';
   // Use the same params for where clauses, but not pagination params
   const countParams = queryParams.slice(0, queryParams.length - 2); 
   try {
