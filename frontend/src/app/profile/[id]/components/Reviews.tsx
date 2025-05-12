@@ -36,10 +36,10 @@ export default function Reviews() {
         if (data.status === 'success') {
           setReviews(data.reviews)
         } else {
-          console.error('❌ Failed to load reviews:', data.message)
+          console.error('Failed to load reviews:', data.message)
         }
       } catch (err) {
-        console.error('❌ API error:', err)
+        console.error('API error:', err)
       }
     }
 
@@ -48,7 +48,7 @@ export default function Reviews() {
 
 
   return (
-    <Box>
+    <Box ml={4} mr={4}>
       <Typography variant="h5" fontWeight={600} mb={2}>
         Your Ratings & Reviews
       </Typography>

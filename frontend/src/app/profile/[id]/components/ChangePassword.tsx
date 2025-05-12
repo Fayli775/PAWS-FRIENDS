@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -8,39 +8,39 @@ import {
   Typography,
   Snackbar,
   Alert,
-} from '@mui/material'
-import axios from 'axios'
-import useAuth from '@/hooks/useAuth'
+} from "@mui/material";
+import axios from "axios";
+import useAuth from "@/hooks/useAuth";
 
 export default function ChangePassword() {
-  const { user, accessToken } = useAuth(true)
+  const { user, accessToken } = useAuth(true);
   const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
-  })
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
-  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async () => {
     if (formData.newPassword !== formData.confirmNewPassword) {
-      alert('New passwords do not match.')
-      return
+      alert("New passwords do not match.");
+      return;
     }
 
     if (!user || !accessToken) {
-      setErrorSnackbarOpen(true)
-      return
+      setErrorSnackbarOpen(true);
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
 
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/updatePassword/${user.id}`,
@@ -53,20 +53,24 @@ export default function ChangePassword() {
             Authorization: `Bearer ${accessToken}`,
           },
         }
-      )
+      );
 
-      setSnackbarOpen(true)
-      setFormData({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
+      setSnackbarOpen(true);
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
     } catch (error) {
-      console.error('Failed to change password:', error)
-      setErrorSnackbarOpen(true)
+      console.error("Failed to change password:", error);
+      setErrorSnackbarOpen(true);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <Box display="flex" flexDirection="column" maxWidth={400} gap={2} mx="auto">
+    <Box display="flex" flexDirection="column" maxWidth={400} gap={2} ml={4}>
       <Typography variant="h5" fontWeight={600}>
         Change Password
       </Typography>
@@ -100,34 +104,34 @@ export default function ChangePassword() {
         variant="contained"
         onClick={handleSubmit}
         disabled={loading}
-        sx={{ backgroundColor: '#A78BFA', textTransform: 'none' }}
+        sx={{ backgroundColor: "#A78BFA", textTransform: "none" }}
       >
-        {loading ? 'Saving...' : 'Save'}
+        {loading ? "Saving..." : "Save"}
       </Button>
 
-      {/* 成功提示 */}
+      {/* successfully changed */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="success" variant="filled">
           Password changed successfully!
         </Alert>
       </Snackbar>
 
-      {/* 失败提示 */}
+      {/* fail reminding */}
       <Snackbar
         open={errorSnackbarOpen}
         autoHideDuration={3000}
         onClose={() => setErrorSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="error" variant="filled">
           Failed to change password. Please try again.
         </Alert>
       </Snackbar>
     </Box>
-  )
+  );
 }

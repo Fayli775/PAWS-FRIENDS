@@ -71,7 +71,7 @@ export default function Services() {
       if (!user || !accessToken) return;
       
       try {
-        // 服务类型
+        // service type
         const serviceRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
           {
@@ -79,12 +79,11 @@ export default function Services() {
           }
         );
         const serviceData = await serviceRes.json();
-        console.log("serviceData", serviceData);
         const serviceIds = serviceData?.map((s) => s.service_id);
         setSelectedServices(serviceIds);
         setInitialSelectedServices(serviceIds);
 
-        // 语言
+        // languange
         const langRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
           {
@@ -95,12 +94,12 @@ export default function Services() {
         setSelectedLanguages(langData.languages || []);
         setInitialSelectedLanguages(langData.languages || []);
 
-        // 所有服务（用于显示）
+        //all servies
         const allRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
         const allData = await allRes.json();
         setAvailableServices(allData.services || []);
       } catch (err) {
-        console.error("加载失败:", err);
+        console.error("upload failed:", err);
       }
     };
 
@@ -144,7 +143,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyService(false);
     } catch (err) {
-      console.error("服务保存失败:", err);
+      console.error("failed to save the service:", err);
     }
   };
 
@@ -166,7 +165,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyService(false);
     } catch (err) {
-      console.error("服务重置失败:", err);
+      console.error("reset service failed:", err);
     }
   };
 
@@ -188,7 +187,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyLanguage(false);
     } catch (err) {
-      console.error("语言保存失败:", err);
+      console.error("language save failed:", err);
     }
   };
 
@@ -207,7 +206,7 @@ export default function Services() {
       setSnackbarOpen(true);
       setDirtyLanguage(false);
     } catch (err) {
-      console.error("语言重置失败:", err);
+      console.error("language reset failed:", err);
     }
   };
 
@@ -220,10 +219,10 @@ export default function Services() {
 
   return (
     <Box>
-      <Box mb={5} maxWidth="lg" mx="auto" px={{ xs: 2, md: 4 }}>
-        <FormLabel component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
+      <Box mb={5} maxWidth="lg" px={{ xs: 2, md: 4 }}>
+        <Typography variant="h5" component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
           Languages You Support
-        </FormLabel>
+        </Typography>
         <FormGroup row sx={{ gap: 2 }}>
           {availableLanguages.map((lang) => (
             <FormControlLabel
@@ -248,14 +247,30 @@ export default function Services() {
         </Box>
       </Box>
 
-      <Typography variant="h5" fontWeight={600} mb={2} textAlign="center">
+      <Typography variant="h5" fontWeight={600} mb={2} textAlign="flex-start" ml={4}>
         Services You Provide
       </Typography>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} ml={4}>
         {availableServices.map((service) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={service.id} style={{ display: "flex" }}>
-            <ServiceCard elevation={2}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={3}
+            key={service.id}
+            sx={{
+              display: "flex",
+              justifyContent: "center", // 确保卡片居中
+            }}
+          >
+            <ServiceCard
+              elevation={2}
+              sx={{
+                width: "300px", // 确保卡片宽度占满父容器
+                maxWidth: 250, // 设置最大宽度，确保等宽
+              }}
+            >
               <IconWrapper>
                 <img src={getServiceIcon(service.name)} alt={service.name} />
               </IconWrapper>
@@ -287,7 +302,7 @@ export default function Services() {
         ))}
       </Grid>
 
-      <Box mt={4} display="flex" gap={2} justifyContent="center">
+      <Box mt={4} ml={4} display="flex" gap={2} justifyContent="flex-start">
         <Button variant="contained" disabled={!dirtyService} onClick={handleSaveServices}>
           Save Services
         </Button>

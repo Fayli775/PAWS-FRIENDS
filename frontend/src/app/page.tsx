@@ -8,7 +8,6 @@ import { Suspense } from 'react';
 
 
 export default function Home() {
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Stack useFlexGap direction="column" spacing={{lg:4, sm:2}}>
@@ -17,19 +16,8 @@ export default function Home() {
         </Suspense>
       
         <ServicesSection />
-
         <SiteShare />
-
         <EventsCarousel />
-        {/* {searchResults.length > 0 && (
-          <Box sx={{ p: 4 }}>
-            <ul>
-              {searchResults.map((sitter) => (
-                <li key={sitter.id}>{sitter.name} - {sitter.location} ({sitter.petTypes.join(', ')})</li>
-              ))}
-            </ul>
-          </Box>
-        )} */}
       </Stack>
     </Box>
   );

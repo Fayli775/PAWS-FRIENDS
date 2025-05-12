@@ -9,7 +9,6 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        console.log("token", token);
         return !!token} // Only allow access if there is a valid token
     },
   }

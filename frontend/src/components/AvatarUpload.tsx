@@ -6,10 +6,11 @@ import Box from "@mui/material/Box";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (url: string, file: File) => void;
+  setAvatar: (avatar: string | null, file?: File) => void;
+  buttonText?: string; 
 }
 
-export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
+export default function AvatarUpload({ avatar, setAvatar, buttonText = "Upload Avatar" }: AvatarUploadProps) {
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -27,7 +28,7 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", margin: 2 }}>
       <Avatar
         alt="User Avatar"
-        src={avatar || "/defaultAvatarDog.png"} // 显示预览或默认头像
+        src={avatar || "/defaultAvatarDog.png"} // Display preview or default avatar
         sx={{ width: 150, height: 150 }}
       />
       <input
@@ -39,7 +40,7 @@ export default function AvatarUpload({ avatar, setAvatar }: AvatarUploadProps) {
       />
       <label htmlFor="upload-avatar">
         <Button variant="contained" component="span">
-          Upload Avatar
+          {buttonText}
         </Button>
       </label>
     </Box>

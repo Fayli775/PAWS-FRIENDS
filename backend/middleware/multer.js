@@ -1,5 +1,3 @@
-//middleware/multer.js
-
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -91,5 +89,13 @@ const uploadCertificate = multer({
   fileFilter: certificateFileFilter,
 });
 
-// 导出中间件
-module.exports = { uploadAvatar, uploadPetPhoto, uploadCertificate };
+// Delete file from storage
+const deleteFile = (filename) => {
+  const filePath = path.join(__dirname, `../uploads/certificates/${filename}`);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
+
+
+module.exports = { uploadAvatar, uploadPetPhoto, uploadCertificate, deleteFile };

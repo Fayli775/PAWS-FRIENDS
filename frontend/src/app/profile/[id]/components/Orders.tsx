@@ -20,13 +20,13 @@ import {
 } from '@mui/material'
 import useAuth from '@/hooks/useAuth'
 
-// Mock初始数据
+// Mock initial data
 const mockMyBookings = [
   {
     id: 1,
     petName: 'Buddy',
     serviceType: 'Dog Walking',
-    bookingTime: '2024-05-20T10:00:00',  // ISO格式
+    bookingTime: '2024-05-20T10:00:00', 
     status: 'Confirmed',
     notes: '',
     review: '',
@@ -75,7 +75,7 @@ const mockReceivedBookings = [
   }
 ]
 
-// 状态颜色
+// status color
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
   Confirmed: 'success',
@@ -83,7 +83,7 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   Cancelled: 'error',
 }
 
-// 动态判断时间阶段
+// Dynamically determine the time phase
 function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
   const now = new Date()
   const booking = new Date(bookingTime)
@@ -167,7 +167,7 @@ export default function Orders() {
         <Tab value="receivedBookings" label="Received Bookings" />
       </Tabs>
 
-      <Stack spacing={2}>
+      <Stack spacing={2}}>
         {orders.map((order) => (
           <Card
             key={order.id}
@@ -192,7 +192,7 @@ export default function Orders() {
         ))}
       </Stack>
 
-      {/* 订单详情 Dialog */}
+      {/* order details dialog */}
       <Dialog open={!!selectedOrder} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>Order Details</DialogTitle>
         <DialogContent dividers>
@@ -202,12 +202,10 @@ export default function Orders() {
               <Typography><strong>Service:</strong> {selectedOrder.serviceType}</Typography>
               <Typography><strong>Time:</strong> {selectedOrder.bookingTime}</Typography>
               <Typography><strong>Status:</strong> {selectedOrder.status}</Typography>
-
-              {/* 动态判断时间状态 */}
               {(() => {
                 const timeStatus = getTimeStatus(selectedOrder.bookingTime)
 
-                // Upcoming阶段
+                // Upcoming orders
                 if (timeStatus === 'upcoming') {
                   if (selectedOrder.role === 'owner') {
                     return (
@@ -230,7 +228,7 @@ export default function Orders() {
                   }
                 }
 
-                // Confirmed时Owner可以手动Mark Completed
+                // Owner can manually mark as Completed when status is Confirmed
                 if (timeStatus === 'ongoing' && selectedOrder.role === 'owner' && selectedOrder.status === 'Confirmed') {
                   return (
                     <Button variant="contained" color="primary" onClick={handleComplete}>
@@ -242,10 +240,10 @@ export default function Orders() {
                 return null
               })()}
 
-              {/* Completed阶段展示 Review + Complaint */}
+              {/* Show Review and Complaint options during the Completed phase */}
               {(selectedOrder.status === 'Completed' || selectedOrder.status === 'Cancelled') && (
                 <>
-                  {/* Review区 */}
+                  {/* Review */}
                   <Typography variant="subtitle1" fontWeight={600} mt={4}>
                     Review
                   </Typography>
@@ -281,7 +279,7 @@ export default function Orders() {
                     </Stack>
                   )}
 
-                  {/* Complaint区 */}
+                  {/* Complaint */}
                   <Typography variant="subtitle1" fontWeight={600} mt={4}>
                     Complaint
                   </Typography>

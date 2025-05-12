@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useEffect, useState } from 'react'
 import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import useAuth from '@/hooks/useAuth'
@@ -31,14 +30,16 @@ export default function Notices() {
 
   return (
     <Box>
-      <Typography variant="h5" mb={2}>📩 Your Inbox</Typography>
+      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, ml:4 }}>📩 Your Inbox</Typography>
       {notices.map((n) => (
-        <Card
+        <Card 
         key={n.id}
         variant="outlined"
         sx={{
           mb: 2,
           cursor: 'pointer',
+          ml: 4,
+          mr: 4,
           backgroundColor: n.read_tag === 1 ? '#fff' : '#f0f8ff', // 未读淡蓝背景
         }}
         onClick={async () => {
@@ -52,7 +53,7 @@ export default function Notices() {
                   Authorization: `Bearer ${accessToken}`,
                 },
               })
-              // 更新本地状态
+          // Update local state
               setNotices((prev) =>
                 prev.map((item) =>
                   item.id === n.id ? { ...item, read_tag: 1 } : item
@@ -65,7 +66,7 @@ export default function Notices() {
         }}
       >
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box display="flex" justifyContent="space-between" alignItems="center" >
             <Typography variant="h6">{n.title}</Typography>
             {n.read_tag === 0 && <Chip label="New" color="primary" size="small" />}
           </Box>

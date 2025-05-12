@@ -6,7 +6,6 @@ import OrderDialog from './OrderDialog'
 import axios from 'axios'
 import useAuth from '@/hooks/useAuth'
 
-// 状态颜色映射
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   Pending: 'warning',
   Confirmed: 'success',
@@ -14,7 +13,6 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   Cancelled: 'error',
 }
 
-// 动态时间阶段
 function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
   const now = new Date()
   const booking = new Date(bookingTime)
@@ -57,7 +55,7 @@ export default function MyBookings() {
         }))
         setOrders(bookings)
       } catch (err) {
-        console.error('❌ Failed to fetch my bookings:', err)
+        console.error('Failed to fetch my bookings:', err)
       }
     }
 
@@ -94,18 +92,17 @@ export default function MyBookings() {
       })
   
       if (res.ok) {
-        // 更新前端状态
+      // Update local state
         handleUpdateOrder({ status })
       } else {
         alert('Failed to update booking status.')
       }
     } catch (err) {
-      console.error('❌ Booking status update failed:', err)
+      console.error('Booking status update failed:', err)
     }
   }
   
-
-  // 分类订单
+// Categorize orders
   const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
   const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
   const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')

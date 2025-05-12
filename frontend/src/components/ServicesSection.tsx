@@ -36,12 +36,6 @@ const services: Service[] = [
     price: 'From $25/hr',
     icon: '/grooming.png'
   },
-  {
-    title: 'Training',
-    description: 'Professional training to help your pet learn good behavior',
-    price: 'From $25/hr',
-    icon: '/boarding.png'
-  }
 ];
 
 // Styled components

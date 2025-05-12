@@ -27,9 +27,6 @@ exports.updatePassword = async (id, hashedPassword) => {
   }
 };
 
-// Middleware(用于 router)
-
-//const path = require("path");
 exports.uploadAvatar = (id, filePath) => {
   const avatarUrl = filePath; // Assuming filePath is the URL or path to the uploaded file
   return db
@@ -49,28 +46,17 @@ exports.uploadAvatar = (id, filePath) => {
 
 
 // Update user profile including avatar
-
 exports.updateUserProfile = async (id, data) => {
   try {
     const fields = [];
     const values = [];
-
-    // 动态生成 SQL 字段和参数
     for (const [key, value] of Object.entries(data)) {
       fields.push(`${key} = ?`);
       values.push(value);
     }
-
-    // 添加更新时间字段
     fields.push("gmt_update = NOW()");
-
-    // 拼接 SQL 查询
     const query = `UPDATE user_info SET ${fields.join(", ")} WHERE id = ?`;
     values.push(id);
-
-    console.log("Executing SQL (updateUserProfile):", query);
-    console.log("With values:", values);
-
     const result = await db.query(query, values);
     return result;
   } catch (err) {
@@ -80,8 +66,7 @@ exports.updateUserProfile = async (id, data) => {
 
 exports.searchSitters = async (filters) => {
   // Destructure filters, providing defaults for pagination
-  const { keyword, region, page = 1, limit = 10 } = filters; // Default to page 1, 10 results per page
-
+  const { keyword, region, page = 1, limit = 10 } = filters; 
   // Validate page and limit
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
@@ -152,19 +137,10 @@ exports.searchSitters = async (filters) => {
   // Close the subquery for counting
   countQuery += ' GROUP BY u.id ) AS filtered_users';
   // Use the same params for where clauses, but not pagination params
-  const countParams = queryParams.slice(0, queryParams.length - 2); // Exclude limit and offset
-
-
+  const countParams = queryParams.slice(0, queryParams.length - 2); 
   try {
-    console.log("Executing SQL (searchSitters - Fetch):", query);
-    console.log("With values:", queryParams);
     const [results] = await db.query(query, queryParams);
-
-    console.log("Executing SQL (searchSitters - Count):", countQuery);
-    console.log("With values:", countParams);
     const [[{ total_count }]] = await db.query(countQuery, countParams);
-
-
     return {
         sitters: results,
         pagination: {
@@ -180,8 +156,7 @@ exports.searchSitters = async (filters) => {
   }
 };
 
-// 获取用户的语言列表
-
+// Get the user's list of languages
 exports.getUserLanguages = async (userId) => {
   const [rows] = await db.query("SELECT language FROM user_languages WHERE user_id = ?", [userId]);
   return rows.map((r) => r.language);
@@ -199,9 +174,8 @@ exports.deleteUserLanguages = async (userId) => {
   await db.query("DELETE FROM user_languages WHERE user_id = ?", [userId]);
 };
 
-//userModel.js
-//add user certificates
 
+//add user certificates
 exports.addCertificate = async (userId, certificateName) => {
   const query = `
     INSERT INTO user_certificates (user_id, certificate_name)
@@ -215,8 +189,6 @@ exports.addCertificate = async (userId, certificateName) => {
   }
 };
 
-
-// userModel.js
 exports.getCertificatesByUserId = async (userId) => {
   const query = 'SELECT certificate_name FROM user_certificates WHERE user_id = ?';
   try {
@@ -227,7 +199,8 @@ exports.getCertificatesByUserId = async (userId) => {
     throw err;
   }
 };
-// 删除用户证书
+
+// Delete user certificate
 exports.deleteCertificate = async (userId, certificateName) => {
   const query = 'DELETE FROM user_certificates WHERE user_id = ? AND certificate_name = ?';
   try {
@@ -237,6 +210,22 @@ exports.deleteCertificate = async (userId, certificateName) => {
     throw err;
   }
 };
+
+
+exports.getSitterEmail = async (owner_id) => {
+  try {
+    const [rows] = await db.query('SELECT email FROM user_info WHERE id = ?', [owner_id]);
+    
+    if (rows.length === 0) {
+      return null;  
+    }
+    return rows[0].email;  
+  } catch (err) {
+    console.error("Error fetching sitter email:", err);
+    throw err;
+  }
+};
+
 
 
 

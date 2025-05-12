@@ -1,7 +1,6 @@
 const mysql = require("mysql2/promise");
 
-console.log("🔥 当前数据库名:", process.env.DB_NAME); //写完测试以后要删除
-
+console.log("Current database name:", process.env.DB_NAME); 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,

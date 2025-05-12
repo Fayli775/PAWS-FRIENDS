@@ -1,8 +1,6 @@
 const userModel = require("../models/userModel.js");
 const yup = require('yup');
 
-
-
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -10,7 +8,6 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // 统一处理头像路径
     user.avatar = user.avatar
       ? `${user.avatar}`
       : null;
@@ -47,11 +44,10 @@ exports.updatePassword = async (req, res) => {
         .status(400)
         .json({ status: "error", message: "Current password is incorrect" });
     }
-
-    // 加密新密码
+  // Encrypt the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // 更新密码
+  // Update user's password
     await userModel.updatePassword(id, hashedPassword);
     res.json({ status: "success", message: "Password updated successfully" });
   } catch (err) {
@@ -60,14 +56,9 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-
-
-
 // updateProfile including avatar
 exports.updateProfile = async (req, res) => {
-  const userId = req.user.id; // 从authMiddleware中获取用户ID
-
-  // 1. 定义验证 schema
+  const userId = req.user.id; 
   const schema = yup.object().shape({
     user_name: yup.string().max(50),
     bio: yup.string().max(255),
@@ -107,8 +98,6 @@ exports.searchSitters = async (req, res) => {
   try {
     // Extract and potentially sanitize/validate search parameters
     const filters = req.query;
-
-    console.log('Searching sitters with filters:', filters);
 
     // Call the model function to perform the search
     // The model function now returns an object { sitters: [...], pagination: {...} }

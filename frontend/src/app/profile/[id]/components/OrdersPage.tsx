@@ -9,7 +9,7 @@ export default function OrdersPage() {
   const [tab, setTab] = useState<'myBookings' | 'receivedBookings'>('myBookings')
 
   return (
-    <Box>
+    <Box ml={4} mr={4}>
       <Typography variant="h5" fontWeight={600} mb={3}>
         My Orders
       </Typography>

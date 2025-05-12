@@ -124,50 +124,42 @@ function PartnerSection({
 
 export default function SupportPage() {
   return (
-    <Container maxWidth="md" sx={{ mt: 6, mb: 10, ml: 0, px: 0 }}>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 4 }}>
-        Our Trusted Partners
-      </Typography>
+    <Box
+      sx={{
+        backgroundColor: '#fef8f2',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center', 
+        minHeight: '100vh',
+      }}
+    >
+      <Container maxWidth="md" sx={{ mt: 0, mb: 0}}>
+        <Typography variant="h4" fontWeight="bold" sx={{ mb: 4, textAlign: 'center' }}>
+          Our Trusted Partners
+        </Typography>
 
-      {/* Custom horizontal layout for vets and hospitals */}
-      <Box display="grid" gap={2} mb={4}>
-        <Box gridRow={1}>
-          <PartnerSection
-            title="🐾 Veterinarians"
-            list={partners.vets}
-          />
+        {/* Custom horizontal layout for vets and hospitals */}
+        <Box display="grid" gap={4} mb={4}>
+          <Box gridRow={1}>
+            <PartnerSection title="🐾 Veterinarians" list={partners.vets} />
+          </Box>
+          <Box gridRow={1}>
+            <PartnerSection title="🏥 Pet Hospitals" list={partners.hospitals} />
+          </Box>
+          <Box gridRow={1}>
+            <PartnerSection title="✂️ Pet Grooming Services" list={partners.grooming} />
+          </Box>
+          <Box gridRow={2}>
+            <PartnerSection title="🏠 Pet Boarding Services" list={partners.boarding} />
+          </Box>
+          <Box gridRow={2}>
+            <PartnerSection title="🎓 Pet Training Services" list={partners.training} />
+          </Box>
+          <Box gridRow={2}>
+            <PartnerSection title="🛍 Pet Supplies & Food" list={partners.supplies} />
+          </Box>
         </Box>
-        <Box gridRow={1}>
-          <PartnerSection
-            title="🏥 Pet Hospitals"
-            list={partners.hospitals}
-          />
-        </Box>
-        <Box gridRow={1}>
-          <PartnerSection
-            title="✂️ Pet Grooming Services"
-            list={partners.grooming}
-          />
-        </Box>
-        <Box gridRow={2}>
-          <PartnerSection
-            title="🏠 Pet Boarding Services"
-            list={partners.boarding}
-          />
-        </Box>
-        <Box gridRow={1}>
-          <PartnerSection
-            title="🎓 Pet Training Services"
-            list={partners.training}
-          />
-        </Box>
-        <Box gridRow={2}>
-          <PartnerSection
-            title="🛍 Pet Supplies & Food"
-            list={partners.supplies}
-          />
-        </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 }

@@ -4,10 +4,9 @@ const router = express.Router();
 const noticeController = require("../controllers/noticeController");
 const authMiddleware = require("../middleware/authMiddleware");
 
-// 查看我的消息
+// Get my messages
 router.get("/my", authMiddleware, noticeController.getMyNotice);
-
-// 将消息标记为已读
+// View my messages
 router.put("/:noticeId/read", authMiddleware, noticeController.readNotice);
 
 module.exports = router;

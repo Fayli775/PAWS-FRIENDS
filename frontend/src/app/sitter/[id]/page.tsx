@@ -1,23 +1,21 @@
 'use client'
 import { useParams } from 'next/navigation';
 
-import Calendar from '@/app/profile/[id]/components/Calendar';
-import useAuth from '@/hooks/useAuth';
+import { useEffect, useState } from 'react'
 import {
   Avatar,
   Box,
   CircularProgress,
   Container,
   Grid,
-  List,
-  ListItem,
   Typography
 } from '@mui/material';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import BookingCard from './components/BookingCard';
 import CertificationsDisplay from './components/CertificationsDisplay';
 import ReviewSummary from './components/ReviewSummary';
+import Calendar from '@/app/profile/[id]/components/Calendar'
+import useAuth from '@/hooks/useAuth'
+import { imageBaseUrl } from '@/const';
 
 type Pet = {
   id: number
@@ -47,15 +45,11 @@ export default function SitterPublicProfilePage() {
         const userData = await userRes.json()
         const sitterUser = userData.user
 
-        // Debug log
-        console.log('User data:', sitterUser);
-
         setUserName(sitterUser.user_name || 'Sitter')
         setRegion(sitterUser.region || '')
-        // 修正 avatar URL 的构建方式
         setAvatar(
           sitterUser.avatar 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitterUser.avatar}`
+            ? `${imageBaseUrl}${sitterUser.avatar}`
             : '/avatar.jpg'
         )
         setBio(sitterUser.bio || '')
@@ -77,7 +71,7 @@ export default function SitterPublicProfilePage() {
         }
 
       } catch (err) {
-        console.error('❌ Failed to load sitter data', err)
+        console.error('Failed to load sitter data', err)
       } finally {
         setIsLoading(false)
       }
@@ -95,20 +89,28 @@ export default function SitterPublicProfilePage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Container component="main" maxWidth="lg" sx={{ flex: 1, mt: 4, mb: 4 }}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 7 }}>
-            {/* Header Section */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#fef8f2' }}>
+      <Container component="main" maxWidth="lg" sx={{ flex: 1, mt:2, mb: 4, ml:4}}>
+        <Grid
+          container
+          spacing={4}
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gridTemplateRows: 'auto auto auto auto',
+            gap: 1,
+          }}
+        >
+          {/* first row: personal info */}
+          <Grid item sx={{ gridRow: '1 / 2', gridColumn: '1 / 3' }}>
             <Box display="flex" alignItems="center" gap={2}>
               <Avatar 
                 src={avatar} 
-                sx={{ width: 80, height: 80 }} 
+                sx={{ width: 100, height: 100 }} 
                 alt="sitter-avatar"
                 onError={(e) => {
-                  console.error('Avatar load error:', e);
-                  console.log('Failed URL:', avatar);
-                  (e.target as HTMLImageElement).src = '/avatar.jpg';
+                  console.error('Avatar load error:', e)
+                  ;(e.target as HTMLImageElement).src = '/avatar.jpg'
                 }}
               />
               <Box>
@@ -118,61 +120,69 @@ export default function SitterPublicProfilePage() {
                 <CertificationsDisplay sitterId={Number(sitterId)} />
               </Box>
             </Box>
+          </Grid>
 
-            {/* Bio */}
-            <Box mt={3}>
-              <Typography>{bio}</Typography>
-            </Box>
-
-            {/* Pets */}
-            <Box mt={3}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>My Pets</Typography>
-              {sitterPets.length > 0 ? (
-                sitterPets.map((pet, index) => (
-                  <img
-                    key={index}  // Don't forget to add a unique key when mapping in React
-                    src={
-                      pet.photo_url
-                        ? `${process.env.NEXT_PUBLIC_API_URL}${pet.photo_url}`
-                        : '/dog-photo.jpg'
-                    }
-                    alt={pet.name}
-                    width={400}
-                    height={250}
-                    style={{ borderRadius: 8 }}
-                  />
-                ))
-              ) : (
-                <Image
-                  src="/dog-photo.jpg"
-                  alt="default-dog"
-                  width={400}
-                  height={250}
-                  style={{ borderRadius: 8 }}
-                />
-              )}
-            </Box>
-
-            {/* Services */}
-            <Box mt={3}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>Services I Offer</Typography>
-              <List dense>
-                {services.map(svc => (
-                  <ListItem key={svc}>• {svc}</ListItem>
-                ))}
-              </List>
-            </Box>
-
-            {/* Availability */}
-            <Box mt={4}>
-              <Typography variant="subtitle1" fontWeight={600} mb={1}>My Availability</Typography>
-              <Calendar readOnly />
+          {/* second column: booking card */}
+          <Grid item sx={{ gridRow: '1 / 5', gridColumn: '2 / 3', mr:8}}>
+            <Box mb={1}>
+              <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
             </Box>
           </Grid>
 
-          {/* Booking Section */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <BookingCard sitterId={Number(sitterId)} ownerPets={ownerPets} />
+          {/* second row：Biography */}
+          <Grid item sx={{ gridRow: '2 / 3', gridColumn: '1 / 2' }}>
+            <Box mb={1}>
+              <Typography variant="subtitle1" fontWeight={600} mb={1}>Biography</Typography>
+              <Typography>{bio}</Typography>
+            </Box>
+          </Grid>
+
+          {/* third row：My Pets */}
+          <Grid item sx={{ gridRow: '3 / 4', gridColumn: '1 / 2' }}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight={600} mb={1}>My Pets</Typography>
+              <Grid container spacing={2}>
+                {sitterPets.length > 0 ? (
+                  sitterPets.map((pet, index) => (
+                    <Grid item xs={6} sm={4} key={index}>
+                      <Box display="flex" flexDirection="column" alignItems="center">
+                        <Avatar
+                          src={
+                            pet.photo_url
+                              ? `${process.env.NEXT_PUBLIC_API_URL}${pet.photo_url}`
+                              : '/defaultAvatarDog.png'
+                          }
+                          alt={pet.name}
+                          sx={{ width: 90, height: 90 }}
+                          imgProps={{
+                            onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png'),
+                          }}
+                        />
+                        <Typography variant="body2" align="center" mt={1}>
+                          {pet.name}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  ))
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No pets available.
+                  </Typography>
+                )}
+              </Grid>
+            </Box>
+          </Grid>
+
+          {/* fourth row：My Availability */}
+          <Grid item sx={{ gridRow: '4 / 5', gridColumn: '1 / 2' }}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight={600} mb={0}>
+                My Availability
+              </Typography>
+              <Box ml={-4}> 
+                <Calendar readOnly userId={sitterId} hideHeader={true} />
+              </Box>
+            </Box>
           </Grid>
         </Grid>
       </Container>
