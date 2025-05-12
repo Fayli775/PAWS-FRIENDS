@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import { imageBaseUrl } from "@/const";
 
 // Delete the default icon URL retrieval logic
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -195,7 +196,7 @@ const LocationsMap: React.FC = () => {
     // If the path is already a full URL, return it as is
     if (imagePath.startsWith("http")) return imagePath;
     // Otherwise, prepend the backend server URL
-    return `http://localhost:8000${imagePath}`;
+    return `${imageBaseUrl}${imagePath}`;
   };
 
   // --- Data Fetching ---
@@ -206,7 +207,7 @@ const LocationsMap: React.FC = () => {
       setError(null); // Reset error state
       try {
         // Fetch data from your backend endpoint (ensure the port 8000 is correct)
-        const response = await fetch("http://localhost:8000/api/locations");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/locations`);
 
         if (!response.ok) {
           // Throw an error if response status is not OK (e.g., 404, 500)
