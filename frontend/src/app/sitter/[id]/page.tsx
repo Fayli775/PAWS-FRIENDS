@@ -149,7 +149,7 @@ export default function SitterPublicProfilePage() {
                         <Avatar
                           src={
                             pet.photo_url
-                              ? `${process.env.NEXT_PUBLIC_API_URL}${pet.photo_url}`
+                              ? `${imageBaseUrl}${pet.photo_url}`
                               : '/defaultAvatarDog.png'
                           }
                           alt={pet.name}

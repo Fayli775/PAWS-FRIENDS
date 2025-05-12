@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (avatar: string | null, file?: File) => void;
+  setAvatar: (avatar: string | null, file: File) => void;
   buttonText?: string; 
 }
 

@@ -16,6 +16,7 @@ import {
 import AvatarUpload from "@/components/AvatarUpload";
 import { Pet } from './PetCard';
 import useAuth from '@/hooks/useAuth';
+import { imageBaseUrl } from '@/const';
 
 interface PetFormProps {
   initialData?: Pet | null;
@@ -52,7 +53,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
   };
 
   // Handle image upload using the UploadAvatar callback
-  const handleAvatarUpload = async (imageData: string, file: File) => {
+  const handleAvatarUpload = async (imageData: string | null, file: File) => {
     setIsUploading(true);
     try {
       if (!accessToken) throw new Error('Authentication required');
@@ -76,9 +77,7 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
       
       setPet(prev => ({ 
         ...prev, 
-        photo: photoUrl.startsWith('http') 
-          ? photoUrl 
-          : `${process.env.NEXT_PUBLIC_API_URL}${photoUrl}`
+        photo: `${imageBaseUrl}${photoUrl}`
       }));
     } catch (err) {
       console.error('Upload error:', err);
@@ -104,8 +103,8 @@ export default function PetForm({ initialData, onClose, onSubmit }: PetFormProps
         <Grid container spacing={2} sx={{ mt: 2 }}>
           <Grid item xs={12} textAlign="center">
             <AvatarUpload
-              initialImage={pet.photo || (pet.type === 'Cat' ? '/defaultAvatarCat.png' : '/defaultAvatarDog.png')}
-              onImageChange={handleAvatarUpload}
+              avatar={pet.photo || (pet.type === 'Cat' ? '/defaultAvatarCat.png' : '/defaultAvatarDog.png')}
+              setAvatar={handleAvatarUpload}
             />
             {isUploading && (
               <Typography variant="caption" color="text.secondary">

@@ -17,7 +17,7 @@ interface Pet {
   name: string
   type: string
   description?: string
-  photo?: string
+  photo_url?: string
   vet_contact_phone?: string
   emergency_contact_phone?: string
   allergies?: string
@@ -165,10 +165,9 @@ export default function PetsPage() {
               </Stack>
               <CardContent>
                 <Avatar
-                  src={pet.photo}
+                  src={pet.photo_url ?? (pet.type === 'Dog' ? '/defaultAvatarDog.png' : '/defaultAvatarCat.png')}
                   alt={pet.name}
                   sx={{ width: 100, height: 100, mx: 'auto' }}
-                  imgProps={{ onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png') }}
                 />
                 <Typography align="center">{pet.name}</Typography>
                 <Typography align="center" variant="body2">
