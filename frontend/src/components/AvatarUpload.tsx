@@ -1,12 +1,12 @@
-import React from "react";
 import Avatar from "@mui/material/Avatar";
+import React from "react";
 
-import Box from "@mui/material/Box"; 
 import { Button } from "@mui/material";
+import Box from "@mui/material/Box";
 
 interface AvatarUploadProps {
   avatar: string | null;
-  setAvatar: (avatar: string | null, file?: File) => void;
+  setAvatar: (avatar: string | null, file: File) => void;
   buttonText?: string; 
 }
 

@@ -19,6 +19,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AvatarUpload from "@/components/AvatarUpload";
 import useAuth from "@/hooks/useAuth";
+import { imageBaseUrl } from '@/const';
 
 export default function Certifications() {
   const { accessToken } = useAuth(true);
@@ -99,7 +100,7 @@ export default function Certifications() {
 
     try {
       const res = await fetch(
-        `${API_URL}/api/certificate/deleteCertificate/${filename}`,
+        `${API_URL}/api/certificate/deleteCertificate/${encodeURIComponent(pendingDeleteFile)}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -108,7 +109,7 @@ export default function Certifications() {
       if (!res.ok) throw new Error("Failed to delete certification.");
 
       setMessage("Deleted successfully!");
-      setUploadedFiles((prev) => prev.filter((f) => f !== pendingDeleteFile));
+      setUploadedFiles((prev) => prev.filter((f) => f.certificate_name !== pendingDeleteFile));
     } catch (err: any) {
       console.error("delete error:", err);
       setError(err.message);
@@ -156,10 +157,10 @@ export default function Certifications() {
           <Typography variant="h6">Uploaded Certifications</Typography>
           <Grid container spacing={2}>
             {uploadedFiles.map((file, idx) => (
-              <Grid item key={idx}>
+              <Grid key={idx}>
                 <Stack alignItems="center" spacing={1}>
                   <Avatar
-                    src={`${API_URL}/images/uploads/certificates/${file.certificate_name}`}
+                    src={`${imageBaseUrl}${file.certificate_name}`}
                     sx={{ width: 80, height: 80 }}
                     imgProps={{
                       onError: (e) =>
@@ -170,7 +171,7 @@ export default function Certifications() {
                     size="small"
                     onClick={() =>
                       handleDelete(
-                        `/images/uploads/certificates/${file.certificate_name}`
+                        `${file.certificate_name}`
                       )
                     }
                   >

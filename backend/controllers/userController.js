@@ -76,9 +76,9 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ message: 'No fields provided for update' });
     }
     // 如果上传了头像，处理头像路径
-    if (req.file) {
+    if (req.fileUrlToStore) {
       // 只存文件名
-      validatedData.avatar = req.file.filename;
+      validatedData.avatar = req.fileUrlToStore; //req.file.filename;
     }
     // 4. 调用 model 更新
     await userModel.updateUserProfile(userId, validatedData);

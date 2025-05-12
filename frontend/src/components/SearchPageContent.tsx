@@ -16,6 +16,7 @@ import {
   Stack,
   Rating,
 } from '@mui/material';
+import { imageBaseUrl } from '@/const';
 
 // Add constants for card dimensions
 const CARD_WIDTH = 240;  
@@ -208,7 +209,7 @@ const SearchPageContent = () => {
                       }}
                     >
                       <Avatar
-                        src={sitter.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitter.avatar}` : '/avatar.jpg'}
+                        src={sitter.avatar ? `${imageBaseUrl}${sitter.avatar}` : '/avatar.jpg'}
                         alt={sitter.user_name}
       
                         sx={{ 

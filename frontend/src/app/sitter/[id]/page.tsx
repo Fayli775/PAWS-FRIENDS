@@ -1,19 +1,21 @@
 'use client'
+import { useParams } from 'next/navigation';
 
 import { useEffect, useState } from 'react'
 import {
+  Avatar,
   Box,
+  CircularProgress,
   Container,
   Grid,
-  Typography,
-  Avatar,
-  CircularProgress,
-} from '@mui/material'
+  Typography
+} from '@mui/material';
+import BookingCard from './components/BookingCard';
+import CertificationsDisplay from './components/CertificationsDisplay';
+import ReviewSummary from './components/ReviewSummary';
 import Calendar from '@/app/profile/[id]/components/Calendar'
-import CertificationsDisplay from './components/CertificationsDisplay'
-import ReviewSummary from './components/ReviewSummary'
-import BookingCard from './components/BookingCard'
 import useAuth from '@/hooks/useAuth'
+import { imageBaseUrl } from '@/const';
 
 type Pet = {
   id: number
@@ -21,11 +23,9 @@ type Pet = {
   photo_url?: string
 }
 
-export default function SitterPublicProfilePage({
-  params,
-}: {
-  params: { id: string }
-}) {
+export default function SitterPublicProfilePage() {
+
+  const params = useParams();
   const sitterId = params.id
   const { user, accessToken } = useAuth()
 
@@ -49,7 +49,7 @@ export default function SitterPublicProfilePage({
         setRegion(sitterUser.region || '')
         setAvatar(
           sitterUser.avatar 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/images/uploads/avatars/${sitterUser.avatar}`
+            ? `${imageBaseUrl}${sitterUser.avatar}`
             : '/avatar.jpg'
         )
         setBio(sitterUser.bio || '')
@@ -149,7 +149,7 @@ export default function SitterPublicProfilePage({
                         <Avatar
                           src={
                             pet.photo_url
-                              ? `${process.env.NEXT_PUBLIC_API_URL}${pet.photo_url}`
+                              ? `${imageBaseUrl}${pet.photo_url}`
                               : '/defaultAvatarDog.png'
                           }
                           alt={pet.name}
@@ -180,7 +180,7 @@ export default function SitterPublicProfilePage({
                 My Availability
               </Typography>
               <Box ml={-4}> 
-                <Calendar readOnly userId={sitterId} hideHeader={true} />
+                <Calendar readOnly userId={sitterId as string} hideHeader={true} />
               </Box>
             </Box>
           </Grid>

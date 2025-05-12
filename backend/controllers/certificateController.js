@@ -3,7 +3,7 @@ const certificateRepository = require("../models/certificateModel");
 const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
-
+const { deleteFile } = require("../middleware/multer");
 // Function to get uploaded certificates
 exports.getUploadedCertificates = async (req, res) => {
   try {
@@ -25,14 +25,9 @@ exports.deleteCertificate = async (req, res) => {
     const userId = req.user.id;
     //Get the certificate file name from the file path
     const certificateName = req.params.filename;
+    
     await certificateRepository.deleteCertificate(userId, certificateName);
-    const filePath = path.join(
-      __dirname,
-      `../uploads/certificates/${certificateName}`
-    );
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    deleteFile(certificateName);
     res.status(200).json({ message: "Certificate deleted successfully" });
   } catch (err) {
     console.error("Error deleting certificate:", err);
@@ -47,7 +42,7 @@ exports.uploadCertificate = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
-    const certificateName = req.file.filename;
+    const certificateName = req.fileUrlToStore;
     await certificateRepository.addCertificate(userId, certificateName);
     res.status(201).json({
       status: "success",

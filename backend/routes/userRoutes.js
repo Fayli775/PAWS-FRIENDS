@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware.js"); // authMiddleware
+const { uploadImage } = require("../middleware/imageUploadMiddleware.js");
 const userController = require("../controllers/userController.js"); // userAPI
 const { uploadAvatar } = require("../middleware/multer.js"); // 引入 multer 配置
 
@@ -13,6 +14,7 @@ router.put(
   "/me/updateProfile",
   authMiddleware,
   uploadAvatar.single("avatar"),
+  uploadImage("avatars"),
   userController.updateProfile
 );
 

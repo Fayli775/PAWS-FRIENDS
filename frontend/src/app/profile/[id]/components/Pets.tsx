@@ -10,13 +10,14 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import useAuth from '@/hooks/useAuth'
+import { imageBaseUrl } from '@/const'
 
 interface Pet {
   id?: number
   name: string
   type: string
   description?: string
-  photo?: string
+  photo_url?: string
   vet_contact_phone?: string
   emergency_contact_phone?: string
   allergies?: string
@@ -32,11 +33,9 @@ export default function PetsPage() {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deletingPetId, setDeletingPetId] = useState<number | null>(null)
 
-  const getFullPhotoUrl = (photo?: string) => {
-    if (!photo) return '/defaultAvatarDog.png'
-    return photo.startsWith('http') ? photo : `${process.env.NEXT_PUBLIC_API_URL}${photo}`
-  }
 
   const fetchPets = async () => {
     if (!user || !accessToken) return
@@ -49,7 +48,7 @@ export default function PetsPage() {
       const data = await response.json()
       setPets(data.map((pet: any) => ({
         ...pet,
-        photo: getFullPhotoUrl(pet.photo || pet.photo_url)
+        photo: `${imageBaseUrl}${pet.photo_url}`
       })))
     } catch (err: any) {
       setError(err.message)
@@ -104,17 +103,22 @@ export default function PetsPage() {
     }
   }
 
+  const handleDeleteClick = (petId: number) => {
+    setDeletingPetId(petId)
+    setDeleteConfirmOpen(true)
+  }
 
-  const handleDelete = async (petId: number) => {
-    if (!accessToken) return
-    if (!confirm('Are you sure?')) return
+  const confirmDelete = async () => {
+    if (!accessToken || deletingPetId === null) return;
     
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/deletePet/${petId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/deletePet/${deletingPetId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${accessToken}` }
       })
-      setPets(prev => prev.filter(p => p.id !== petId))
+      setPets(prev => prev.filter(p => p.id !== deletingPetId))
+      setDeleteConfirmOpen(false)
+      setDeletingPetId(null)
     } catch (err: any) {
       setError(err.message)
     }
@@ -163,16 +167,15 @@ export default function PetsPage() {
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => handleDelete(pet.id!)}>
+                <IconButton onClick={() => handleDeleteClick(pet.id!)}>
                   <DeleteIcon />
                 </IconButton>
               </Stack>
               <CardContent>
                 <Avatar
-                  src={pet.photo}
+                  src={pet.photo_url ?? (pet.type === 'Dog' ? '/defaultAvatarDog.png' : '/defaultAvatarCat.png')}
                   alt={pet.name}
                   sx={{ width: 100, height: 100, mx: 'auto' }}
-                  imgProps={{ onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png') }}
                 />
                 <Typography align="center">{pet.name}</Typography>
                 <Typography align="center" variant="body2">
@@ -226,6 +229,21 @@ export default function PetsPage() {
           <Button onClick={() => setOpenForm(false)}>Cancel</Button>
           <Button onClick={() => editingPet && handleFormSubmit(editingPet)} disabled={isSubmitting}>
             {isSubmitting ? <CircularProgress size={24} /> : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} PaperProps={{ sx: { borderRadius: 2, p: 2 } }}>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this pet? </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmOpen(false)} sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+            CANCEL
+          </Button>
+          <Button onClick={confirmDelete} sx={{ backgroundColor: 'error.main', color: '#fff', '&:hover': { backgroundColor: 'error.dark' }, fontWeight: 'bold' }}>
+            DELETE
           </Button>
         </DialogActions>
       </Dialog>
