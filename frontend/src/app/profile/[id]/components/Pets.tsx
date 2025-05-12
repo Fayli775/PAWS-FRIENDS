@@ -32,6 +32,8 @@ export default function PetsPage() {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deletingPetId, setDeletingPetId] = useState<number | null>(null)
 
   const getFullPhotoUrl = (photo?: string) => {
     if (!photo) return '/defaultAvatarDog.png'
@@ -40,7 +42,7 @@ export default function PetsPage() {
 
   const fetchPets = async () => {
     if (!user || !accessToken) return
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/owner/${user.id}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
@@ -56,15 +58,15 @@ export default function PetsPage() {
     }
   }
 
-  useEffect(() => { 
+  useEffect(() => {
     if (user && accessToken) {
-      fetchPets() 
+      fetchPets()
     }
   }, [user, accessToken])
 
   const handleFormSubmit = async (petData: Pet) => {
     if (!user || !accessToken) return
-    
+
     setIsSubmitting(true);
     try {
       const isEdit = !!editingPet?.id;
@@ -104,24 +106,29 @@ export default function PetsPage() {
     }
   }
 
+  const handleDeleteClick = (petId: number) => {
+    setDeletingPetId(petId)
+    setDeleteConfirmOpen(true)
+  }
 
-  const handleDelete = async (petId: number) => {
-    if (!accessToken) return
-    if (!confirm('Are you sure?')) return
-    
+  const confirmDelete = async () => {
+    if (!accessToken || deletingPetId === null) return
+
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/deletePet/${petId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pets/deletePet/${deletingPetId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${accessToken}` }
       })
-      setPets(prev => prev.filter(p => p.id !== petId))
+      setPets(prev => prev.filter(p => p.id !== deletingPetId))
+      setDeleteConfirmOpen(false)
+      setDeletingPetId(null)
     } catch (err: any) {
       setError(err.message)
     }
   }
 
   return (
-    <Box >
+    <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} ml={4} mr={2}>
         <Typography variant="h5" fontWeight="bold">My Pets</Typography>
         <Button variant="contained" onClick={() => {
@@ -135,35 +142,13 @@ export default function PetsPage() {
 
       <Grid container spacing={3} ml={4}>
         {pets.map((pet) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={4}
-            key={pet.id}
-            sx={{
-              display: "flex",
-              justifyContent: "center", // 确保卡片居中
-              width: '200px'
-            }}
-          >
-            <Card
-              sx={{
-                width: "100%", // 确保卡片宽度占满父容器
-                maxWidth: 200, // 设置最大宽度，减小卡片宽度
-              }}
-            >
+          <Grid item xs={12} sm={6} md={4} key={pet.id} sx={{ display: "flex", justifyContent: "center", width: '200px' }}>
+            <Card sx={{ width: "100%", maxWidth: 200 }}>
               <Stack direction="row" justifyContent="flex-end">
-                <IconButton
-                  onClick={() => {
-                    setEditingPet(pet);
-                    setSelectedImageFile(null);
-                    setOpenForm(true);
-                  }}
-                >
+                <IconButton onClick={() => { setEditingPet(pet); setSelectedImageFile(null); setOpenForm(true); }}>
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => handleDelete(pet.id!)}>
+                <IconButton onClick={() => handleDeleteClick(pet.id!)}>
                   <DeleteIcon />
                 </IconButton>
               </Stack>
@@ -175,9 +160,7 @@ export default function PetsPage() {
                   imgProps={{ onError: (e) => (e.currentTarget.src = '/defaultAvatarDog.png') }}
                 />
                 <Typography align="center">{pet.name}</Typography>
-                <Typography align="center" variant="body2">
-                  {pet.type}
-                </Typography>
+                <Typography align="center" variant="body2">{pet.type}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -187,45 +170,39 @@ export default function PetsPage() {
       <Dialog open={openForm} onClose={() => setOpenForm(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editingPet?.id ? 'Edit Pet' : 'Add New Pet'}</DialogTitle>
         <DialogContent dividers>
-          <TextField fullWidth label="Name" value={editingPet?.name || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, name: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField select fullWidth label="Type" value={editingPet?.type || 'Dog'} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, type: e.target.value }))
-          } sx={{ mb: 2 }}>
+          <TextField fullWidth label="Name" value={editingPet?.name || ''} onChange={e => setEditingPet(prev => ({ ...prev!, name: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField select fullWidth label="Type" value={editingPet?.type || 'Dog'} onChange={e => setEditingPet(prev => ({ ...prev!, type: e.target.value }))} sx={{ mb: 2 }}>
             <MenuItem value="Dog">Dog</MenuItem>
             <MenuItem value="Cat">Cat</MenuItem>
           </TextField>
-          <TextField fullWidth label="Description" value={editingPet?.description || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, description: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField fullWidth label="Vet Contact Phone" value={editingPet?.vet_contact_phone || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, vet_contact_phone: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField fullWidth label="Emergency Contact Phone" value={editingPet?.emergency_contact_phone || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, emergency_contact_phone: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField fullWidth label="Allergies" value={editingPet?.allergies || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, allergies: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField fullWidth label="Medications" value={editingPet?.medications || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, medications: e.target.value }))
-          } sx={{ mb: 2 }} />
-          <TextField fullWidth label="Special Instructions" multiline rows={2} value={editingPet?.special_instructions || ''} onChange={e =>
-            setEditingPet(prev => ({ ...prev!, special_instructions: e.target.value }))
-          } sx={{ mb: 2 }} />
-
+          <TextField fullWidth label="Description" value={editingPet?.description || ''} onChange={e => setEditingPet(prev => ({ ...prev!, description: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Vet Contact Phone" value={editingPet?.vet_contact_phone || ''} onChange={e => setEditingPet(prev => ({ ...prev!, vet_contact_phone: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Emergency Contact Phone" value={editingPet?.emergency_contact_phone || ''} onChange={e => setEditingPet(prev => ({ ...prev!, emergency_contact_phone: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Allergies" value={editingPet?.allergies || ''} onChange={e => setEditingPet(prev => ({ ...prev!, allergies: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Medications" value={editingPet?.medications || ''} onChange={e => setEditingPet(prev => ({ ...prev!, medications: e.target.value }))} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Special Instructions" multiline rows={2} value={editingPet?.special_instructions || ''} onChange={e => setEditingPet(prev => ({ ...prev!, special_instructions: e.target.value }))} sx={{ mb: 2 }} />
           <Typography variant="subtitle2" sx={{ mt: 1 }}>Upload Pet Photo</Typography>
-          <input type="file" accept="image/*" onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) setSelectedImageFile(file)
-          }} />
+          <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) setSelectedImageFile(file); }} />
         </DialogContent>
-
         <DialogActions>
           <Button onClick={() => setOpenForm(false)}>Cancel</Button>
           <Button onClick={() => editingPet && handleFormSubmit(editingPet)} disabled={isSubmitting}>
             {isSubmitting ? <CircularProgress size={24} /> : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} PaperProps={{ sx: { borderRadius: 2, p: 2 } }}>
+        <DialogTitle sx={{ fontWeight: 'bold' }}>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this pet? </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmOpen(false)} sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+            CANCEL
+          </Button>
+          <Button onClick={confirmDelete} sx={{ backgroundColor: 'error.main', color: '#fff', '&:hover': { backgroundColor: 'error.dark' }, fontWeight: 'bold' }}>
+            DELETE
           </Button>
         </DialogActions>
       </Dialog>
