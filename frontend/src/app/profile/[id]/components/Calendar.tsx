@@ -65,7 +65,7 @@ const publicHolidays = [
   { date: '2025-12-26', name: 'Boxing Day' },
 ]
 
-export default function Calendar({ readOnly = false, hideHeader = false }: CalendarProps) {
+export default function Calendar({ readOnly = false, userId, hideHeader = false }: CalendarProps) {
   const { user, accessToken } = useAuth(true)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
@@ -116,7 +116,7 @@ export default function Calendar({ readOnly = false, hideHeader = false }: Calen
         if (!accessToken) return
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${user?.id}?t=${Date.now()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${userId}?t=${Date.now()}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }

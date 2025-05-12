@@ -180,7 +180,7 @@ export default function SitterPublicProfilePage() {
                 My Availability
               </Typography>
               <Box ml={-4}> 
-                <Calendar readOnly userId={sitterId} hideHeader={true} />
+                <Calendar readOnly userId={sitterId as string} hideHeader={true} />
               </Box>
             </Box>
           </Grid>
