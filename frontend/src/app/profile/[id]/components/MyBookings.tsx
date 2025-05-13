@@ -40,19 +40,50 @@ export default function MyBookings() {
           }
         )
 
-        const bookings = res.data.bookings.map((b: any) => ({
-          id: b.id,
-          petName: b.pet_type,
-          serviceType: b.service_type,
-          bookingTime: b.start_time,
-          status: b.status || 'Pending',
-          review: b.review || '',
-          rating: b.rating ?? null,
-          notes: b.notes || '',
-          complaint: b.complaint || '',
-          role: 'owner',
-          owner_id: b.owner_id,
+        const bookings = await Promise.all(res.data.bookings.map(async (b: any) => {
+          let review = ''
+          let rating = null
+          let complaint = ''
+
+          try {
+            const reviewRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/booking/${b.id}`)
+            const reviewData = await reviewRes.json()
+            if (reviewData.status === 'success' && reviewData.reviews.length > 0) {
+              review = reviewData.reviews[0].comment
+              rating = reviewData.reviews[0].rating
+            }
+          } catch (e) {
+            console.warn('No review for booking', b.id)
+          }
+
+          try {
+            const complainRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complain/booking/${b.id}`)
+            const complainData = await complainRes.json()
+            if (complainData.status === 'success' && complainData.complain.length > 0) {
+              complaint = complainData.complain[0].content
+            }
+          } catch (e) {
+            console.warn('No complaint for booking', b.id)
+          }
+
+          const mapped = {
+            id: b.id,
+            petName: b.pet_type,
+            serviceType: b.service_type,
+            bookingTime: b.start_time,
+            status: b.status || 'Pending',
+            review,
+            rating,
+            notes: b.notes || '',
+            complaint,
+            role: 'owner',
+            owner_id: b.owner_id,
+          }
+          console.log('📦 mapped booking:', mapped)
+          return mapped
         }))
+
+        console.log("🧩 current user id:", user?.id);
         setOrders(bookings)
       } catch (err) {
         console.error('Failed to fetch my bookings:', err)
@@ -74,14 +105,14 @@ export default function MyBookings() {
     )
     setSelectedOrder((prev: any) => (prev ? { ...prev, ...updatedFields } : prev))
   }
-  
+
   const updateBookingStatus = async (status: string, note?: string) => {
     try {
       if (!accessToken) {
         alert('You need to login first.')
         return
       }
-  
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${selectedOrder?.id}/status`, {
         method: 'PUT',
         headers: {
@@ -90,9 +121,8 @@ export default function MyBookings() {
         },
         body: JSON.stringify({ status, note: note || '' }),
       })
-  
+
       if (res.ok) {
-      // Update local state
         handleUpdateOrder({ status })
       } else {
         alert('Failed to update booking status.')
@@ -101,8 +131,7 @@ export default function MyBookings() {
       console.error('Booking status update failed:', err)
     }
   }
-  
-// Categorize orders
+
   const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
   const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
   const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')
@@ -112,7 +141,10 @@ export default function MyBookings() {
       key={order.id}
       variant="outlined"
       sx={{ cursor: 'pointer', mb: 2 }}
-      onClick={() => setSelectedOrder(order)}
+      onClick={() => {
+        console.log("🧩 selected order (onClick):", order);
+        setSelectedOrder(order)
+      }}
     >
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -144,9 +176,9 @@ export default function MyBookings() {
           order={selectedOrder}
           role="owner"
           onClose={handleCloseDialog}
-          onUpdate={updateBookingStatus}
+          onUpdate={handleUpdateOrder}
         />
       )}
     </Box>
   )
-}
+} 
