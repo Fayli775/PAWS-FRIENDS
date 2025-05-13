@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import axios from 'axios'
 import useAuth from '@/hooks/useAuth'
+import dayjs from 'dayjs'
 
 export default function BookingCard({ sitterId, ownerPets }: { sitterId: number, ownerPets: any[] }) {
   const [pets, setPets] = useState<any[]>([])
@@ -27,7 +28,6 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
   const [selectedSlot, setSelectedSlot] = useState<string>('')
   const [selectedLanguage, setSelectedLanguage] = useState<string>('')
 
-  // Snackbar 状态
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMsg, setSnackbarMsg] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning'>('success')
@@ -82,8 +82,21 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
     fetchData()
   }, [sitterId, accessToken])
 
+  const getNextDateByWeekday = (abbr: string, time: string) => {
+    const abbrToDay: Record<string, number> = {
+      Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6
+    }
+    const today = dayjs()
+    const todayDay = today.day()
+    const targetDay = abbrToDay[abbr]
+    let offset = (targetDay - todayDay + 7) % 7
+
+    const dateStr = today.add(offset, 'day').format('YYYY-MM-DD')
+    return `${dateStr} ${time}:00`
+  }
+
   const handleBooking = async () => {
-    if (!selectedPetId || !selectedService || !selectedSlot) {
+    if (!selectedPetId || !selectedService || !selectedSlot || !selectedSlot.includes(' ')) {
       showSnackbar("Please complete all required fields before submitting your booking.", 'warning')
       return
     }
@@ -95,17 +108,9 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
       const selectedServiceObj = services.find(s => s.service_id === selectedService)
       const [abbr, timeRange] = selectedSlot.split(' ')
       const [startTime, endTime] = timeRange.split('–')
-      const weekdayAbbrMap: Record<string, string> = {
-        Monday: 'Mon',
-        Tuesday: 'Tue',
-        Wednesday: 'Wed',
-        Thursday: 'Thu',
-        Friday: 'Fri',
-        Saturday: 'Sat',
-        Sunday: 'Sun',
-      }
-      //const weekdayAbbr = weekdayAbbrMap[abbr] || 'Mon'
-      const weekdayAbbr = abbr
+
+      const start_time = getNextDateByWeekday(abbr, startTime)
+      const end_time = getNextDateByWeekday(abbr, endTime)
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
@@ -115,9 +120,11 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
           pet_type: selectedPet?.type,
           pet_id: selectedPet?.id,
           service_type: selectedServiceObj?.name,
-          weekday: weekdayAbbr,
-          time_slot: `${startTime}-${endTime}`,
+          start_time,
+          end_time,
           language: selectedLanguage,
+          weekday: abbr,
+          time_slot: `${startTime}-${endTime}`,
         },
         {
           headers: {
@@ -141,26 +148,20 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
 
   return (
     <Box>
-      <Card sx={{backgroundColor: '#fef8f2', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)'}}>
+      <Card sx={{ backgroundColor: '#fef8f2', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
         <CardContent>
           <Typography mb={1}><strong>Book a service for the upcoming week</strong></Typography>
-          <TextField
-            select fullWidth margin="dense"
-            label="Select Pet"
-            value={selectedPetId ?? ''}
-            onChange={(e) => setSelectedPetId(Number(e.target.value))}
-          >
+
+          <TextField select fullWidth margin="dense" label="Select Pet" value={selectedPetId ?? ''}
+            onChange={(e) => setSelectedPetId(Number(e.target.value))}>
+
             {pets.map(pet => (
               <MenuItem key={pet.id} value={pet.id}>{pet.name}</MenuItem>
             ))}
           </TextField>
 
-          <TextField
-            select fullWidth margin="normal"
-            label="Select Service"
-            value={selectedService ?? ''}
-            onChange={(e) => setSelectedService(Number(e.target.value))}
-          >
+          <TextField select fullWidth margin="normal" label="Select Service" value={selectedService ?? ''}
+            onChange={(e) => setSelectedService(Number(e.target.value))}>
             {services.map(svc => (
               <MenuItem key={svc.service_id} value={svc.service_id}>
                 {svc.name} {svc.custom_price !== null ? `($${svc.custom_price})` : '(N/A)'}
@@ -168,23 +169,15 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
             ))}
           </TextField>
 
-          <TextField
-            select fullWidth margin="normal"
-            label="Select Time Slot"
-            value={selectedSlot}
-            onChange={(e) => setSelectedSlot(e.target.value)}
-          >
+          <TextField select fullWidth margin="normal" label="Select Time Slot" value={selectedSlot}
+            onChange={(e) => setSelectedSlot(e.target.value)}>
             {availableSlots.map(slot => (
               <MenuItem key={slot} value={slot}>{slot}</MenuItem>
             ))}
           </TextField>
 
-          <TextField
-            select fullWidth margin="normal"
-            label="Preferred Language"
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-          >
+          <TextField select fullWidth margin="normal" label="Preferred Language" value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}>
             {languages.map(lang => (
               <MenuItem key={lang} value={lang}>{lang}</MenuItem>
             ))}
@@ -198,19 +191,9 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         </CardContent>
       </Card>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
+      <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <MuiAlert elevation={6} variant="filled" onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMsg}
         </MuiAlert>
       </Snackbar>
