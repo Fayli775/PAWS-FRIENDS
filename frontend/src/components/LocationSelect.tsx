@@ -1,23 +1,37 @@
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import Select, { SelectChangeEvent } from "@mui/material/Select"; // 导入 SelectChangeEvent
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
 
 interface LocationSelectProps {
   value: string;
-  onChange: (event: SelectChangeEvent) => void; // 使用 SelectChangeEvent 类型
+  onChange: (event: SelectChangeEvent) => void;
 }
 
-export default function LocationSelect({ value, onChange }: LocationSelectProps) {
+export default function LocationSelect({
+  value,
+  onChange,
+}: LocationSelectProps) {
   return (
     <FormControl fullWidth>
-      <InputLabel id="location-label">Location</InputLabel>
+      <InputLabel
+        id="location-label"
+        sx={{
+          top: "23%",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        Location <Typography component="span"> *</Typography>
+      </InputLabel>
       <Select
         labelId="location-label"
         id="location"
         value={value}
         onChange={onChange}
         label="Location"
+        sx={{ mt: 2 }}
       >
         <MenuItem value="cbd">CBD</MenuItem>
         <MenuItem value="central-auckland">Central Auckland</MenuItem>
