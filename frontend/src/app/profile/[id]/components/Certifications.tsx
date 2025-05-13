@@ -19,7 +19,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AvatarUpload from "@/components/AvatarUpload";
 import useAuth from "@/hooks/useAuth";
-import { imageBaseUrl } from '@/const';
+import { imageBaseUrl } from "@/const";
 
 export default function Certifications() {
   const { accessToken } = useAuth(true);
@@ -29,7 +29,9 @@ export default function Certifications() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingDeleteFile, setPendingDeleteFile] = useState<string | null>(null);
+  const [pendingDeleteFile, setPendingDeleteFile] = useState<string | null>(
+    null
+  );
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -100,7 +102,9 @@ export default function Certifications() {
 
     try {
       const res = await fetch(
-        `${API_URL}/api/certificate/deleteCertificate/${encodeURIComponent(pendingDeleteFile)}`,
+        `${API_URL}/api/certificate/deleteCertificate/${encodeURIComponent(
+          pendingDeleteFile
+        )}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -109,7 +113,9 @@ export default function Certifications() {
       if (!res.ok) throw new Error("Failed to delete certification.");
 
       setMessage("Deleted successfully!");
-      setUploadedFiles((prev) => prev.filter((f) => f.certificate_name !== pendingDeleteFile));
+      setUploadedFiles((prev) =>
+        prev.filter((f) => f.certificate_name !== pendingDeleteFile)
+      );
     } catch (err: any) {
       console.error("delete error:", err);
       setError(err.message);
@@ -130,7 +136,9 @@ export default function Certifications() {
           <li>Local pet registration certificate</li>
           <li>Pet-business verification (proof of premises, NZBN, etc.)</li>
           <li>Sitter accreditation (NZQA-certified courses)</li>
-          <li>Pet care skills certifications (first-aid, professional references)</li>
+          <li>
+            Pet care skills certifications (first-aid, professional references)
+          </li>
         </ul>
       </Typography>
 
@@ -140,7 +148,7 @@ export default function Certifications() {
           setPreviewUrl(url);
           if (file) setSelectedFile(file);
         }}
-        buttonText="Upload Certification" 
+        buttonText="Upload Certification"
       />
 
       <Button
@@ -169,11 +177,7 @@ export default function Certifications() {
                   />
                   <IconButton
                     size="small"
-                    onClick={() =>
-                      handleDelete(
-                        `${file.certificate_name}`
-                      )
-                    }
+                    onClick={() => handleDelete(`${file.certificate_name}`)}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
@@ -203,8 +207,20 @@ export default function Certifications() {
         open={!!message}
         autoHideDuration={6000}
         onClose={() => setMessage(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="success" onClose={() => setMessage(null)} sx={{ width: "100%" }}>
+        <Alert
+          severity="success"
+          onClose={() => setMessage(null)}
+          sx={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            borderRadius: "12px",
+            padding: "16px 24px",
+            backgroundColor: "#4caf50",
+            color: "white",
+          }}
+        >
           {message}
         </Alert>
       </Snackbar>
@@ -214,8 +230,20 @@ export default function Certifications() {
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="error" onClose={() => setError(null)} sx={{ width: "100%" }}>
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            borderRadius: "12px",
+            padding: "16px 24px",
+            backgroundColor: "#f44336",
+            color: "white",
+          }}
+        >
           {error}
         </Alert>
       </Snackbar>

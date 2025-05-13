@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   FormGroup,
   FormLabel,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import useAuth from "@/hooks/useAuth";
@@ -69,7 +70,7 @@ export default function Services() {
   useEffect(() => {
     const fetchData = async () => {
       if (!user || !accessToken) return;
-      
+
       try {
         // service type
         const serviceRes = await fetch(
@@ -95,7 +96,9 @@ export default function Services() {
         setInitialSelectedLanguages(langData.languages || []);
 
         //all servies
-        const allRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
+        const allRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/services`
+        );
         const allData = await allRes.json();
         setAvailableServices(allData.services || []);
       } catch (err) {
@@ -122,7 +125,7 @@ export default function Services() {
 
   const handleSaveServices = async () => {
     if (!user || !accessToken) return;
-    
+
     try {
       const payload = selectedServices.map((id) => ({ service_id: id }));
 
@@ -149,7 +152,7 @@ export default function Services() {
 
   const handleResetServices = async () => {
     if (!user || !accessToken) return;
-    
+
     try {
       await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/services/sitters/${user.id}/services`,
@@ -171,16 +174,19 @@ export default function Services() {
 
   const handleSaveLanguages = async () => {
     if (!user || !accessToken) return;
-    
+
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ languages: selectedLanguages }),
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ languages: selectedLanguages }),
+        }
+      );
 
       setInitialSelectedLanguages([...selectedLanguages]);
       setSnackbarMessage("Save languages successfully");
@@ -193,12 +199,15 @@ export default function Services() {
 
   const handleResetLanguages = async () => {
     if (!user || !accessToken) return;
-    
+
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}/languages`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       setSelectedLanguages([]);
       setInitialSelectedLanguages([]);
@@ -220,7 +229,11 @@ export default function Services() {
   return (
     <Box>
       <Box mb={5} maxWidth="lg" px={{ xs: 2, md: 4 }}>
-        <Typography variant="h5" component="legend" sx={{ fontWeight: 600, mb: 2, display: "block" }}>
+        <Typography
+          variant="h5"
+          component="legend"
+          sx={{ fontWeight: 600, mb: 2, display: "block" }}
+        >
           Languages You Support
         </Typography>
         <FormGroup row sx={{ gap: 2 }}>
@@ -238,16 +251,30 @@ export default function Services() {
           ))}
         </FormGroup>
         <Box mt={2} display="flex" gap={2}>
-          <Button variant="contained" disabled={!dirtyLanguage} onClick={handleSaveLanguages}>
+          <Button
+            variant="contained"
+            disabled={!dirtyLanguage}
+            onClick={handleSaveLanguages}
+          >
             Save Languages
           </Button>
-          <Button variant="outlined" disabled={!dirtyLanguage} onClick={handleResetLanguages}>
+          <Button
+            variant="outlined"
+            disabled={!dirtyLanguage}
+            onClick={handleResetLanguages}
+          >
             Reset Languages
           </Button>
         </Box>
       </Box>
 
-      <Typography variant="h5" fontWeight={600} mb={2} textAlign="flex-start" ml={4}>
+      <Typography
+        variant="h5"
+        fontWeight={600}
+        mb={2}
+        textAlign="flex-start"
+        ml={4}
+      >
         Services You Provide
       </Typography>
 
@@ -261,14 +288,14 @@ export default function Services() {
             key={service.id}
             sx={{
               display: "flex",
-              justifyContent: "center", // 确保卡片居中
+              justifyContent: "center",
             }}
           >
             <ServiceCard
               elevation={2}
               sx={{
-                width: "300px", // 确保卡片宽度占满父容器
-                maxWidth: 250, // 设置最大宽度，确保等宽
+                width: "300px",
+                maxWidth: 250,
               }}
             >
               <IconWrapper>
@@ -303,10 +330,18 @@ export default function Services() {
       </Grid>
 
       <Box mt={4} ml={4} display="flex" gap={2} justifyContent="flex-start">
-        <Button variant="contained" disabled={!dirtyService} onClick={handleSaveServices}>
+        <Button
+          variant="contained"
+          disabled={!dirtyService}
+          onClick={handleSaveServices}
+        >
           Save Services
         </Button>
-        <Button variant="outlined" disabled={!dirtyService} onClick={handleResetServices}>
+        <Button
+          variant="outlined"
+          disabled={!dirtyService}
+          onClick={handleResetServices}
+        >
           Reset Services
         </Button>
       </Box>
@@ -315,8 +350,27 @@ export default function Services() {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={
+            snackbarMessage.toLowerCase().includes("fail") ? "error" : "success"
+          }
+          sx={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            borderRadius: "12px",
+            padding: "16px 24px",
+            color: "white",
+            backgroundColor: snackbarMessage.toLowerCase().includes("fail")
+              ? "#f44336"
+              : "#4caf50",
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
