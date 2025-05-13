@@ -150,10 +150,11 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
     <Box>
       <Card sx={{ backgroundColor: '#fef8f2', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
         <CardContent>
-          <Typography mb={1}><strong>Book a service</strong></Typography>
+          <Typography mb={1}><strong>Book a service for the upcoming week</strong></Typography>
 
           <TextField select fullWidth margin="dense" label="Select Pet" value={selectedPetId ?? ''}
             onChange={(e) => setSelectedPetId(Number(e.target.value))}>
+
             {pets.map(pet => (
               <MenuItem key={pet.id} value={pet.id}>{pet.name}</MenuItem>
             ))}

@@ -129,7 +129,7 @@ exports.searchSitters = async (filters) => {
 
   // Also need a query to count total matching sitters for pagination metadata
   let countQuery = `
-    SELECT count(DISTINCT u.id)
+    SELECT count(DISTINCT u.id) as cnt
       FROM user_info u
       LEFT JOIN sitter_services ss ON u.id = ss.sitter_id
       LEFT JOIN availability a ON u.id = a.user_id
@@ -145,7 +145,8 @@ exports.searchSitters = async (filters) => {
   const countParams = queryParams.slice(0, queryParams.length - 2); 
   try {
     const [results] = await db.query(query, queryParams);
-    const [[{ total_count }]] = await db.query(countQuery, countParams);
+    const  [countResult] = await db.query(countQuery, countParams);
+    const total_count = countResult[0]['cnt'];
     return {
         sitters: results,
         pagination: {
