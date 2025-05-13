@@ -7,10 +7,18 @@ import axios from 'axios'
 import useAuth from '@/hooks/useAuth'
 
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+  pending: 'warning',
   Pending: 'warning',
+  accepted: 'success',
+  Accepted: 'success',
   Confirmed: 'success',
+  confirmed: 'success',
+  completed: 'success',
   Completed: 'success',
+  cancelled: 'error',
   Cancelled: 'error',
+  rejected: 'error',
+  Rejected: 'error',
 }
 
 function getTimeStatus(bookingTime: string): 'upcoming' | 'ongoing' | 'completed' {
@@ -132,9 +140,23 @@ export default function MyBookings() {
     }
   }
 
-  const upcomingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'upcoming')
-  const ongoingOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'ongoing')
-  const completedOrders = orders.filter((o) => getTimeStatus(o.bookingTime) === 'completed')
+  const upcomingOrders = orders.filter((o) => 
+    getTimeStatus(o.bookingTime) === 'upcoming' && 
+    o.status !== 'cancelled' && 
+    o.status !== 'rejected'
+  );
+
+  const ongoingOrders = orders.filter((o) => 
+    getTimeStatus(o.bookingTime) === 'ongoing' && 
+    o.status !== 'cancelled' && 
+    o.status !== 'rejected'
+  );
+
+  const completedOrders = orders.filter((o) => 
+    getTimeStatus(o.bookingTime) === 'completed' || 
+    o.status === 'cancelled' || 
+    o.status === 'rejected'
+  );
 
   const renderOrderCard = (order: any) => (
     <Card
