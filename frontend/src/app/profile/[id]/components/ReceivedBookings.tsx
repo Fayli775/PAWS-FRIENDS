@@ -87,13 +87,15 @@ export default function ReceivedBookings() {
   const upcomingOrders = orders.filter((o) => 
     getTimeStatus(o.bookingTime) === 'upcoming' && 
     o.status !== 'cancelled' && 
-    o.status !== 'rejected'
+    o.status !== 'rejected' &&
+    o.status !== 'completed'
   );
 
   const ongoingOrders = orders.filter((o) => 
     getTimeStatus(o.bookingTime) === 'ongoing' && 
     o.status !== 'cancelled' && 
-    o.status !== 'rejected'
+    o.status !== 'rejected' &&
+    o.status !== 'completed'
   );
 
   const completedOrders = orders.filter((o) => 
@@ -129,8 +131,8 @@ export default function ReceivedBookings() {
       <Typography variant="h6" mt={4}>Ongoing Orders</Typography>
       {ongoingOrders.length > 0 ? ongoingOrders.map(renderOrderCard) : <Typography>No ongoing orders.</Typography>}
 
-      <Typography variant="h6" mt={4}>Completed Orders</Typography>
-      {completedOrders.length > 0 ? completedOrders.map(renderOrderCard) : <Typography>No completed orders.</Typography>}
+      <Typography variant="h6" mt={4}>Past Orders</Typography>
+      {completedOrders.length > 0 ? completedOrders.map(renderOrderCard) : <Typography>No past orders.</Typography>}
 
       {selectedOrder && (
         <OrderDialog

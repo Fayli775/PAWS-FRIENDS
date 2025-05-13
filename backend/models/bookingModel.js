@@ -45,7 +45,6 @@ const Booking = {
       [status, now, id]
     );
 
-    // ✅ 修正字段名为 status
     await db.execute(
       `INSERT INTO booking_status_log (booking_id, status, changed_at, note)
        VALUES (?, ?, ?, ?)`,
@@ -67,6 +66,14 @@ const Booking = {
       [sitterId]
     );
     return rows;
+  },
+
+  async getBookingById(id) {
+    const [rows] = await db.execute(
+      `SELECT * FROM booking WHERE id = ?`,
+      [id]
+    );
+    return rows[0];
   },
 };
 
