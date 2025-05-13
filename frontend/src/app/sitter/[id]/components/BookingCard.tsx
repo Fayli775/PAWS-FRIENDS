@@ -104,8 +104,8 @@ export default function BookingCard({ sitterId, ownerPets }: { sitterId: number,
         Saturday: 'Sat',
         Sunday: 'Sun',
       }
-
-      const weekdayAbbr = weekdayAbbrMap[abbr] || 'Mon'
+      //const weekdayAbbr = weekdayAbbrMap[abbr] || 'Mon'
+      const weekdayAbbr = abbr
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`,
