@@ -1,40 +1,41 @@
 const dayjs = require("dayjs");
-const utc = require("dayjs/plugin/utc");
-dayjs.extend(utc);
 
-// Convert to full UTC datetime string (format: YYYY-MM-DD HH:mm:ss)
-exports.toUTCDateTime = (input = new Date()) => {
-    return dayjs(input).utc().format("YYYY-MM-DD HH:mm:ss");
+// 1️⃣ 格式化成“YYYY-MM-DD HH:mm:ss”（本地时间）
+const toLocalDateTime = (input = new Date()) => {
+  return dayjs(input).format("YYYY-MM-DD HH:mm:ss");
 };
 
-// Convert to UTC time string only (HH:mm:ss) — used for availability
-exports.toUTCTimeOnly = (input) => {
-    const fakeDateTime = `2000-01-01T${input}`;
-    return dayjs(fakeDateTime).utc().format("HH:mm:ss");
+// 2️⃣ 只提取时间部分 “HH:mm:ss”（用于 availability 的 start_time / end_time）
+const toTimeOnly = (input) => {
+  const fakeDateTime = `2000-01-01T${input}`;
+  return dayjs(fakeDateTime).format("HH:mm:ss");
 };
 
-//Build full UTC start and end times from frontend-provided weekday + time_slot
-exports.parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
-    const weekdayMap = {
-        Sun: 0, Mon: 1, Tue: 2, Wed: 3,
-        Thu: 4, Fri: 5, Sat: 6
-    };
+// 3️⃣ 从 weekday 和 timeSlot 推算出最近日期的完整起止时间（本地时间）
+const parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
+  const weekdayMap = {
+    Sun: 0, Mon: 1, Tue: 2, Wed: 3,
+    Thu: 4, Fri: 5, Sat: 6
+  };
 
-    const today = dayjs();
-    const targetDay = weekdayMap[weekdayLabel];
-    const baseDate = today.day() <= targetDay
-        ? today.day(targetDay)
-        : today.add(1, "week").day(targetDay);
-    
-    const [startRaw, endRaw] = timeSlot.split(/[–-]/).map(s => s.trim());
+  const today = dayjs();
+  const todayDay = today.day();
+  const targetDay = weekdayMap[weekdayLabel];
 
-    const start_time = dayjs(`${baseDate.format("YYYY-MM-DD")} ${startRaw}`)
-        .utc()
-        .format("YYYY-MM-DD HH:mm:ss");
+  const offset = (targetDay - todayDay + 7) % 7;
+  const baseDate = today.add(offset, "day").format("YYYY-MM-DD");
 
-    const end_time = dayjs(`${baseDate.format("YYYY-MM-DD")} ${endRaw}`)
-        .utc()
-        .format("YYYY-MM-DD HH:mm:ss");
+  const [startRaw, endRaw] = timeSlot.split(/[–-]/).map(s => s.trim());
 
-    return { start_time, end_time };
+  const start_time = dayjs(`${baseDate} ${startRaw}`).format("YYYY-MM-DD HH:mm:ss");
+  const end_time = dayjs(`${baseDate} ${endRaw}`).format("YYYY-MM-DD HH:mm:ss");
+
+  return { start_time, end_time };
 };
+
+module.exports = {
+    toLocalDateTime,
+    toUTCDateTime: toLocalDateTime, // ✅ 兼容旧代码的名字
+    toTimeOnly,
+    parseFrontendTimeSlot
+  };
