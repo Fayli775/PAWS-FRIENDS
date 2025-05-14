@@ -2,6 +2,8 @@
 
 **Paws' Friends** is a full-featured web platform proudly developed by Team Pied Pipers to connect New Zealand pet owners with certified sitters. Designed with local flavor, the app helps you find trustworthy carers, manage bookings, create adorable pet profiles, and explore pet-friendly places around Auckland. We support English, 中文 Chinese, and Māori – because even your dog deserves a bilingual sitter.
 
+**Live Demo:**  **https://group-project-pied-pipers-i8dx.vercel.app**
+
 Our team members are:
 - Mengming Yang _(myan358@aucklanduni.ac.nz)_
 - July Xu _(jxu754@aucklanduni.ac.nz)_
@@ -63,18 +65,27 @@ Our team members are:
 ## 🧰 Tech Stack
 
 ### 🖥️ Frontend
-- **Next.js 13** with App Router
+- **Next.js 15** with App Router
+- **Next-Auth 4** for auth management
 - **React** with **TypeScript**
-- **Material UI (MUI)** for components
+- **Material UI (MUI)** for styled components
+- **Leaflet** for map view
 - **i18n** for multilingual support
-- **Next.js** deployment on Vercel
 
 ### ⚙️ Backend
 - **Express.js** server
 - **MySQL** database
 - **JWT** authentication
 - **Multer** for file uploads
-- Modular architecture: `routes` ↔ `controllers` ↔ `models`
+- **node-cron** for scheduling jobs
+- **Modular architecture:** `routes` ↔ `middlewares` ↔ `controllers` ↔ `models`
+
+### 🚀 Live Deployment
+- **Vercel Platform**
+  - NextJS App & Backend API
+  - Vercel Blob for files hosting
+- **Clever Cloud** for database hosting
+- Private keys are submitted in "Assignment - Private info / API key / etc submission"
 
 ### 🧪 Testing
 
@@ -115,14 +126,19 @@ project/
 
 ## 🛠 Setup Instructions
 
-1. **Clone the Repository**
-Clone the repo from Github
+**Clone the Repository from Github**
 
-2. **Environment Setup**
 
-The required .env files for both the backend and frontend have been submitted separately through the private "API Key and Private Information Submission" section, as instructed. Please refer to that submission area to retrieve the environment variable contents needed to run the application.
+**DB Setup**
 
-3. **Installation**
+  - Install MySql and set up the local user if you haven't done so. Update DB keys in `backend/.env` for signing in your local DB.
+  - Execute `backend\sql\db_backup.sql`
+  - Edit `frontend\const.ts` as follows
+
+      ```
+      export const imageBaseUrl = process.env.NODE_ENV !== 'production' ? '' : "`${process.env.NEXT_PUBLIC_API_URL}`;
+
+**Installation**
 
 Backend setup:
 ```bash
@@ -136,7 +152,7 @@ cd frontend
 npm install
 ```
 
-4. **Running the Application**
+**Running the Application**
 
 Start the backend server:
 ```bash
@@ -153,48 +169,6 @@ npm run dev
 The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-
-## 🌍 Deployment
-
-The application is currently deployed using cloud services:
-
-### Frontend Deployment
-- Platform: Vercel
-- URL: [Your Vercel deployment URL]
-- Automatic deployments from main branch
-- Environment variables configured in Vercel dashboard
-
-### Backend Deployment
-- Platform: Railway
-- URL: [Your Railway deployment URL]
-- Environment variables configured in Railway dashboard
-- Automatic deployments from main branch
-
-### Database
-- Platform: Clever Cloud
-- Features:
-  - Cloud-hosted MySQL database
-  - Managed through Clever Cloud
-  - No local database setup required
-  - Automatic backups
-  - Scalable resources
-
-## 🔐 Environment Variables
-
-### Production Environment
-Production environment variables are configured in the respective cloud platforms:
-- Backend: Railway dashboard
-- Frontend: Vercel dashboard
-- Database: Clever Cloud dashboard
-
-### Local Development
-For local development, use the environment variables provided in the private submission area. These are default values for development and should not be used in production.
-
-### Environment Variable Security
-- Production environment variables are not stored in the repository
-- Local development variables are provided as examples
-- Sensitive information is managed through cloud platform dashboards
-- Database credentials are managed through Clever Cloud
 
 ## 📝 Future Enhancements
 
