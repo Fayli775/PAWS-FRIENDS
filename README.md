@@ -1,8 +1,8 @@
-# CS732 project - Team Pied Pipers
+# CS732 Group Project- 🐾 Paws' Friends – New Zealand's Pet Sitter Booking Platform
 
-Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.
+**Paws' Friends** is a full-featured web platform proudly developed by Team Pied Pipers to connect New Zealand pet owners with certified sitters. Designed with local flavor, the app helps you find trustworthy carers, manage bookings, create adorable pet profiles, and explore pet-friendly places around Auckland. We support English, 中文 Chinese, and Māori – because even your dog deserves a bilingual sitter.
 
-Your team members are:
+Our team members are:
 - Mengming Yang _(myan358@aucklanduni.ac.nz)_
 - July Xu _(jxu754@aucklanduni.ac.nz)_
 - Elaine Zhang _(byhz081@aucklanduni.ac.nz)_
