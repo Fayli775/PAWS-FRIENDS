@@ -63,7 +63,8 @@ Our team members are:
 ## 🧰 Tech Stack
 
 ### 🖥️ Frontend
-- **Next.js 13** with App Router
+- **Next.js 15** with App Router
+- **Next-Auth 4** for auth management
 - **React** with **TypeScript**
 - **Material UI (MUI)** for components
 - **i18n** for multilingual support
@@ -75,6 +76,12 @@ Our team members are:
 - **JWT** authentication
 - **Multer** for file uploads
 - Modular architecture: `routes` ↔ `controllers` ↔ `models`
+
+### 🚀 Deployment
+- **Vercel Platform**
+  - NextJS App & Backend API
+  - Vercel Blob for image hosting
+- **Clever Cloud** for database hosting
 
 ### 🧪 Testing
 
