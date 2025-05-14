@@ -34,6 +34,7 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
 }) {
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState<number | null>(null);
+  const [existingComplain, setExistingComplain] = useState("");
   const [newComplain, setNewComplain] = useState("");
   const { user, accessToken } = useAuth();
 
@@ -41,24 +42,30 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
   const userId = user?.id || null;
   const isOwner = String(userId) === String(order.owner_id);
 
-  const handleStatusUpdate = async (newStatus: string) => {
-    console.log("🔥 status update triggered");
+  useEffect(() => {
+    const fetchComplain = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/complain/booking/${order.id}`
+        );
+        const data = await res.json();
 
+        if (data.status === "success" && data.complain.length > 0) {
+          setExistingComplain(data.complain[0].content);
+        }
+      } catch (err) {
+        console.error("Failed to fetch complain:", err);
+      }
+    };
+
+    if (order.status === "completed" && isOwner) {
+      fetchComplain();
+    }
+  }, [order, isOwner]);
+
+  const handleStatusUpdate = async (newStatus: string) => {
     try {
       if (!accessToken) return;
-
-      if (typeof newStatus !== "string") {
-        console.error("❌ Invalid status value (should be a string):", newStatus);
-        alert("Status must be a string. Check button handler.");
-        return;
-      }
-
-      console.log("🚀 Submitting status update:", {
-        id: order.id,
-        status: newStatus,
-        note: `${newStatus} by ${role}`,
-      });
-
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${order.id}/status`,
         {
@@ -75,8 +82,6 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
       );
 
       const data = await res.json();
-      console.log("📦 booking update response:", data);
-
       if (res.ok && data.status === "success") {
         onUpdate({ status: newStatus });
       } else {
@@ -106,8 +111,6 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
       });
 
       const data = await res.json();
-      console.log("📮 Review response:", data);
-
       if (res.ok && data.status === "success") {
         onUpdate({ review: newComment, rating: newRating });
       } else {
@@ -136,10 +139,9 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
       });
 
       const data = await res.json();
-      console.log("📮 Complaint response:", data);
-
       if (res.ok && data.status === "success") {
         onUpdate({ complaint: newComplain });
+        setExistingComplain(newComplain);
       } else {
         alert("Failed to submit complaint.");
       }
@@ -148,14 +150,8 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
       alert("Failed to submit complaint.");
     }
   };
-  console.log("🔍 Review debug — isOwner:", isOwner);
-  console.log("🔍 Review debug — newComment:", newComment);
-  console.log("🔍 Review debug — newRating:", newRating);
-  console.log("🔍 Complaint debug — newComplain:", newComplain);
-
 
   return (
-  
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Order Details</DialogTitle>
       <DialogContent dividers>
@@ -191,7 +187,7 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
             </Button>
           )}
 
-          {order.status === "completed" && (
+          {order.status === "completed" && isOwner && (
             <>
               {order.review && order.rating ? (
                 <Box>
@@ -213,7 +209,7 @@ export default function OrderDialog({ order, role, onClose, onUpdate }: {
               )}
 
               <ComplaintForm
-                existingComplaint={order.complain}
+                existingComplaint={existingComplain}
                 newComplaint={newComplain}
                 onComplaintChange={setNewComplain}
                 isOwner={isOwner}
