@@ -33,12 +33,12 @@ export default function LocationSelect({
         label="Location"
         sx={{ mt: 2 }}
       >
-        <MenuItem value="cbd">CBD</MenuItem>
-        <MenuItem value="central-auckland">Central Auckland</MenuItem>
-        <MenuItem value="east-auckland">East Auckland</MenuItem>
-        <MenuItem value="west-auckland">West Auckland</MenuItem>
-        <MenuItem value="south-auckland">South Auckland</MenuItem>
-        <MenuItem value="north-shore">North Shore</MenuItem>
+        <MenuItem value="CBD">CBD</MenuItem>
+        <MenuItem value="Central Auckland">Central Auckland</MenuItem>
+        <MenuItem value="East Auckland">East Auckland</MenuItem>
+        <MenuItem value="West Auckland">West Auckland</MenuItem>
+        <MenuItem value="South Auckland">South Auckland</MenuItem>
+        <MenuItem value="North Shore">North Shore</MenuItem>
       </Select>
     </FormControl>
   );

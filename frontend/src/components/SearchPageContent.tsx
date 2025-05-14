@@ -32,7 +32,7 @@ interface PetSitter {
   review_count: number;
 }
 
-const regions = ['North Shore', 'West Auckland', 'Central Auckland', 'East Auckland', 'South Auckland'];
+const regions = ['CBD', 'Central Auckland', 'East Auckland', 'West Auckland', 'South Auckland', 'North Shore'];
 
 const SearchPageContent = () => {
   const params = useSearchParams();
