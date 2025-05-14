@@ -1,8 +1,14 @@
 const db = require("../config/db");
+
 exports.setAvailability = async (user_id, slots) => {
-  // Delete existing available time slots for the user
+  // Delete existing time slots
   await db.query("DELETE FROM availability WHERE user_id = ?", [user_id]);
-  // Store the user-selected local time directly (no longer converting to UTC)
+
+  // If user has no availability, do not insert anything
+  if (!Array.isArray(slots) || slots.length === 0) {
+    return; // nothing more to do
+  }
+
   const values = slots.map((slot) => [
     user_id,
     slot.weekday,
@@ -15,6 +21,7 @@ exports.setAvailability = async (user_id, slots) => {
     [values]
   );
 };
+
 
 exports.getAvailabilityByUser = async (user_id) => {
   const [rows] = await db.query(
