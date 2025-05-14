@@ -132,7 +132,11 @@ project/
 **DB Setup**
 
   - Install MySql and set up the local user if you haven't done so. Update DB keys in `backend/.env` for signing in your local DB.
-  - Execute `backend\sql\pet_service_backup.sql`
+  - Execute `backend\sql\db_backup.sql`
+  - Edit `frontend\const.ts` as follows
+
+      ```
+      export const imageBaseUrl = process.env.NODE_ENV !== 'production' ? '' : "`${process.env.NEXT_PUBLIC_API_URL}`;
 
 **Installation**
 
