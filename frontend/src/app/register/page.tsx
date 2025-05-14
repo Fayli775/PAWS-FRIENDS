@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Header from "@/components/Header";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -10,23 +9,28 @@ import AvatarUpload from "@/components/AvatarUpload";
 import LocationSelect from "@/components/LocationSelect";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert, { AlertColor } from "@mui/material/Alert";
 
 export default function RegisterPage() {
-  const [avatar, setAvatar] = useState<string | null>(null); //预览图
-  const [avatarFile, setAvatarFile] = useState<File | null>(null); // 上传用的文件
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [location, setLocation] = useState<string>("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
-  const [isEmailChecking, setIsEmailChecking] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordMatch, setIsPasswordMatch] = useState(false);
   const [biography, setBiography] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success");
+
   const router = useRouter();
 
-  // check if email is unique
   const handleEmailChange = async (value: string) => {
     setEmail(value);
 
@@ -50,7 +54,6 @@ export default function RegisterPage() {
     }
   };
 
-  // check if password and confirm password are the same
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     setIsPasswordMatch(value === confirmPassword);
@@ -61,35 +64,24 @@ export default function RegisterPage() {
     setIsPasswordMatch(value === password);
   };
 
-  // handle form submission
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // check if all fields are filled
-    if (
-      !email.trim() ||
-      !username.trim() ||
-      !password.trim() ||
-      !confirmPassword.trim() ||
-      !location.trim()
-    ) {
-      alert("Registration failed. Please fill in all required fields.");
+    if (!email.trim() || !username.trim() || !password.trim() || !confirmPassword.trim() || !location.trim()) {
+      showSnackbar("Registration failed. Please fill in all required fields.", "error");
       return;
     }
 
-    // check if email is valid
     if (!isEmailValid) {
-      alert("Registration failed. Email is already taken.");
+      showSnackbar("Registration failed. Email is already taken.", "error");
       return;
     }
 
-    // check if password and confirm password are the same
     if (!isPasswordMatch) {
-      alert("Registration failed. Passwords do not match.");
+      showSnackbar("Registration failed. Passwords do not match.", "error");
       return;
     }
 
-    // creat FormData object
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
@@ -114,26 +106,27 @@ export default function RegisterPage() {
         throw new Error("Failed to register user");
       }
 
-      const responseData = await response.json();
-      
-      alert("Registration successful! Redirecting to Log in page…");
-      router.push("/login");
+      showSnackbar("Registration successful! Go to Log in page.", "success");
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (error) {
       console.error("Error during registration:", error);
-      alert("Registration failed. Please try again.");
+      showSnackbar("Registration failed. Please try again.", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const showSnackbar = (message: string, severity: AlertColor) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#fef8f2",
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", backgroundColor: "#fef8f2" }}>
       <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Register
@@ -150,11 +143,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => handleEmailChange(e.target.value)}
             error={!isEmailValid && email.trim() !== ""}
-            helperText={
-              !isEmailValid && email.trim() !== ""
-                ? "Email is already taken. Please choose another."
-                : ""
-            }
+            helperText={!isEmailValid && email.trim() !== "" ? "Email is already taken. Please choose another." : ""}
           />
           <TextField
             margin="normal"
@@ -190,11 +179,7 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
             error={!isPasswordMatch && confirmPassword.trim() !== ""}
-            helperText={
-              !isPasswordMatch && confirmPassword.trim() !== ""
-                ? "Passwords do not match. Please try again."
-                : ""
-            }
+            helperText={!isPasswordMatch && confirmPassword.trim() !== "" ? "Passwords do not match." : ""}
           />
           <TextField
             margin="normal"
@@ -206,31 +191,36 @@ export default function RegisterPage() {
             value={biography}
             onChange={(e) => setBiography(e.target.value)}
           />
-          <LocationSelect
-            value={location}
-            onChange={(e) => setLocation(e.target.value as string)}
-          />
+          <LocationSelect value={location} onChange={(e) => setLocation(e.target.value as string)} />
           <AvatarUpload
             avatar={avatar}
             setAvatar={(previewUrl, file) => {
               setAvatar(previewUrl);
               setAvatarFile(file ?? null);
             }}
-          />{" "}
+          />
           <Button type="submit" fullWidth variant="contained" sx={{ mb: 2 }}>
             {isSubmitting ? "Registering..." : "Register"}
           </Button>
           <Typography variant="body2" align="center">
-            Already have an account?
-            <Link
-              href="/login"
-              style={{ color: "blue", textDecoration: "underline" }}
-            >
+            Already have an account?{" "}
+            <Link href="/login" style={{ color: "blue", textDecoration: "underline" }}>
               Log In
             </Link>
           </Typography>
         </Box>
       </Container>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        sx={{ bottom: '80px' }}
+      >
+        <MuiAlert elevation={6} variant="filled" onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 }
