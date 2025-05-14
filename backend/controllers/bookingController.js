@@ -69,30 +69,25 @@ exports.updateBookingStatus = async (req, res) => {
     // 4. update booking status
     await Booking.updateBookingStatus(id, status, note);
     
-    // 5. construct detailed notice message
-    const formattedMessage = `
-      Your booking status has been updated to: ${status}
-      <strong>Order Information:</strong>
-      Pet type: ${booking.pet_type}
-      Service Type: ${booking.service_type}
-      Service Time: ${formattedStartTime}
-    `;
-    
     // 6. send notice to owner
     const ownerMessage = `
-      ${sitterData.user_name} has updated your booking status to: ${status} <br/>
+      Your booking status has been updated to: ${status} <br/>
       <strong>Order Information:</strong> <br/>
+      User: ${sitterData.user_name} <br>
+      Sitter: ${ownerData.user_name} <br>
       Pet Type: ${booking.pet_type} <br/>
       Service Type: ${booking.service_type} <br/>
       Service Time: ${formattedStartTime} <br/>
-      ${booking.language ? `Service Language: ${booking.language}<br/>` : ''}
+      ${booking.language ? `Service Language: ${booking.language}` : ''} <br/>
     `.trim();
     Notice.createNotice(booking.owner_id, "Order Status Updated", ownerMessage);
     
     // 7. send notice to sitter
     const sitterMessage = `
-      ${ownerData.user_name} 's booking status has been updated to: ${status} <br/>
+      Your booking status has been updated to: ${status} <br/>
       <strong>Order Information:</strong> <br/>
+      User: ${sitterData.user_name} <br>
+      Sitter: ${ownerData.user_name} <br>
       Pet Type: ${booking.pet_type} <br/>
       Service Type: ${booking.service_type} <br/>
       Service Time: ${formattedStartTime} <br/>
