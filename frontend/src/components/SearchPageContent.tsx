@@ -45,6 +45,7 @@ const SearchPageContent = () => {
 
   const [keyword, setKeyword] = useState(params.get('keyword') || '');
   const [region, setRegion] = useState(params.get('region') || '');
+  const [totalSitters, setTotalSitters] = useState(0);
 
   useEffect(() => {
     const fetchSitters = async () => {
@@ -63,6 +64,7 @@ const SearchPageContent = () => {
         const data = await res.json();
         setSitters(data.sitters || []);
         setTotalPages(data.pagination?.total_pages || 1);
+        setTotalSitters(data.pagination?.total_results || 0);
       } catch (error) {
         console.error('Error fetching sitters:', error);
       }
@@ -153,7 +155,7 @@ const SearchPageContent = () => {
       {/* search result */}
       <Container sx={{ flexGrow: 1 }}>
         <Typography variant="h5" fontWeight="bold" mb={3}>
-          Found {sitters.length} sitters
+          Found {totalSitters} sitters
         </Typography>
 
         {sitters.length === 0 ? (

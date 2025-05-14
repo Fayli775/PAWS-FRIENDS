@@ -40,7 +40,7 @@ export default function Notices() {
           cursor: 'pointer',
           ml: 4,
           mr: 4,
-          backgroundColor: n.read_tag === 1 ? '#fff' : '#f0f8ff', // 未读淡蓝背景
+          backgroundColor: n.read_tag === 1 ? '#fff' : '#f0f8ff', // if read, white, if not read, light blue
         }}
         onClick={async () => {
           if (n.read_tag === 0) {
@@ -70,7 +70,11 @@ export default function Notices() {
             <Typography variant="h6">{n.title}</Typography>
             {n.read_tag === 0 && <Chip label="New" color="primary" size="small" />}
           </Box>
-          <Typography variant="body2" mt={1}>{n.message}</Typography>
+          <Typography 
+            variant="body2" 
+            mt={1} 
+            dangerouslySetInnerHTML={{ __html: n.message }} 
+          />
           <Typography variant="caption" color="text.secondary">
             {new Date(n.created_at).toLocaleString()}
           </Typography>
