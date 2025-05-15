@@ -1,10 +1,10 @@
 //routes/userRoutes.js
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware.js"); // authMiddleware
+const authMiddleware = require("../middleware/authMiddleware.js"); 
 const { uploadImage } = require("../middleware/imageUploadMiddleware.js");
-const userController = require("../controllers/userController.js"); // userAPI
-const { uploadAvatar } = require("../middleware/multer.js"); // 引入 multer 配置
+const userController = require("../controllers/userController.js"); 
+const { uploadAvatar } = require("../middleware/multer.js"); 
 
 // ger user by id
 router.get("/:id", userController.getUserById);

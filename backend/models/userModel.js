@@ -170,7 +170,7 @@ exports.getUserLanguages = async (userId) => {
 
 exports.addUserLanguages = async (userId, languages) => {
   if (!Array.isArray(languages)) throw new Error("languages must be array");
-  await db.query("DELETE FROM user_languages WHERE user_id = ?", [userId]); // 清空后插入
+  await db.query("DELETE FROM user_languages WHERE user_id = ?", [userId]); 
   for (const lang of languages) {
     await db.query("INSERT INTO user_languages (user_id, language) VALUES (?, ?)", [userId, lang]);
   }
@@ -199,7 +199,7 @@ exports.getCertificatesByUserId = async (userId) => {
   const query = 'SELECT certificate_name FROM user_certificates WHERE user_id = ?';
   try {
     const results = await db.query(query, [userId]);
-    return results.map((row) => row.certificate_name); // 返回证书名称数组
+    return results.map((row) => row.certificate_name); 
   } catch (err) {
     console.error('Error fetching certificates:', err);
     throw err;

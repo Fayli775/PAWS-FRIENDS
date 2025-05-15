@@ -77,7 +77,7 @@ exports.addNewPet = async (req, res) => {
 
     let photo_url = null;
     if (req.file) {
-      // 提取上传的文件相对路径
+      
       photo_url = req.fileUrlToStore
     }
     const petData = {
