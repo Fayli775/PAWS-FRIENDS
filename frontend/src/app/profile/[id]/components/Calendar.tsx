@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -36,6 +37,7 @@ const timeSlots = [
   "20:00–21:00",
   "21:00–22:00",
 ];
+
 const weekdayMap = {
   Mon: "Monday",
   Tue: "Tuesday",
@@ -49,6 +51,20 @@ const weekdayMap = {
 const reverseMap = Object.fromEntries(
   Object.entries(weekdayMap).map(([abbr, full]) => [full, abbr])
 ) as Record<string, string>;
+
+const publicHolidays = [
+  { date: "2025-01-01", name: "New Year's Day" },
+  { date: "2025-01-02", name: "Day after New Year's Day" },
+  { date: "2025-02-06", name: "Waitangi Day" },
+  { date: "2025-04-25", name: "Anzac Day" },
+  { date: "2025-06-02", name: "King's Birthday" },
+  { date: "2025-10-27", name: "Labour Day" },
+  { date: "2025-12-25", name: "Christmas Day" },
+  { date: "2025-12-26", name: "Boxing Day" },
+];
+
+const getUpcomingHolidays = () =>
+  publicHolidays.filter((h) => new Date(h.date) > new Date());
 
 export default function Calendar({
   readOnly = false,
@@ -67,12 +83,14 @@ export default function Calendar({
   });
 
   const normalizeTime = (t: string) => t.slice(0, 5);
-  const availabilityArrayToSelected = useCallback((slots: any[]) => {
 
+  const availabilityArrayToSelected = useCallback((slots: any[]) => {
     const result: Record<string, boolean> = {};
     slots.forEach((slot) => {
       const abbr = reverseMap[slot.weekday];
-      const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(slot.end_time)}`;
+      const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(
+        slot.end_time
+      )}`;
       result[`${abbr}-${timeSlot}`] = true;
     });
     return result;
@@ -82,7 +100,6 @@ export default function Calendar({
     if (!accessToken) return;
     const targetUserId = userId || user?.id;
     if (!targetUserId) return;
-
 
     setLoading(true);
     try {
@@ -96,7 +113,9 @@ export default function Calendar({
       const booked: Record<string, boolean> = {};
       (json.bookedSlots || []).forEach((slot: any) => {
         const abbr = reverseMap[slot.weekday];
-        const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(slot.end_time)}`;
+        const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(
+          slot.end_time
+        )}`;
         booked[`${abbr}-${timeSlot}`] = true;
       });
       setBookedSlots(booked);
@@ -159,6 +178,7 @@ export default function Calendar({
       console.error("Error saving availability:", err);
     }
   };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="300px">
@@ -179,7 +199,9 @@ export default function Calendar({
           <TableRow>
             <TableCell />
             {weekdays.map((d) => (
-              <TableCell key={d} align="center">{d}</TableCell>
+              <TableCell key={d} align="center">
+                {d}
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -206,7 +228,6 @@ export default function Calendar({
                       userSelect: "none",
                       opacity: isBooked ? 0.5 : 1,
                       fontSize: "12px",
-
                     }}
                   >
                     {isBooked ? "Booked" : selected[key] ? "✔️" : ""}
@@ -218,10 +239,27 @@ export default function Calendar({
         </TableBody>
       </Table>
 
+      <Box mt={1} ml={4}>
+        <Typography fontWeight={400}>Upcoming Public Holidays</Typography>
+        {getUpcomingHolidays().map((h) => {
+          const day = new Date(h.date);
+          const weekday = weekdays[day.getDay() - 1] || "Sun";
+          return (
+            <Typography key={h.date} variant="body2">
+              {h.date} ({weekday}): {h.name}
+            </Typography>
+          );
+        })}
+      </Box>
+
       {!readOnly && (
         <Box mt={2} ml={4} display="flex" gap={2}>
-          <Button variant="contained" onClick={saveAll}>Save</Button>
-          <Button variant="outlined" onClick={() => setSelected({})}>Clear</Button>
+          <Button variant="contained" onClick={saveAll}>
+            Save
+          </Button>
+          <Button variant="outlined" onClick={() => setSelected({})}>
+            Clear
+          </Button>
         </Box>
       )}
 
