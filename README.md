@@ -34,6 +34,8 @@ Our team members are:
 - Automatic booking reminders (30-minute advance notifications)
 - Booking history and status tracking
 - Support for Dog Walking, In-Home Feeding, and Dog Grooming & Care services
+- Automatic order status updates (orders marked as "completed" 90 minutes after service end time)
+- Order time status categorization (upcoming, ongoing, completed) based on booking time
 
 ### 📜 Certification System
 - Sitters can upload certification documents
@@ -170,14 +172,131 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 
-## 📝 Future Enhancements
+## 📝 Future Improvements
 
-Planned features:
-- Real-time messaging between sitters and owners
-- Payment integration
-- Enhanced document validation
-- Role-based dashboards
-- Custom location contributions
+### Booking System Enhancements
+
+1. **Enhanced Calendar Flexibility**
+   - Implement daily precision booking instead of the current weekly limitation
+   - Allow users to select specific dates beyond the next week
+   - Add a calendar view showing availability across multiple months
+
+2. **Cancellation Policy Management**
+   - Implement tiered cancellation policies (e.g., free cancellation 24+ hours before, partial refund within 24 hours)
+   - Add cancellation reason tracking for analytics
+   - Implement automatic rebooking suggestions when cancellations occur
+
+3. **Service Customization**
+   - Allow sitters to offer customized service packages
+   - Enable pet owners to specify special requirements during booking
+   - Add service add-ons (e.g., extra walks, grooming, training)
+
+### Notification System Improvements
+
+1. **Enhanced Notice System**
+   - Add timestamps to all notifications
+   - Implement unread notification counters with visual indicators
+   - Improve notification organization with categories
+
+2. **Email Notifications**
+   - Send booking confirmations via email
+   - Implement service reminders (30 minutes before, as currently implemented in the app)
+   - Send review reminders after service completion
+
+3. **Notification Preferences**
+   - Allow users to customize which notifications they receive
+   - Add the ability to mute notifications temporarily
+
+### User Experience Enhancements
+
+1. **Performance Optimization**
+   - Optimize the MyBookings page loading speed
+   - Implement more efficient data fetching for reviews and booking history
+   - Add skeleton loading states for better perceived performance
+
+2. **Review System Improvements**
+   - Link reviews directly to their corresponding orders
+   - Add the ability to include photos in reviews
+   - Implement response capability for sitters to address reviews
+
+3. **Profile Enhancements**
+   - Add more detailed service description fields
+   - Implement better certificate management and display
+   - Add availability templates for quick calendar setup
+
+### Region-Based Features
+
+1. **Enhanced Region Selection**
+   - Implement more granular region selection (neighborhoods within Auckland regions)
+   - Add region-based pricing options for sitters
+   - Create region-specific service statistics and popularity metrics
+
+2. **Pet-Friendly Location Database**
+   - Expand the database of pet-friendly locations categorized by region
+   - Allow users to filter locations by amenities and pet requirements
+   - Implement user-submitted location suggestions with admin approval
+
+### Communication Features
+
+1. **Pre-booking Q&A**
+   - Implement a structured Q&A system for potential customers to ask questions before booking
+   - Add FAQ templates for sitters to save time answering common questions
+   - Create a public Q&A section on sitter profiles
+
+2. **Post-service Communication**
+   - Allow limited-time communication after service completion
+   - Implement templated follow-up messages for sitters
+
+### Payment System Integration
+
+1. **Secure Payment Processing**
+   - Integrate with payment gateways like Stripe or PayPal
+   - Implement secure payment holding until service completion
+   - Add support for multiple payment methods
+
+2. **Pricing Management**
+   - Allow sitters to set custom rates for different services
+   - Implement holiday and weekend rate adjustments
+   - Add loyalty discounts for repeat customers
+
+### Certificate Verification Improvements
+
+1. **Streamlined Verification Process**
+   - Improve the certificate upload and verification workflow
+   - Add automatic verification status updates
+   - Implement expiration tracking and renewal reminders for certificates
+
+2. **Badge Display Enhancement**
+   - Create a more prominent display of verification badges
+   - Add tooltips explaining verification requirements
+   - Implement verification level indicators (basic, standard, premium)
+
+### Administrative Features
+
+1. **Enhanced Admin Dashboard**
+   - Create comprehensive reporting and analytics
+   - Implement better user management tools
+   - Add certificate verification workflows
+
+2. **Content Management**
+   - Develop a system for managing the events carousel and emergency service information
+   - Add tools for updating region information and pet-friendly locations
+
+### Technical Improvements
+
+1. **API Optimization**
+   - Improve API response times for critical endpoints
+   - Add better caching strategies for frequently accessed data
+   - Optimize database queries for the booking system
+
+2. **Testing and Quality Assurance**
+   - Expand test coverage for critical application paths
+   - Implement end-to-end testing for core user flows
+   - Add automated performance testing
+
+3. **Internationalization**
+   - Improve multi-language support with better translation management
+   - Add language-specific content for the most common languages in NZ
 
 ## 📄 License
 
