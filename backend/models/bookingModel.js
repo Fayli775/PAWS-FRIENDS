@@ -75,6 +75,22 @@ const Booking = {
     );
     return rows[0];
   },
-};
 
+  // check if the time-slot booked 
+  async isSlotBooked(sitterId, startTime, endTime) {
+    const formattedStart = dayjs(startTime).format("YYYY-MM-DD HH:mm:ss");
+    const formattedEnd = dayjs(endTime).format("YYYY-MM-DD HH:mm:ss");
+
+    const [rows] = await db.execute(
+      `SELECT id FROM booking 
+       WHERE sitter_id = ? 
+       AND start_time = ? 
+       AND end_time = ? 
+       AND status IN ('pending', 'confirmed')`,
+      [sitterId, formattedStart, formattedEnd]
+    );
+
+    return rows.length > 0;
+  },
+};
 module.exports = Booking;
