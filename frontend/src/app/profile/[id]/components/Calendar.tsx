@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -15,21 +16,20 @@ import {
 } from "@mui/material";
 import useAuth from "@/hooks/useAuth";
 
+interface CalendarProps {
+  readOnly?: boolean;
+  userId?: string;
+  hideHeader?: boolean;
+}
+
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const timeSlots = [
-  "06:00–07:00",
-  "07:00–08:00",
-  "08:00–09:00",
   "09:00–10:00",
   "10:00–11:00",
   "11:00–12:00",
   "13:00–14:00",
   "14:00–15:00",
   "15:00–16:00",
-  "16:00–17:00",
-  "17:00–18:00",
-  "18:00–19:00",
-  "19:00–20:00",
   "20:00–21:00",
   "21:00–22:00",
 ];
@@ -81,10 +81,8 @@ export default function Calendar({
     "success"
   );
 
-  // Format time
   const normalizeTime = (t: string) => t.slice(0, 5);
 
-  // Convert availability array to selected state
   const availabilityArrayToSelected = (
     slots: any[]
   ): Record<string, boolean> => {
@@ -100,7 +98,6 @@ export default function Calendar({
     return result;
   };
 
-  // Convert selected state to availability array
   const selectedToAvailabilityArray = (selected: Record<string, boolean>) => {
     const result: {
       weekday: string;
@@ -123,35 +120,44 @@ export default function Calendar({
     return result;
   };
 
-  // Load selected time slots from localStorage
   useEffect(() => {
-    const savedSelected = localStorage.getItem("selectedTimeSlots");
-    if (savedSelected) {
-      setSelected(JSON.parse(savedSelected)); // Load selected slots from localStorage
-    }
-    setLoading(false);
-  }, []);
+    const fetchAvailability = async () => {
+      try {
+        if (!accessToken) return;
 
-  // Toggle the selected time slot
+        const res = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/api/availability/${userId}?t=${Date.now()}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
+        const json = await res.json();
+        const slots = Array.isArray(json) ? json : json.availability || [];
+
+        setSelected(availabilityArrayToSelected(slots));
+      } catch (err) {
+        console.error("Error fetching availability:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [user?.id, accessToken]);
+
   const handleToggle = (d: string, slot: string) => {
     if (readOnly) return;
     const key = `${d}-${slot}`;
-    setSelected((prev) => {
-      const updatedSelected = { ...prev, [key]: !prev[key] };
-      localStorage.setItem("selectedTimeSlots", JSON.stringify(updatedSelected)); // Update localStorage
-      return updatedSelected;
-    });
+    setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Clear all selected time slots
   const clearAll = () => {
-    if (!readOnly) {
-      setSelected({});
-      localStorage.removeItem("selectedTimeSlots"); // Remove from localStorage
-    }
+    if (!readOnly) setSelected({});
   };
 
-  // Save the selected time slots to the backend
   const saveAll = async () => {
     if (readOnly) return;
 
@@ -190,6 +196,7 @@ export default function Calendar({
     const today = new Date();
     return publicHolidays.filter((holiday) => new Date(holiday.date) > today);
   };
+
   if (loading) {
     return (
       <Box
@@ -242,7 +249,7 @@ export default function Calendar({
                       backgroundColor: selected[key] ? "#A78BFA" : "#F3F4F6",
                       borderRadius: 1,
                       userSelect: "none",
-                      fontFamily: "Roboto",
+                      fontFamily: "Roboto", // Making the font more consistent
                     }}
                   >
                     {selected[key] ? "✔️" : ""}
