@@ -44,7 +44,7 @@ exports.getBookedSlotsByUser = async (user_id) => {
             DAYNAME(start_time) AS weekday
          FROM booking 
          WHERE sitter_id = ? 
-         AND status IN ('pending', 'confirmed')`,
+         AND status IN ('pending', 'accepted')`,
     [user_id]
   );
   return rows;
