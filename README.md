@@ -87,20 +87,6 @@ Our team members are:
 - **Clever Cloud** for database hosting
 - Private keys are submitted in "Assignment - Private info / API key / etc submission"
 
-### 🧪 Testing
-
-Run tests for both frontend and backend:
-
-```bash
-# Run all tests
-npm run test
-```
-
-The test suite includes:
-- Isolated test database with separate schema
-- Unit tests for controllers and models
-- Integration tests for API endpoints
-- Test database cleanup after each test run
 
 ## 🗂 Project Structure
 
@@ -169,6 +155,98 @@ npm run dev
 The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
+
+## 🧪 Testing
+This project includes **backend-only tests** for core features such as user authentication, profile management, pet handling, bookings, and reviews. These tests are run using [Jest](https://jestjs.io/) and [supertest](https://github.com/visionmedia/supertest), with an isolated MySQL test database.
+
+---
+
+### 🛠️ Setup for Testing
+
+Before running the tests, make sure to configure a dedicated test database. Create a `.env.test` file at the root of your backend project and include the following variables:
+
+```env
+NODE_ENV=test 
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=paws_friends_test
+```
+
+> ⚠️ DB_PASSWORD is your actual MySQL password. Leave it blank only if there's no password.
+
+Then, initialize the test database structure:
+
+There are two options to ensure `NODE_ENV=test` is set correctly:
+
+**Option 1 (Recommended): UNIX-style temporary variable**
+
+```bash
+NODE_ENV=test node scripts/initTestDB.js
+```
+
+Use this if you're on **macOS, Linux, Git Bash, WSL, or other POSIX terminals**.
+
+**Option 2: Windows cmd.exe compatible**
+
+```cmd
+set NODE_ENV=test && node scripts/initTestDB.js
+```
+
+Use this if you're on **Windows cmd.exe** (not PowerShell or Bash).
+
+
+### ▶️ Running the Tests
+
+Run all backend tests with:
+
+```bash
+npm run test
+```
+
+> If you have configured `NODE_ENV=test` in `.env.test` and use a test runner like `jest`, it may also work via `npx jest` or a script like:
+> ```json
+> "scripts": {
+>   "test": "jest --setupFiles ./backend/tests/setupTests.js"
+> }
+> ```
+
+During the test execution:
+- A mock user is registered and logged in using the setup file.
+- Each test performs authenticated API calls.
+- The test database is **automatically cleaned** after all tests (via `TRUNCATE` with foreign key checks disabled).
+
+---
+
+### 📂 Test Coverage
+
+| File                | Description                                  |
+|---------------------|----------------------------------------------|
+| `setupTests.js`     | Registers a mock user and prepares auth token |
+| `auth.test.js`      | Tests login and email uniqueness check        |
+| `user.test.js`      | Tests profile read/update/password change     |
+| `pet.test.js`       | Tests pet creation, update, deletion (with image upload) |
+| `booking.test.js`   | Tests booking creation                        |
+| `review.test.js`    | Tests review submission and validation        |
+
+Each test file uses `supertest` to simulate HTTP requests against the live server (`server.js`), and assertions are performed using Jest's `expect`.
+
+---
+
+### 🧹 Database Cleanup
+
+After the test suite completes, the following tables are **truncated** (emptied):
+
+```sql
+user_info, locations, pet_info, availability, booking, booking_status_log,
+booking_review, booking_complain, location_reviews, notice_info, services,
+service_languages, service_pet_types, sitter_services, user_certificates,
+user_languages
+```
+
+This logic is implemented in `setupTests.js` and only runs if `DB_NAME` equals `paws_friends_test`.
+
 
 ## 📝 Future Enhancements
 
