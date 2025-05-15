@@ -1,7 +1,8 @@
 const Booking = require("../models/bookingModel");
 const Notice = require("../models/noticeModel");
 const { parseFrontendTimeSlot } = require("../utils/time");
-const {getSitterEmail, getUserById} = require ("../models/userModel.js");
+const { getSitterEmail, getUserById } = require("../models/userModel.js");
+
 // Create new booking
 exports.createBooking = async (req, res) => {
   try {
@@ -15,8 +16,20 @@ exports.createBooking = async (req, res) => {
       time_slot,
       language,
     } = req.body;
-    //  Construct standard UTC start and end times
+
+    // Construct standard UTC start and end times
     const { start_time, end_time } = parseFrontendTimeSlot(weekday, time_slot);
+
+// 🛡️ check if the time slot booked
+    const isBooked = await Booking.isSlotBooked(sitter_id, start_time, end_time);
+    if (isBooked) {
+      return res.status(400).json({
+        status: "error",
+        message: "This time slot has already been booked by someone else.",
+      });
+    }
+
+
 
     // Construct a booking object and pass it to the model
     const bookingData = {
@@ -29,20 +42,26 @@ exports.createBooking = async (req, res) => {
       end_time,
       language,
     };
-   // get owner's email
-    const owner_email = await getSitterEmail(owner_id);  // use getSitterEmail to get email
+
+    // Get owner's email
+    const owner_email = await getSitterEmail(owner_id);
 
     if (!owner_email) {
       return res.status(404).json({ status: "error", message: "Sitter email not found" });
     }
+
     const bookingId = await Booking.createBooking(bookingData);
-    Notice.createNotice(
+
+    // Send notice to sitter
+    await Notice.createNotice(
       sitter_id,
-      "new booking",
+      "New Booking",
       `You have received a new booking. Please check your bookings. You can contact the owner at: ${owner_email}.`
     );
+
     res.status(201).json({ status: "success", bookingId });
   } catch (err) {
+    console.error("Error creating booking:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 };
@@ -53,47 +72,47 @@ exports.updateBookingStatus = async (req, res) => {
   const { status, note } = req.body;
 
   try {
-    // 1. fetch booking by id
+    // 1. Fetch booking by id
     const booking = await Booking.getBookingById(id);
     if (!booking) {
       return res.status(404).json({ status: "error", message: "Booking not found" });
     }
 
-    // 2. fetch owner and sitter data
+    // 2. Fetch owner and sitter data
     const ownerData = await getUserById(booking.owner_id);
     const sitterData = await getUserById(booking.sitter_id);
-    
-    // 3. format start time
+
+    // 3. Format start time
     const formattedStartTime = new Date(booking.start_time).toLocaleString();
-    
-    // 4. update booking status
+
+    // 4. Update booking status
     await Booking.updateBookingStatus(id, status, note);
-    
-    // 6. send notice to owner
+
+    // 5. Send notice to owner
     const ownerMessage = `
       Your booking status has been updated to: ${status} <br/>
       <strong>Order Information:</strong> <br/>
-      User: ${sitterData.user_name} <br>
-      Sitter: ${ownerData.user_name} <br>
+      User: ${sitterData.user_name} <br/>
+      Sitter: ${ownerData.user_name} <br/>
       Pet Type: ${booking.pet_type} <br/>
       Service Type: ${booking.service_type} <br/>
       Service Time: ${formattedStartTime} <br/>
-      ${booking.language ? `Service Language: ${booking.language}` : ''} <br/>
+      ${booking.language ? `Service Language: ${booking.language}` : ''}
     `.trim();
-    Notice.createNotice(booking.owner_id, "Order Status Updated", ownerMessage);
-    
-    // 7. send notice to sitter
+    await Notice.createNotice(booking.owner_id, "Order Status Updated", ownerMessage);
+
+    // 6. Send notice to sitter
     const sitterMessage = `
       Your booking status has been updated to: ${status} <br/>
       <strong>Order Information:</strong> <br/>
-      User: ${sitterData.user_name} <br>
-      Sitter: ${ownerData.user_name} <br>
+      User: ${sitterData.user_name} <br/>
+      Sitter: ${ownerData.user_name} <br/>
       Pet Type: ${booking.pet_type} <br/>
       Service Type: ${booking.service_type} <br/>
       Service Time: ${formattedStartTime} <br/>
-      ${booking.language ? `Service Language: ${booking.language}` : ''} <br/>
-    `;
-    Notice.createNotice(booking.sitter_id, "Order Status Updated", sitterMessage);
+      ${booking.language ? `Service Language: ${booking.language}` : ''}
+    `.trim();
+    await Notice.createNotice(booking.sitter_id, "Order Status Updated", sitterMessage);
 
     res.json({
       status: "success",
@@ -113,6 +132,7 @@ exports.getBookingsByUser = async (req, res) => {
     const bookings = await Booking.getBookingsByUser(userId);
     res.json({ status: "success", bookings });
   } catch (err) {
+    console.error("Error fetching bookings for user:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 };
@@ -125,6 +145,8 @@ exports.getBookingsBySitter = async (req, res) => {
     const bookings = await Booking.getBookingsBySitter(sitterId);
     res.json({ status: "success", bookings });
   } catch (err) {
+    console.error("Error fetching bookings for sitter:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
 };
+

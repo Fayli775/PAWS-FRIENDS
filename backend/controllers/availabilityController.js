@@ -8,6 +8,7 @@ exports.setAvailability = async (req, res) => {
         await Availability.setAvailability(userId, slots);
         res.json({ status: "success", message: "Availability updated" });
     } catch (err) {
+        console.error("Error setting availability:", err);
         res.status(500).json({ status: "error", message: err.message });
     }
 };
@@ -17,13 +18,15 @@ exports.getAvailabilityByUser = async (req, res) => {
 
     try {
         const data = await Availability.getAvailabilityByUser(userId);
-        res.json({ status: "success", availability: data });
+        const bookedSlots = await Availability.getBookedSlotsByUser(userId); // added this to check time slot
+
+        res.json({ status: "success", availability: data, bookedSlots });
     } catch (err) {
+        console.error("Error getting availability:", err);
         res.status(500).json({ status: "error", message: err.message });
     }
 };
 
-// DELETE available time slot
 exports.deleteAvailabilityByUser = async (req, res) => {
     const { userId } = req.params;
 
@@ -31,6 +34,7 @@ exports.deleteAvailabilityByUser = async (req, res) => {
         await Availability.deleteAvailabilityByUser(userId);
         res.json({ status: "success", message: "Availability deleted" });
     } catch (err) {
+        console.error("Error deleting availability:", err);
         res.status(500).json({ status: "error", message: err.message });
     }
 };

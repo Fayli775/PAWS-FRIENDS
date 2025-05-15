@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Table,
@@ -30,11 +30,15 @@ const timeSlots = [
   "13:00–14:00",
   "14:00–15:00",
   "15:00–16:00",
+  "16:00–17:00",
+  "17:00–18:00",
+  "18:00–19:00",
+  "19:00–20:00",
   "20:00–21:00",
   "21:00–22:00",
 ];
 
-const weekdayMap: Record<string, string> = {
+const weekdayMap = {
   Mon: "Monday",
   Tue: "Tuesday",
   Wed: "Wednesday",
@@ -42,17 +46,11 @@ const weekdayMap: Record<string, string> = {
   Fri: "Friday",
   Sat: "Saturday",
   Sun: "Sunday",
-};
+} as const;
 
-const reverseMap: Record<string, string> = {
-  Monday: "Mon",
-  Tuesday: "Tue",
-  Wednesday: "Wed",
-  Thursday: "Thu",
-  Friday: "Fri",
-  Saturday: "Sat",
-  Sunday: "Sun",
-};
+const reverseMap = Object.fromEntries(
+  Object.entries(weekdayMap).map(([abbr, full]) => [full, abbr])
+) as Record<string, string>;
 
 const publicHolidays = [
   { date: "2025-01-01", name: "New Year's Day" },
@@ -65,6 +63,9 @@ const publicHolidays = [
   { date: "2025-12-26", name: "Boxing Day" },
 ];
 
+const getUpcomingHolidays = () =>
+  publicHolidays.filter((h) => new Date(h.date) > new Date());
+
 export default function Calendar({
   readOnly = false,
   userId,
@@ -72,98 +73,83 @@ export default function Calendar({
 }: CalendarProps) {
   const { user, accessToken } = useAuth(true);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [bookedSlots, setBookedSlots] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
-  // Snackbar state management
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
-    "success"
-  );
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
 
   const normalizeTime = (t: string) => t.slice(0, 5);
 
-  const availabilityArrayToSelected = (
-    slots: any[]
-  ): Record<string, boolean> => {
+  const availabilityArrayToSelected = useCallback((slots: any[]) => {
     const result: Record<string, boolean> = {};
     slots.forEach((slot) => {
       const abbr = reverseMap[slot.weekday];
       const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(
         slot.end_time
       )}`;
-      const key = `${abbr}-${timeSlot}`;
-      result[key] = true;
+      result[`${abbr}-${timeSlot}`] = true;
     });
     return result;
-  };
+  }, []);
 
-  const selectedToAvailabilityArray = (selected: Record<string, boolean>) => {
-    const result: {
-      weekday: string;
-      start_time: string;
-      end_time: string;
-    }[] = [];
+  const fetchAvailability = useCallback(async () => {
+    if (!accessToken) return;
+    const targetUserId = userId || user?.id;
+    if (!targetUserId) return;
 
-    Object.keys(selected).forEach((key) => {
-      if (selected[key]) {
-        const [abbr, range] = key.split("-");
-        const [start, end] = range.split("–");
-        result.push({
-          weekday: weekdayMap[abbr],
-          start_time: start,
-          end_time: end,
-        });
-      }
-    });
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/availability/${targetUserId}?t=${Date.now()}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      const json = await res.json();
+      setSelected(availabilityArrayToSelected(json.availability || []));
 
-    return result;
-  };
+      const booked: Record<string, boolean> = {};
+      (json.bookedSlots || []).forEach((slot: any) => {
+        const abbr = reverseMap[slot.weekday];
+        const timeSlot = `${normalizeTime(slot.start_time)}–${normalizeTime(
+          slot.end_time
+        )}`;
+        booked[`${abbr}-${timeSlot}`] = true;
+      });
+      setBookedSlots(booked);
+    } catch (err) {
+      console.error("Error fetching availability:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken, userId, user?.id, availabilityArrayToSelected]);
 
   useEffect(() => {
-    const fetchAvailability = async () => {
-      try {
-        if (!accessToken) return;
-
-        const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
-          }/api/availability/${userId}?t=${Date.now()}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        const json = await res.json();
-        const slots = Array.isArray(json) ? json : json.availability || [];
-
-        setSelected(availabilityArrayToSelected(slots));
-      } catch (err) {
-        console.error("Error fetching availability:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAvailability();
-  }, [user?.id, accessToken]);
+  }, [fetchAvailability]);
 
   const handleToggle = (d: string, slot: string) => {
-    if (readOnly) return;
     const key = `${d}-${slot}`;
+    if (readOnly || bookedSlots[key]) return;
     setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const clearAll = () => {
-    if (!readOnly) setSelected({});
-  };
-
   const saveAll = async () => {
-    if (readOnly) return;
-
+    if (readOnly || !accessToken) return;
     try {
-      if (!accessToken) return;
-      const array = selectedToAvailabilityArray(selected);
+      const array = Object.entries(selected)
+        .filter(([key, isSelected]) => isSelected && !bookedSlots[key])
+        .map(([key]) => {
+          const [abbr, range] = key.split("-");
+          const [start, end] = range.split("–");
+          return {
+            weekday: weekdayMap[abbr as keyof typeof weekdayMap],
+            start_time: start,
+            end_time: end,
+          };
+        });
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/availability`,
@@ -176,35 +162,26 @@ export default function Calendar({
           body: JSON.stringify(array),
         }
       );
-
       if (!res.ok) throw new Error("Failed to save availability");
-
-      // Update Snackbar message
-      setSnackbarMessage("Availability saved successfully!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
+      setSnackbar({
+        open: true,
+        message: "Availability saved successfully!",
+        severity: "success",
+      });
+      await fetchAvailability();
     } catch (err) {
-      // Update Snackbar message and state on error
-      setSnackbarMessage("Failed to save calendar. Please try again.");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
+      setSnackbar({
+        open: true,
+        message: "Failed to save calendar. Please try again.",
+        severity: "error",
+      });
       console.error("Error saving availability:", err);
     }
   };
 
-  const getUpcomingHolidays = () => {
-    const today = new Date();
-    return publicHolidays.filter((holiday) => new Date(holiday.date) > today);
-  };
-
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="300px"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="300px">
         <CircularProgress />
       </Box>
     );
@@ -213,16 +190,11 @@ export default function Calendar({
   return (
     <Box>
       {!hideHeader && (
-        <Typography
-          variant="h5"
-          align="left"
-          gutterBottom
-          sx={{ ml: 4, md: 4, fontFamily: "Roboto", fontWeight: 500 }}
-        >
-          <strong>Choose your available time slots</strong>
+        <Typography variant="h5" sx={{ ml: 4, fontWeight: 500 }}>
+          Choose your available time slots
         </Typography>
       )}
-      <Table size="small" sx={{ marginTop: 1, marginLeft: 4, width: "70%" }}>
+      <Table size="small" sx={{ mt: 1, ml: 4, width: "70%" }}>
         <TableHead>
           <TableRow>
             <TableCell />
@@ -239,20 +211,26 @@ export default function Calendar({
               <TableCell>{slot}</TableCell>
               {weekdays.map((d) => {
                 const key = `${d}-${slot}`;
+                const isBooked = bookedSlots[key];
                 return (
                   <TableCell
                     key={key}
                     align="center"
                     onClick={() => handleToggle(d, slot)}
                     sx={{
-                      cursor: readOnly ? "default" : "pointer",
-                      backgroundColor: selected[key] ? "#A78BFA" : "#F3F4F6",
+                      cursor: isBooked ? "not-allowed" : "pointer",
+                      backgroundColor: isBooked
+                        ? "#E5E7EB"
+                        : selected[key]
+                        ? "#A78BFA"
+                        : "#F3F4F6",
                       borderRadius: 1,
                       userSelect: "none",
-                      fontFamily: "Roboto", // Making the font more consistent
+                      opacity: isBooked ? 0.5 : 1,
+                      fontSize: "12px",
                     }}
                   >
-                    {selected[key] ? "✔️" : ""}
+                    {isBooked ? "Booked" : selected[key] ? "✔️" : ""}
                   </TableCell>
                 );
               })}
@@ -262,24 +240,16 @@ export default function Calendar({
       </Table>
 
       <Box mt={1} ml={4}>
-        <Typography gutterBottom sx={{ fontFamily: "Roboto", fontWeight: 400 }}>
-          Upcoming Public Holidays
-        </Typography>
-        <Box>
-          {getUpcomingHolidays().map((holiday) => {
-            const holidayDate = new Date(holiday.date);
-            const weekday = weekdays[holidayDate.getDay() - 1] || "Sun";
-            return (
-              <Typography
-                key={holiday.date}
-                variant="body2"
-                sx={{ fontFamily: "Roboto", fontWeight: 400 }}
-              >
-                {holiday.date} ({weekday}): {holiday.name}
-              </Typography>
-            );
-          })}
-        </Box>
+        <Typography fontWeight={400}>Upcoming Public Holidays</Typography>
+        {getUpcomingHolidays().map((h) => {
+          const day = new Date(h.date);
+          const weekday = weekdays[day.getDay() - 1] || "Sun";
+          return (
+            <Typography key={h.date} variant="body2">
+              {h.date} ({weekday}): {h.name}
+            </Typography>
+          );
+        })}
       </Box>
 
       {!readOnly && (
@@ -287,33 +257,31 @@ export default function Calendar({
           <Button variant="contained" onClick={saveAll}>
             Save
           </Button>
-          <Button variant="outlined" onClick={clearAll}>
+          <Button variant="outlined" onClick={() => setSelected({})}>
             Clear
           </Button>
         </Box>
       )}
 
-      {/* Snackbar Component */}
       <Snackbar
-        open={openSnackbar}
+        open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={snackbarSeverity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          severity={snackbar.severity}
           sx={{
             fontSize: "16px",
             fontWeight: "bold",
             borderRadius: "12px",
             padding: "16px 24px",
-            backgroundColor:
-              snackbarSeverity === "success" ? "#4caf50" : "#f44336",
+            backgroundColor: snackbar.severity === "success" ? "#4caf50" : "#f44336",
             color: "white",
           }}
         >
-          {snackbarMessage}
+          {snackbar.message}
         </Alert>
       </Snackbar>
     </Box>
