@@ -1,17 +1,17 @@
 const dayjs = require("dayjs");
 
-// 1️⃣ 格式化成“YYYY-MM-DD HH:mm:ss”（本地时间）
+// Format as "YYYY-MM-DD HH:mm:ss" (local time)
 const toLocalDateTime = (input = new Date()) => {
   return dayjs(input).format("YYYY-MM-DD HH:mm:ss");
 };
 
-// 2️⃣ 只提取时间部分 “HH:mm:ss”（用于 availability 的 start_time / end_time）
+// Extract only the time portion "HH:mm:ss" (used for availability start_time / end_time)
 const toTimeOnly = (input) => {
   const fakeDateTime = `2000-01-01T${input}`;
   return dayjs(fakeDateTime).format("HH:mm:ss");
 };
 
-// 3️⃣ 从 weekday 和 timeSlot 推算出最近日期的完整起止时间（本地时间）
+// Given a weekday and timeSlot, calculate the nearest upcoming full start and end time (local time)
 const parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
   const weekdayMap = {
     Sun: 0, Mon: 1, Tue: 2, Wed: 3,
@@ -35,7 +35,7 @@ const parseFrontendTimeSlot = (weekdayLabel, timeSlot) => {
 
 module.exports = {
     toLocalDateTime,
-    toUTCDateTime: toLocalDateTime, // ✅ 兼容旧代码的名字
+    toUTCDateTime: toLocalDateTime, 
     toTimeOnly,
     parseFrontendTimeSlot
   };

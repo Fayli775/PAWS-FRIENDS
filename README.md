@@ -178,7 +178,9 @@ DB_NAME=paws_friends_test
 
 > ⚠️ DB_PASSWORD is your actual MySQL password. Leave it blank only if there's no password.
 
-Then, initialize the test database structure:
+### 🧩 First-Time Setup (Required)
+
+Before running the tests for the first time, you need to initialize the test database structure. This step ensures that all required tables exist and match the project schema.
 
 There are two options to ensure `NODE_ENV=test` is set correctly:
 
@@ -197,15 +199,20 @@ set NODE_ENV=test && node scripts/initTestDB.js
 ```
 
 Use this if you're on **Windows cmd.exe** (not PowerShell or Bash).
+💡 If you have already configured .env.test, Jest will usually pick up the test environment automatically.
+You can usually skip setting NODE_ENV manually when running tests.
 
+📌 You only need to run the init script once unless you later modify the schema.
 
 ### ▶️ Running the Tests
 
-Run all backend tests with:
+To run all tests sequentially:
 
 ```bash
-npm run test
+npm run test -- --runInBand
 ```
+🧠 --runInBand tells Jest to run tests sequentially in a single thread, which helps prevent issues in integration tests involving shared resources like a database connection.
+This avoids race conditions and makes test logs easier to read.
 
 > If you have configured `NODE_ENV=test` in `.env.test` and use a test runner like `jest`, it may also work via `npx jest` or a script like:
 > ```json
