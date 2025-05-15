@@ -48,11 +48,6 @@ Our team members are:
 - Location-based sitter search
 - Custom location contributions
 
-### 🌐 Multilingual Support
-- Support for English, 中文 Chinese, Te Reo Māori, Hindi, Korean, Japanese, and Spanish
-- Filter sitters based on preferred communication language
-- Localized user interface
-
 ### 🔍 Advanced Search
 - Filter by pet type, region, service type, language, calendar
 - Public sitter profiles with badges and reviews
