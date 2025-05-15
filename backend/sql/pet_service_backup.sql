@@ -322,7 +322,7 @@ DROP TABLE IF EXISTS `service_languages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_languages` (
   `service_id` int NOT NULL,
-  `language` varchar(50) NOT NULL COMMENT '英语、中文等',
+  `language` varchar(50) NOT NULL,
   PRIMARY KEY (`service_id`,`language`),
   CONSTRAINT `service_languages_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -347,8 +347,8 @@ DROP TABLE IF EXISTS `service_pet_types`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_pet_types` (
   `service_id` int NOT NULL,
-  `pet_type` varchar(50) NOT NULL COMMENT '猫、狗、鸟等',
-  `price_adjustment` decimal(10,2) DEFAULT '0.00' COMMENT '针对该宠物的价格调整',
+  `pet_type` varchar(50) NOT NULL,
+  `price_adjustment` decimal(10,2) DEFAULT '0.00',
   PRIMARY KEY (`service_id`,`pet_type`),
   CONSTRAINT `service_pet_types_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -373,10 +373,10 @@ DROP TABLE IF EXISTS `services`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL COMMENT '服务名称（如遛狗、寄养）',
-  `base_price` decimal(10,2) NOT NULL COMMENT '基础价格',
-  `duration` varchar(50) DEFAULT NULL COMMENT '默认时长（如1小时）',
-  `description` text COMMENT '服务描述',
+  `name` varchar(100) NOT NULL,
+  `base_price` decimal(10,2) NOT NULL,
+  `duration` varchar(50) DEFAULT NULL,
+  `description` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -400,9 +400,9 @@ DROP TABLE IF EXISTS `sitter_services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sitter_services` (
-  `sitter_id` bigint NOT NULL COMMENT '照看者用户ID',
+  `sitter_id` bigint NOT NULL,
   `service_id` int NOT NULL,
-  `custom_price` decimal(10,2) DEFAULT NULL COMMENT '照看者自定义价格',
+  `custom_price` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`sitter_id`,`service_id`),
   KEY `service_id` (`service_id`),
   CONSTRAINT `sitter_services_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
