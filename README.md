@@ -35,7 +35,11 @@ Our team members are:
 - Booking history and status tracking
 - Support for Dog Walking, In-Home Feeding, and Dog Grooming & Care services
 - Automatic order status updates (orders marked as "completed" 90 minutes after service end time)
-- Order time status categorization (upcoming, ongoing, completed) based on booking time
+- Order time status categorization based on booking time:
+  - **Upcoming**: If booking time is in the future
+  - **Ongoing**: If booking time is within the past 90 minutes
+  - **Completed**: If booking time was more than 90 minutes ago
+- **Note**: The system currently allows booking time slots for the upcoming week only, with each weekday automatically mapping to the next occurrence of that day. The system does not validate if the calculated booking time has already passed on the current day.
 
 ### 📜 Certification System
 - Sitters can upload certification documents
@@ -259,6 +263,7 @@ This logic is implemented in `setupTests.js` and only runs if `DB_NAME` equals `
    - Implement daily precision booking instead of the current weekly limitation
    - Allow users to select specific dates beyond the next week
    - Add a calendar view showing availability across multiple months
+   - Add validation to prevent booking time slots that have already passed
 
 2. **Cancellation Policy Management**
    - Implement tiered cancellation policies (e.g., free cancellation 24+ hours before, partial refund within 24 hours)
