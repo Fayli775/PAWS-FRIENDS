@@ -68,22 +68,21 @@ exports.updateProfile = async (req, res) => {
   });
 
   try {
-    // 2. 验证 req.body
+    // Validate req.body
     const validatedData = await schema.validate(req.body, { stripUnknown: true });
 
-    // 如果没有任何要更新的字段且没有上传头像
+    // If no fields provided and no avatar uploaded
     if (Object.keys(validatedData).length === 0 && !req.file) {
       return res.status(400).json({ message: 'No fields provided for update' });
     }
-    // 如果上传了头像，处理头像路径
+    // If avatar is uploaded, set avatar path
     if (req.fileUrlToStore) {
-      // 只存文件名
+      
       validatedData.avatar = req.fileUrlToStore; //req.file.filename;
     }
-    // 4. 调用 model 更新
+    // Update user profile in database
     await userModel.updateUserProfile(userId, validatedData);
 
-    // 获取更新后的用户数据
     const updatedUser = await userModel.getUserById(userId);
 
     res.status(200).json({ status: 'success', user: updatedUser });

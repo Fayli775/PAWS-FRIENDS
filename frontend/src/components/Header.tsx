@@ -13,7 +13,7 @@ import useAuth from '@/hooks/useAuth';
 
 const navItems = [
   { label: 'Site Share', path: '/site-share' },
-  { label: 'Events', path: '/#events-section' }, // 修改为锚点链接
+  { label: 'Events', path: '/#events-section' }, 
 ];
 
 export default function Header() {
