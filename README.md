@@ -34,6 +34,8 @@ Our team members are:
 - Automatic booking reminders (30-minute advance notifications)
 - Booking history and status tracking
 - Support for Dog Walking, In-Home Feeding, and Dog Grooming & Care services
+- Automatic order status updates (orders marked as "completed" 90 minutes after service end time)
+- Order time status categorization (upcoming, ongoing, completed) based on booking time
 
 ### 📜 Certification System
 - Sitters can upload certification documents
@@ -87,20 +89,6 @@ Our team members are:
 - **Clever Cloud** for database hosting
 - Private keys are submitted in "Assignment - Private info / API key / etc submission"
 
-### 🧪 Testing
-
-Run tests for both frontend and backend:
-
-```bash
-# Run all tests
-npm run test
-```
-
-The test suite includes:
-- Isolated test database with separate schema
-- Unit tests for controllers and models
-- Integration tests for API endpoints
-- Test database cleanup after each test run
 
 ## 🗂 Project Structure
 
@@ -170,14 +158,222 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 
-## 📝 Future Enhancements
+## 🧪 Testing
+This project includes **backend-only tests** for core features such as user authentication, profile management, pet handling, bookings, and reviews. These tests are run using [Jest](https://jestjs.io/) and [supertest](https://github.com/visionmedia/supertest), with an isolated MySQL test database.
 
-Planned features:
-- Real-time messaging between sitters and owners
-- Payment integration
-- Enhanced document validation
-- Role-based dashboards
-- Custom location contributions
+---
+
+### 🛠️ Setup for Testing
+
+Before running the tests, make sure to configure a dedicated test database. Create a `.env.test` file at the root of your backend project and include the following variables:
+
+```env
+NODE_ENV=test 
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=paws_friends_test
+```
+
+> ⚠️ DB_PASSWORD is your actual MySQL password. Leave it blank only if there's no password.
+
+Then, initialize the test database structure:
+
+There are two options to ensure `NODE_ENV=test` is set correctly:
+
+**Option 1 (Recommended): UNIX-style temporary variable**
+
+```bash
+NODE_ENV=test node scripts/initTestDB.js
+```
+
+Use this if you're on **macOS, Linux, Git Bash, WSL, or other POSIX terminals**.
+
+**Option 2: Windows cmd.exe compatible**
+
+```cmd
+set NODE_ENV=test && node scripts/initTestDB.js
+```
+
+Use this if you're on **Windows cmd.exe** (not PowerShell or Bash).
+
+
+### ▶️ Running the Tests
+
+Run all backend tests with:
+
+```bash
+npm run test
+```
+
+> If you have configured `NODE_ENV=test` in `.env.test` and use a test runner like `jest`, it may also work via `npx jest` or a script like:
+> ```json
+> "scripts": {
+>   "test": "jest --setupFiles ./backend/tests/setupTests.js"
+> }
+> ```
+
+During the test execution:
+- A mock user is registered and logged in using the setup file.
+- Each test performs authenticated API calls.
+- The test database is **automatically cleaned** after all tests (via `TRUNCATE` with foreign key checks disabled).
+
+---
+
+### 📂 Test Coverage
+
+| File                | Description                                  |
+|---------------------|----------------------------------------------|
+| `setupTests.js`     | Registers a mock user and prepares auth token |
+| `auth.test.js`      | Tests login and email uniqueness check        |
+| `user.test.js`      | Tests profile read/update/password change     |
+| `pet.test.js`       | Tests pet creation, update, deletion (with image upload) |
+| `booking.test.js`   | Tests booking creation                        |
+| `review.test.js`    | Tests review submission and validation        |
+
+Each test file uses `supertest` to simulate HTTP requests against the live server (`server.js`), and assertions are performed using Jest's `expect`.
+
+---
+
+### 🧹 Database Cleanup
+
+After the test suite completes, the following tables are **truncated** (emptied):
+
+```sql
+user_info, locations, pet_info, availability, booking, booking_status_log,
+booking_review, booking_complain, location_reviews, notice_info, services,
+service_languages, service_pet_types, sitter_services, user_certificates,
+user_languages
+```
+
+This logic is implemented in `setupTests.js` and only runs if `DB_NAME` equals `paws_friends_test`.
+
+## 📝 Future Improvements
+
+### Booking System Enhancements
+
+1. **Enhanced Calendar Flexibility**
+   - Implement daily precision booking instead of the current weekly limitation
+   - Allow users to select specific dates beyond the next week
+   - Add a calendar view showing availability across multiple months
+
+2. **Cancellation Policy Management**
+   - Implement tiered cancellation policies (e.g., free cancellation 24+ hours before, partial refund within 24 hours)
+   - Add cancellation reason tracking for analytics
+   - Implement automatic rebooking suggestions when cancellations occur
+
+3. **Service Customization**
+   - Allow sitters to offer customized service packages
+   - Enable pet owners to specify special requirements during booking
+   - Add service add-ons (e.g., extra walks, grooming, training)
+
+### Notification System Improvements
+
+1. **Enhanced Notice System**
+   - Add timestamps to all notifications
+   - Implement unread notification counters with visual indicators
+   - Improve notification organization with categories
+
+2. **Email Notifications**
+   - Send booking confirmations via email
+   - Implement service reminders (30 minutes before, as currently implemented in the app)
+   - Send review reminders after service completion
+
+3. **Notification Preferences**
+   - Allow users to customize which notifications they receive
+   - Add the ability to mute notifications temporarily
+
+### User Experience Enhancements
+
+1. **Performance Optimization**
+   - Optimize the MyBookings page loading speed
+   - Implement more efficient data fetching for reviews and booking history
+   - Add skeleton loading states for better perceived performance
+
+2. **Review System Improvements**
+   - Link reviews directly to their corresponding orders
+   - Add the ability to include photos in reviews
+   - Implement response capability for sitters to address reviews
+
+3. **Profile Enhancements**
+   - Add more detailed service description fields
+   - Implement better certificate management and display
+   - Add availability templates for quick calendar setup
+
+### Region-Based Features
+
+1. **Enhanced Region Selection**
+   - Implement more granular region selection (neighborhoods within Auckland regions)
+   - Add region-based pricing options for sitters
+   - Create region-specific service statistics and popularity metrics
+
+2. **Pet-Friendly Location Database**
+   - Expand the database of pet-friendly locations categorized by region
+   - Allow users to filter locations by amenities and pet requirements
+   - Implement user-submitted location suggestions with admin approval
+
+### Communication Features
+
+1. **Pre-booking Q&A**
+   - Implement a structured Q&A system for potential customers to ask questions before booking
+   - Add FAQ templates for sitters to save time answering common questions
+   - Create a public Q&A section on sitter profiles
+
+2. **Post-service Communication**
+   - Allow limited-time communication after service completion
+   - Implement templated follow-up messages for sitters
+
+### Payment System Integration
+
+1. **Secure Payment Processing**
+   - Integrate with payment gateways like Stripe or PayPal
+   - Implement secure payment holding until service completion
+   - Add support for multiple payment methods
+
+2. **Pricing Management**
+   - Allow sitters to set custom rates for different services
+   - Implement holiday and weekend rate adjustments
+   - Add loyalty discounts for repeat customers
+
+### Certificate Verification Improvements
+
+1. **Streamlined Verification Process**
+   - Improve the certificate upload and verification workflow
+   - Add automatic verification status updates
+   - Implement expiration tracking and renewal reminders for certificates
+
+2. **Badge Display Enhancement**
+   - Create a more prominent display of verification badges
+   - Add tooltips explaining verification requirements
+   - Implement verification level indicators (basic, standard, premium)
+
+### Administrative Features
+
+1. **Enhanced Admin Dashboard**
+   - Create comprehensive reporting and analytics
+   - Implement better user management tools
+   - Add certificate verification workflows
+
+2. **Content Management**
+   - Develop a system for managing the events carousel and emergency service information
+   - Add tools for updating region information and pet-friendly locations
+
+### Technical Improvements
+
+1. **API Optimization**
+   - Improve API response times for critical endpoints
+   - Add better caching strategies for frequently accessed data
+   - Optimize database queries for the booking system
+
+2. **Testing and Quality Assurance**
+   - Expand test coverage for critical application paths
+   - Implement end-to-end testing for core user flows
+   - Add automated performance testing
+
+3. **Internationalization**
+   - Improve multi-language support with better translation management
+   - Add language-specific content for the most common languages in NZ
 
 ## 📄 License
 

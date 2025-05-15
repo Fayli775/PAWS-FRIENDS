@@ -36,6 +36,28 @@ export default function MyBookings() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
   const { user, accessToken } = useAuth()
 
+  const autoUpdateBookingStatusToCompleted = async (bookingId: number) => {
+    try {
+      if (!accessToken) return false;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}/status`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'completed', note: 'Automatically completed after end time' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.status === 'success';
+      }
+      return false;
+    } catch (err) {
+      console.error(`Failed to auto-update booking ${bookingId} status to completed:`, err);
+      return false;
+    }
+  };
+
   useEffect(() => {
     const fetchMyBookings = async () => {
       try {
@@ -48,7 +70,8 @@ export default function MyBookings() {
           }
         )
 
-        const bookings = await Promise.all(res.data.bookings.map(async (b: any) => {
+        const fetchedBookings = res.data.bookings || [];
+        const processedBookings = await Promise.all(fetchedBookings.map(async (b: any) => {
           let review = ''
           let rating = null
           let complaint = ''
@@ -79,6 +102,7 @@ export default function MyBookings() {
             petName: b.pet_type,
             serviceType: b.service_type,
             bookingTime: b.start_time,
+            endTime: b.end_time,
             status: b.status || 'Pending',
             review,
             rating,
@@ -87,12 +111,24 @@ export default function MyBookings() {
             role: 'owner',
             owner_id: b.owner_id,
           }
+          
+          const currentStatus = (mapped.status || '').toLowerCase();
+          if (currentStatus === 'accepted' && mapped.endTime) {
+            const now = new Date();
+            const bookingEndTime = new Date(mapped.endTime);
+            if (now > bookingEndTime) {
+              const updateSuccess = await autoUpdateBookingStatusToCompleted(mapped.id);
+              if (updateSuccess) {
+                mapped.status = 'completed'; 
+              }
+            }
+          }
           console.log('📦 mapped booking:', mapped)
           return mapped
         }))
 
         console.log("🧩 current user id:", user?.id);
-        setOrders(bookings)
+        setOrders(processedBookings)
       } catch (err) {
         console.error('Failed to fetch my bookings:', err)
       }
@@ -142,22 +178,23 @@ export default function MyBookings() {
 
   const upcomingOrders = orders.filter((o) => 
     getTimeStatus(o.bookingTime) === 'upcoming' && 
-    o.status !== 'cancelled' && 
-    o.status !== 'rejected' &&
-    o.status !== 'completed'
+    o.status.toLowerCase() !== 'cancelled' && 
+    o.status.toLowerCase() !== 'rejected' &&
+    o.status.toLowerCase() !== 'completed'
   );
 
   const ongoingOrders = orders.filter((o) => 
     getTimeStatus(o.bookingTime) === 'ongoing' && 
-    o.status !== 'cancelled' && 
-    o.status !== 'rejected' &&
-    o.status !== 'completed'
+    o.status.toLowerCase() !== 'cancelled' && 
+    o.status.toLowerCase() !== 'rejected' &&
+    o.status.toLowerCase() !== 'completed'
   );
 
   const completedOrders = orders.filter((o) => 
     getTimeStatus(o.bookingTime) === 'completed' || 
-    o.status === 'cancelled' || 
-    o.status === 'rejected'
+    o.status.toLowerCase() === 'cancelled' || 
+    o.status.toLowerCase() === 'rejected' ||
+    o.status.toLowerCase() === 'completed'
   );
 
   const renderOrderCard = (order: any) => (

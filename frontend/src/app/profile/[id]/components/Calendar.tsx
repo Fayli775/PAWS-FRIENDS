@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -68,8 +67,8 @@ export default function Calendar({
   });
 
   const normalizeTime = (t: string) => t.slice(0, 5);
-
   const availabilityArrayToSelected = useCallback((slots: any[]) => {
+
     const result: Record<string, boolean> = {};
     slots.forEach((slot) => {
       const abbr = reverseMap[slot.weekday];
@@ -83,6 +82,7 @@ export default function Calendar({
     if (!accessToken) return;
     const targetUserId = userId || user?.id;
     if (!targetUserId) return;
+
 
     setLoading(true);
     try {
@@ -159,7 +159,6 @@ export default function Calendar({
       console.error("Error saving availability:", err);
     }
   };
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="300px">
@@ -207,6 +206,7 @@ export default function Calendar({
                       userSelect: "none",
                       opacity: isBooked ? 0.5 : 1,
                       fontSize: "12px",
+
                     }}
                   >
                     {isBooked ? "Booked" : selected[key] ? "✔️" : ""}
