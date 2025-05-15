@@ -25,13 +25,13 @@ describe('User Routes', () => {
             .put(`/api/users/updatePassword/${global.testContext.userId}`)
             .set('Authorization', `Bearer ${global.testContext.token}`)
             .send({
-                currentPassword: global.testContext.password, // ✅ 改成currentPassword
+                currentPassword: global.testContext.password, 
                 newPassword: 'Password456!',
             });
 
         expect(res.statusCode).toBe(200);
 
-        // 更新全局密码，后续使用
+        
         global.testContext.password = 'Password456!';
     });
 

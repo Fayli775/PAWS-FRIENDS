@@ -15,14 +15,14 @@ beforeAll(async () => {
         password: 'Password123!',
     };
 
-    // 读取一个mock图片文件，变成buffer
+    
     const imagePath = path.join(__dirname, 'mock-avatar.png');
     if (!fs.existsSync(imagePath)) {
         throw new Error('mock-avatar.png not found in tests folder. Please add a dummy image file.');
     }
     avatarBuffer = fs.readFileSync(imagePath);
 
-    // 注册
+ 
     const registerRes = await request(app)
         .post('/api/auth/register')
         .field('user_name', newUser.username)
@@ -39,7 +39,7 @@ beforeAll(async () => {
         token: '',
     };
 
-    // 登录
+    
     const loginRes = await request(app)
         .post('/api/auth/login')
         .send({
@@ -79,7 +79,7 @@ afterAll(async () => {
 
         await connection.query(`SET FOREIGN_KEY_CHECKS = 0`);
         for (const table of tables) {
-            await connection.query(`TRUNCATE TABLE \`${table}\``); // 注意加反引号，防止关键字冲突
+            await connection.query(`TRUNCATE TABLE \`${table}\``); 
         }
         await connection.query(`SET FOREIGN_KEY_CHECKS = 1`);
 

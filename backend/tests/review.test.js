@@ -30,7 +30,7 @@ describe('Review API', () => {
             expect(response.status).toBe(400);
         } catch (error) {
             console.error('Error response:', error.response?.data || error.message);
-            throw error; // 让 jest 捕获到 error，而不是卡住
+            throw error; 
         }
     });
 });
