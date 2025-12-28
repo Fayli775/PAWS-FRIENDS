@@ -15,14 +15,6 @@
 
 **Live Demo:**  **https://group-project-pied-pipers-i8dx.vercel.app**
 
-Our team members are:
-- Mengming Yang _(myan358@aucklanduni.ac.nz)_
-- July Xu _(jxu754@aucklanduni.ac.nz)_
-- Elaine Zhang _(byhz081@aucklanduni.ac.nz)_
-- Zhi Yan _(zyan296@aucklanduni.ac.nz)_
-- Pengfei Li _(pli775@aucklanduni.ac.nz)_
-- Zhen Zeng _(zzhe577@aucklanduni.ac.nz)_
-- Junlong Wang _(jwna891@aucklanduni.ac.nz)_
 
 ## 🌟 Core Features
 
