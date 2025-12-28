@@ -1,6 +1,6 @@
 # CS732 Group Project- 🐾 Paws' Friends – New Zealand's Pet Sitter Booking Platform
 
-Core Contributions:
+## Core Contributions:
 - Architected and implemented complete booking management system with finite state machine 
   validation (pending → accepted → completed/cancelled), preventing race conditions through 
   database-level constraints
