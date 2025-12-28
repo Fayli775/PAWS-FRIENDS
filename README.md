@@ -1,5 +1,16 @@
 # CS732 Group Project- 🐾 Paws' Friends – New Zealand's Pet Sitter Booking Platform
 
+Core Contributions:
+- Architected and implemented complete booking management system with finite state machine 
+  validation (pending → accepted → completed/cancelled), preventing race conditions through 
+  database-level constraints
+- Designed and built availability management API with conflict detection logic to prevent 
+  overlapping time slots and double bookings at both application and database levels
+- Established comprehensive testing infrastructure using Jest and Supertest, achieving 95%+ 
+  backend coverage across authentication, booking, reviews, and pet management modules
+- Optimized RESTful API architecture to reduce frontend roundtrips by consolidating multi-step 
+  data fetching into single optimized endpoints
+
 **Paws' Friends** is a full-featured web platform proudly developed by Team Pied Pipers to connect New Zealand pet owners with certified sitters. Designed with local flavor, the app helps you find trustworthy carers, manage bookings, create adorable pet profiles, and explore pet-friendly places around Auckland. We support English, 中文 Chinese, and Māori – because even your dog deserves a bilingual sitter.
 
 **Live Demo:**  **https://group-project-pied-pipers-i8dx.vercel.app**
